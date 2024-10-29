@@ -4,9 +4,11 @@ const messageController = require('../controllers/messageController');
 const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
 
-router.post('/', protect, sendMessage);
-router.get('/messages/', getAllMessages);
-router.get('/messages/:ticketId', protect, getMessagesByTicket);
-router.get('/messages/:ticketId', messageController.getMessagesByTicket);
+
+router.post('/:ticketId/messages', protect, sendMessage);
+
+router.get('/messages', protect, getAllMessages);
+
+router.get('/:ticketId/messages', protect, getMessagesByTicket);
 
 module.exports = router;
