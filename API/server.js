@@ -31,6 +31,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/ratings', ratingRoutes);
 app.use('/api/types', typeDeDemandeRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/tickets', messageRoutes);
 
 
 connectDB();
