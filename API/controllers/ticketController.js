@@ -49,7 +49,8 @@ exports.closeTicket = async (req, res) => {
 // Obtenir tous les tickets
 exports.getTickets = async (req, res) => {
     try {
-        const tickets = await Ticket.find().populate('userId productId typeDeDemandeId');
+        const filter = req.user.role === 'Client' ? { userId: req.user._id } : {}; // Filtre pour les clients
+        const tickets = await Ticket.find(filter).populate('userId productId typeDeDemandeId');
         res.status(200).json(tickets);
     } catch (error) {
         res.status(500).json({ message: 'Erreur lors de la récupération des tickets', error: error.message });
