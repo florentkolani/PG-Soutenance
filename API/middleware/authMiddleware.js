@@ -32,6 +32,11 @@ exports.protectAdmin = (req, res, next) => {
         res.status(403).json({ message: 'Accès interdit, utilisateur non autorisé' });
     }
 };
+const restrictToRoles = (...roles) => (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+        return res.status(403).json({ message: 'Accès interdit, utilisateur non autorisé' });
+    }
+    next();
+};
 
-
-module.exports = { protect };
+module.exports = { protect, restrictToRoles };
