@@ -43,6 +43,7 @@
         index % 2 === 0 ? 'mr-auto' : 'ml-auto'
       ]">
       <p>{{ index === 0 && message.isDescription ? message.content : `${message.userId?.name || 'Inconnu'}: ${message.content}` }}</p>
+      <p class="text-xs text-gray-500">{{ formatTime(message.createdAt) }}</p>
     </div>
   </div>
 </div>
@@ -147,7 +148,14 @@ export default {
         month: 'short',
         year: 'numeric'
       });
-    }
+    },
+    //permet d'afficher la date d'envoi des messages
+    formatTime(date) {
+  return new Date(date).toLocaleTimeString('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
   }
 };
 </script>
