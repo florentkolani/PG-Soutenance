@@ -16,7 +16,7 @@ const routes = [
   { path: '/utilisateurs', component: Utilisateurs },
     { path: '/tickets',    name: 'Tickets',component: Tickets },
   { path: '/TypeDeDemande', component: TypesDeDemandes },
-  {path: '/ticket/:ticketId',name: 'TicketDetails',component: TicketDetails,props: true}
+  {path: '/ticket/:ticketId',name: 'TicketDetails',component: TicketDetails,props: true},
 ];
 
 const router = createRouter({

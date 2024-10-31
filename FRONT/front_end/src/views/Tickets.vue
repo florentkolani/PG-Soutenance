@@ -38,7 +38,10 @@
             <td class="border px-4 py-2 text-center">{{ ticket.userId?.name || 'Inconnu' }}</td>
             <td class="border px-4 py-2 text-center">{{ ticket.typeDeDemandeId?.name || 'Inconnu' }}</td>
             <td class="border px-4 py-2 text-center">{{ ticket.productId?.name || 'Inconnu' }}</td>
-            <td class="border px-4 py-2 text-center">{{ ticket.urgence || 'Inconnu' }}</td>
+            <td class="border px-4 py-2 text-center">
+              <span v-if="ticket.urgence === 'urgent'" class="inline-block w-4 h-4 bg-red-500 rounded-full"></span>
+              <span v-else class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
+            </td>
             <td class="border px-4 py-2 text-center">
               <!-- Affichage des boutons de statut -->
               <span v-if="ticket.statut === 'ouvert'" class="inline-block w-4 h-4 bg-red-500 rounded-full"></span>
