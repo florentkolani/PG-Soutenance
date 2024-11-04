@@ -32,8 +32,8 @@
         </thead>
         <tbody class="text-gray-600 text-sm font-light">
           <tr v-for="type in types" :key="type._id" class="border-b border-gray-200 hover:bg-gray-100">
-            <td class="border border-gray-300 px-4 py-2">{{ type.name }}</td>
-            <td class="border border-gray-300 px-4 py-2">{{ type.description }}</td>
+            <td class="border border-gray-300 px-4 py-2 text-center">{{ type.name }}</td>
+            <td class="border border-gray-300 px-4 py-2 text-center">{{ type.description }}</td>
             <td class="border border-gray-300 px-4 py-2 text-center">
               <button @click="viewDetails(type)" class="bg-green-500 text-white px-2 py-1 rounded mr-2 hover:bg-green-600">Détails</button>
               <button @click="openEditModal(type)" class="bg-blue-500 text-white px-2 py-1 rounded mr-2 hover:bg-blue-600">Modifier</button>
@@ -62,17 +62,19 @@
     <TypeModal :showModal="showTypeModal" @close="showTypeModal = false" @type-added="getTypes" />
 
     <!-- Dialogue pour les détails -->
-    <div v-if="selectedType" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center text-center">
-      <div class="bg-white rounded-lg p-4 w-1/3 shadow-md">
-        <h2 class="text-xl font-bold mb-2 text-center">Détails du Type de Demande</h2>
-        <p><strong>ID:</strong> {{ selectedType._id }}</p>
-        <p><strong>Nom:</strong> {{ selectedType.name }}</p>
-        <p><strong>Description:</strong> {{ selectedType.description }}</p>
-        <div class="flex justify-center mt-4">
-          <button @click="closeDetails" class="bg-gray-500 text-white px-4 py-2 rounded-md">Fermer</button>
-        </div>
+  <div v-if="selectedType" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
+    <div class="bg-white rounded-lg p-6 w-1/3 shadow-md">
+      <h2 class="text-xl font-bold mb-4 text-center">Détails du Type de Demande</h2>
+      <div class="text-left space-y-2 pl-4">
+        <p><strong>ID :</strong> <span class="ml-2">{{ selectedType._id }}</span></p>
+        <p><strong>Nom :</strong> <span class="ml-2">{{ selectedType.name }}</span></p>
+        <p><strong>Description :</strong> <span class="ml-2">{{ selectedType.description }}</span></p>
+      </div>
+      <div class="flex justify-center mt-6">
+        <button @click="closeDetails" class="bg-gray-500 text-white px-4 py-2 rounded-md">Fermer</button>
       </div>
     </div>
+  </div>
 
     <!-- Dialogue pour l'édition -->
     <div v-if="editTypeData" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">

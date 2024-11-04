@@ -33,10 +33,10 @@
         </thead>
         <tbody class="text-gray-600 text-sm font-light">
           <tr v-for="product in products" :key="product._id" class="border-b border-gray-200 hover:bg-gray-100">
-            <td class="border border-gray-300 px-4 py-2">{{ product.name }}</td>
-            <td class="border border-gray-300 px-4 py-2">{{ product.description }}</td>
-            <td class="border border-gray-300 px-4 py-2">{{ new Date(product.createdAt).toLocaleDateString() }}</td>
-            <td class="border border-gray-300 px-4 py-2 text-center">
+            <td class=" px-4 py-2 text-center">{{ product.name }}</td>
+            <td class="px-4 py-2 text-center"> {{ truncateText(product.description, 50) }}</td>
+            <td class=" px-4 py-2 text-center">{{ new Date(product.createdAt).toLocaleDateString() }}</td>
+            <td class=" px-4 py-2 text-center">
               <button @click="viewDetails(product)" class="bg-green-500 text-white px-2 py-1 rounded mr-2 hover:bg-green-600">Détails</button>
               <button @click="openEditModal(product)" class="bg-blue-500 text-white px-2 py-1 rounded mr-2 hover:bg-blue-600">Modifier</button>
               <button @click="confirmArchive(product._id)" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Archiver</button>
@@ -49,17 +49,19 @@
     <!-- Product Modal -->
     <ProductModal :showModal="showProductModal" @close="showProductModal = false" @product-added="getProducts" />
 
-    <!-- Dialogue pour les détails -->
-    <div v-if="selectedProduct" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center text-center">
-      <div class="bg-white rounded-lg p-4 w-1/3 shadow-md">
-        <h2 class="text-xl font-bold mb-2">Détails du Produit</h2>
-        <p><strong>ID:</strong> {{ selectedProduct._id }}</p>
-        <p><strong>Nom:</strong> {{ selectedProduct.name }}</p>
-        <p><strong>Description:</strong> {{ selectedProduct.description }}</p>
-        <p><strong>Date de Création:</strong> {{ new Date(selectedProduct.createdAt).toLocaleDateString() }}</p>
-        <button @click="closeDetails" class="bg-gray-500 text-white px-4 py-2 mt-4 rounded-md">Fermer</button>
+   <!-- Dialogue pour les détails -->
+  <div v-if="selectedProduct" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center text-center">
+    <div class="bg-white rounded-lg p-6 w-1/3 shadow-md relative">
+      <h2 class="text-xl font-bold mb-4 text-center">Détails du Produit</h2>
+      <div class="text-left space-y-2 pl-4">
+        <p><strong>ID:</strong> <span class="ml-2">{{ selectedProduct._id }}</span></p>
+        <p><strong>Nom:</strong> <span class="ml-2">{{ selectedProduct.name }}</span></p>
+        <p><strong>Description:</strong> <span class="ml-2">{{ selectedProduct.description }}</span></p>
+        <p><strong>Date de Création:</strong> <span class="ml-2">{{ new Date(selectedProduct.createdAt).toLocaleDateString() }}</span></p>
       </div>
+      <button @click="closeDetails" class="bg-gray-500 text-white px-4 py-2 mt-6 rounded-md mx-auto block">Fermer</button>
     </div>
+  </div>
 
     <!-- Dialogue pour l'édition -->
     <div v-if="editProductData" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
@@ -130,6 +132,12 @@ export default {
   methods: {
     getToken() {
       return localStorage.getItem('token');
+    },
+    truncateText(text, length) {
+      if (text.length > length) {
+        return text.substring(0, length) + '...';
+      }
+      return text;
     },
 
     checkAuthorization() {
