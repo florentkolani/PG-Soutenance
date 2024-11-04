@@ -4,7 +4,7 @@ exports.createTicket = async (req, res) => {
     console.log("Données reçues :", req.body);
     try {
         // Vérifier que les champs requis sont présents
-        const requiredFields = ['userId', 'urgence', 'status']; // Utilisez 'status' au lieu de 'statut'
+        const requiredFields = ['userId', 'urgence', 'status']; 
         for (const field of requiredFields) {
             if (!req.body[field]) {
                 return res.status(400).json({ message: `Le champ ${field} est requis.` });
