@@ -16,6 +16,11 @@ export function getUserRole() {
 export function logout() {
   localStorage.removeItem('token');
 }
+
+export function getToken() {
+  return localStorage.getItem('token');
+}
+
 //recuperation des info
 export function getUserInfo() {
   try {
@@ -23,11 +28,10 @@ export function getUserInfo() {
     if (!token) return null;
 
     const decoded = jwt_decode(token);
-    const userId = decoded.id;
+    const userId = decoded._id;
 
-    // Récupérer les informations utilisateur depuis l'API en utilisant l'ID
-    return axios.get(`/api/users/${userId}`).then(response => {
-      return response.data; // Retourne les données utilisateur (nom, email)
+    return axios.get(`http://localhost:5000/api/users/${userId}`).then(response => {
+      return response.data;
     }).catch(error => {
       console.error('Erreur lors de la récupération des informations utilisateur:', error);
       return null;
@@ -36,4 +40,5 @@ export function getUserInfo() {
     console.error('Erreur lors du décodage du token:', error);
     return null;
   }
+  
 }

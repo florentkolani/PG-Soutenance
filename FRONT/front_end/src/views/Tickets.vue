@@ -31,10 +31,11 @@
             <th class="py-2">Urgence</th>
             <th class="py-2">Statut</th>
             <th class="py-2">Date de Création</th>
+            <th class="py-2">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="ticket in tickets" :key="ticket._id" @click="openTicket(ticket)">
+          <tr v-for="ticket in tickets" :key="ticket._id">
             <td class="border px-4 py-2 text-center">{{ ticket.userId?.name || 'Inconnu' }}</td>
             <td class="border px-4 py-2 text-center">{{ ticket.typeDeDemandeId?.name || 'Inconnu' }}</td>
             <td class="border px-4 py-2 text-center">{{ ticket.productId?.name || 'Inconnu' }}</td>
@@ -43,61 +44,99 @@
               <span v-else class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
             </td>
             <td class="border px-4 py-2 text-center">
-              <!-- Affichage des boutons de statut -->
               <span v-if="ticket.statut === 'ouvert'" class="inline-block w-4 h-4 bg-red-500 rounded-full"></span>
-              <span v-if="ticket.statut === 'en cours'" class="inline-block w-4 h-4 bg-yellow-500 rounded-full"></span>
-              <span v-if="ticket.statut === 'fermé'" class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
+              <span v-else-if="ticket.statut === 'en cours'" class="inline-block w-4 h-4 bg-yellow-500 rounded-full"></span>
+              <span v-else class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
             </td>
             <td class="border px-4 py-2 text-center">{{ new Date(ticket.createdAt).toLocaleDateString() }}</td>
+            <td class="border px-4 py-2 text-center flex justify-center space-x-2">
+              <!-- Bouton pour ouvrir la conversation -->
+              <button @click="openTicketDetails(ticket)" class="text-gray-700 hover:text-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m0 0H4.55M9 12h5l2.5 8.5M9 12H4.55M9 12v3m-1.6 5h7.2M9 9l-2.5 8.5M15 12l2.5 8.5M15 12l-2.5-8.5" />
+                </svg>
+              </button>
+              <!-- Bouton pour ouvrir le modal d'édition -->
+              <button @click="openTicketModal(ticket)" class="text-gray-700 hover:text-green-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11V4m-7 7h14m-7 7v-3m-2-5h7m-3 0h4" />
+                </svg>
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
     </main>
 
-    <!-- Ticket Modal -->
-    <TicketModal :showModal="showTicketModal" @close="showTicketModal = false" />
+    <!-- Modals -->
+    <TicketModal
+      :showModal="showTicketModal"
+      :isEdit="isEdit"
+      :ticket="selectedTicket"
+      @close="closeTicketModal"
+      @create-ticket="createTicket"
+      @update-ticket="updateTicket"
+    />
   </div>
 </template>
 
 <script>
-import axios from 'axios';
 import TicketModal from '@/components/layouts/TicketModal.vue';
+import axios from 'axios';
 
 export default {
-  name: 'Tickets',
   components: {
     TicketModal,
   },
   data() {
     return {
       showTicketModal: false,
-      tickets: []
+      isEdit: false,
+      tickets: [],
+      selectedTicket: null,
     };
   },
   mounted() {
-    // Récupérer les tickets à partir de l'API
-    const token = localStorage.getItem('token');
-    axios.get('http://localhost:5000/api/tickets', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-    .then(response => {
-      this.tickets = response.data;
-    })
-    .catch(error => {
-      console.error("Erreur lors de la récupération des tickets :", error);
-    });
+    this.fetchTickets();
   },
   methods: {
-    openTicket(ticket) {
-      // Ouvrir le ticket sélectionné (fonctionnalité à implémenter)
-      this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
-    }
-  }
+    fetchTickets() {
+      const token = localStorage.getItem('token');
+      axios
+        .get('http://localhost:5000/api/tickets', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then(response => (this.tickets = response.data))
+        .catch(error => console.error('Erreur lors de la récupération des tickets:', error));
+    },
+    openTicketDetails(ticket) {
+    this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
+  },
+    openTicketModal(ticket = null) {
+      this.selectedTicket = ticket ? { ...ticket } : {};
+      this.isEdit = !!ticket;
+      this.showTicketModal = true;
+    },
+    closeTicketModal() {
+      this.showTicketModal = false;
+      this.selectedTicket = null;
+    },
+    createTicket(ticketData) {
+      axios
+        .post('http://localhost:5000/api/tickets', ticketData)
+        .then(() => {
+          this.fetchTickets();
+        })
+        .catch(error => console.error('Erreur lors de la création du ticket:', error));
+    },
+    updateTicket(ticketData) {
+      axios
+        .put(`http://localhost:5000/api/tickets/${ticketData._id}`, ticketData)
+        .then(() => {
+          this.fetchTickets();
+        })
+        .catch(error => console.error('Erreur lors de la mise à jour du ticket:', error));
+    },
+  },
 };
 </script>
-
-<style scoped>
-/* Ajouter du style si nécessaire */
-</style>

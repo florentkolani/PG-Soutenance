@@ -8,7 +8,6 @@
       </div>
 
       <nav class="space-y-4">
-        <!-- Lien pour les différentes sections du menu selon le rôle -->
         <li v-if="role === 'Admin'">
           <AdminModules />
         </li>
@@ -31,12 +30,15 @@
         <div class="flex items-center space-x-4">
           <!-- User Welcome and Info moved to the right -->
           <div class="text-right">
-            <h3 class="text-lg font-semibold">Bienvenue, {{ userInfo?.name || 'Utilisateur' }}</h3>
-            <p class="text-sm text-gray-600">Email : {{ userInfo?.email || 'Non disponible' }}</p>
+            <h3 class="text-lg font-semibold">{{ userInfo?.name || 'Utilisateur' }}</h3>
+            <p class="text-sm text-gray-600">{{ userInfo?.email || 'Non disponible' }}</p>
           </div>
-          <!-- Logo at the end -->
-          <img src="@/assets/logo.png" alt="Logo" class="h-8 w-8 rounded-full" />
-        </div>
+          
+<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
+  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+</svg>
+</div>
+
       </header>
 <!-- Main View with Transition -->
       <transition name="fade" mode="out-in">
@@ -51,7 +53,7 @@
 </template>
 
 <script>
-import { getUserRole, getUserInfo } from '@/services/authService';
+import { getUserRole, getToken } from '@/services/authService';
 import AdminModules from '@/components/modules/AdminModules.vue';
 import ClientModules from '@/components/modules/ClientModules.vue';
 import AgentSupportModules from '@/components/modules/AgentSupportModules.vue';
@@ -62,20 +64,33 @@ export default {
   data() {
     return {
       role: null,
-      userInfo: null, // Contiendra les informations de l'utilisateur
+      userInfo: null,
     };
   },
 
-  created() {
-    // Récupération du rôle de l'utilisateur
+  async created() {
     this.role = getUserRole();
 
-    // Récupération des informations de l'utilisateur
-    const userInfo = getUserInfo();
-    if (userInfo) {
-      this.userInfo = userInfo;
+    const token = getToken();
+    if (token) {
+      const decoded = jwt_decode(token);
+
+      if (decoded.name && decoded.email) {
+        this.userInfo = {
+          name: decoded.name,
+          email: decoded.email,
+        };
+      } else {
+        // Sinon, récupère les informations via une API (si nécessaire)
+        try {
+          const userInfo = await fetchUserInfo(decoded.id);
+          this.userInfo = userInfo;
+        } catch (error) {
+          console.error("Erreur lors de la récupération des informations de l'utilisateur :", error);
+        }
+      }
     } else {
-      console.error("Les informations de l'utilisateur n'ont pas pu être récupérées.");
+      console.error("Token non disponible");
     }
   },
   
@@ -86,14 +101,22 @@ export default {
     TicketChart
   }
 };
+
+async function fetchUserInfo(userId) {
+  const response = await fetch(`http://localhost:5000/api/users/${userId}`);
+  console.log(response);
+  
+  if (!response.ok) throw new Error("Échec de la récupération des informations utilisateur");
+  return await response.json();
+}
 </script>
 
+
 <style scoped>
-/* Animation de fondu pour les transitions */
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.5s;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+.fade-enter, .fade-leave-to  {
   opacity: 0;
 }
 
