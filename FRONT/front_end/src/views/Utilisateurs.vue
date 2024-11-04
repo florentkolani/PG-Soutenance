@@ -78,18 +78,20 @@
       <!-- Modal d'enregistrement d'utilisateur -->
       <UserModal v-if="showModal" @close="showModal = false" />
 
-      <!-- Modal de détails -->
-      <div v-if="showDetailsModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center text-center">
-        <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-          <h2 class="text-xl font-bold mb-4">Détails de l'utilisateur</h2>
-          <p><strong>Id :</strong> {{ selectedUser._id }}</p>
-          <p><strong>Nom :</strong> {{ selectedUser.name }}</p>
-          <p><strong>Email :</strong> {{ selectedUser.email }}</p>
-          <p><strong>Contact :</strong> {{ selectedUser.contact }}</p>
-          <p><strong>Rôle :</strong> {{ selectedUser.role }}</p>
-          <button @click="closeDetailsModal" class="mt-4 bg-green-500 text-white px-4 py-2 rounded">Fermer</button>
-        </div>
+       <!-- Modal de détails -->
+  <div v-if="showDetailsModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center text-center">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96 relative">
+      <h2 class="text-xl font-bold mb-6 text-center">Détails de l'utilisateur</h2>
+      <div class="text-left space-y-2 pl-4">
+        <p><strong>Id :</strong> <span class="ml-2">{{ selectedUser._id }}</span></p>
+        <p><strong>Nom :</strong> <span class="ml-2">{{ selectedUser.name }}</span></p>
+        <p><strong>Email :</strong> <span class="ml-2">{{ selectedUser.email }}</span></p>
+        <p><strong>Contact :</strong> <span class="ml-2">{{ selectedUser.contact }}</span></p>
+        <p><strong>Rôle :</strong> <span class="ml-2">{{ selectedUser.role }}</span></p>
       </div>
+      <button @click="closeDetailsModal" class="mt-6 bg-green-500 text-white px-4 py-2 rounded mx-auto block">Fermer</button>
+    </div>
+  </div>
 
       <!-- Modal pour l'édition d'utilisateur -->
       <div v-if="editUserData" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">

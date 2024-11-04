@@ -49,24 +49,44 @@
               <span v-else class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
             </td>
             <td class="border px-4 py-2 text-center">{{ new Date(ticket.createdAt).toLocaleDateString() }}</td>
-            <td class="border px-4 py-2 text-center flex justify-center space-x-2">
-              <!-- Bouton pour ouvrir la conversation -->
-              <button @click="openTicketDetails(ticket)" class="text-gray-700 hover:text-blue-500">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m0 0H4.55M9 12h5l2.5 8.5M9 12H4.55M9 12v3m-1.6 5h7.2M9 9l-2.5 8.5M15 12l2.5 8.5M15 12l-2.5-8.5" />
-                </svg>
-              </button>
-              <!-- Bouton pour ouvrir le modal d'édition -->
-              <button @click="openTicketModal(ticket)" class="text-gray-700 hover:text-green-500">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11V4m-7 7h14m-7 7v-3m-2-5h7m-3 0h4" />
-                </svg>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </main>
+            <td class="border px-4 py-2 text-center">
+  <div class="relative inline-block text-left">
+    <!-- Bouton des trois points pour ouvrir le dropdown -->
+    <button @click="toggleDropdown(ticket._id)" class="text-gray-700 hover:text-gray-500 focus:outline-none">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" stroke="none">
+        <circle cx="5" cy="12" r="1.5" />
+        <circle cx="12" cy="12" r="1.5" />
+        <circle cx="19" cy="12" r="1.5" />
+      </svg>
+    </button>
+
+    <!-- Dropdown menu avec les boutons d'actions -->
+    <div v-if="dropdownOpen === ticket._id" class="absolute right-0 mt-2 w-28 bg-white border border-gray-200 rounded shadow-lg">
+      <button @click="openTicketDetails(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m0 0H4.55M9 12h5l2.5 8.5M9 12H4.55M9 12v3m-1.6 5h7.2M9 9l-2.5 8.5M15 12l2.5 8.5M15 12l-2.5-8.5" />
+        </svg>
+        Message
+      </button>
+      <button @click="openTicketModal(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11V4m-7 7h14m-7 7v-3m-2-5h7m-3 0h4" />
+        </svg>
+        Modifier
+      </button>
+    <button @click="openRatingModal(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m0 0l-3 3m3-3l-3-3" />
+    </svg>
+    Noter
+    </button>
+    </div>
+  </div>
+</td>
+</tr>
+</tbody>
+</table>
+ </main>
 
     <!-- Modals -->
     <TicketModal
@@ -94,11 +114,17 @@ export default {
       isEdit: false,
       tickets: [],
       selectedTicket: null,
+      dropdownOpen: null,
     };
   },
   mounted() {
     this.fetchTickets();
+    document.addEventListener('click', this.closeDropdownOnClickOutside);
   },
+  beforeDestroy() {
+    document.removeEventListener('click', this.closeDropdownOnClickOutside);
+  },
+
   methods: {
     fetchTickets() {
       const token = localStorage.getItem('token');
@@ -108,6 +134,15 @@ export default {
         })
         .then(response => (this.tickets = response.data))
         .catch(error => console.error('Erreur lors de la récupération des tickets:', error));
+    },
+    toggleDropdown(id) {
+      this.dropdownOpen = this.dropdownOpen === id ? null : id;
+    },
+
+    closeDropdownOnClickOutside(event) {
+      if (!this.$el.contains(event.target)) {
+        this.dropdownOpen = null;
+      }
     },
     openTicketDetails(ticket) {
     this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
