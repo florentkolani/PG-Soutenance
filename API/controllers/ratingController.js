@@ -23,3 +23,16 @@ exports.getRatingByTicket = async (req, res) => {
         res.status(500).json({ message: 'Erreur lors de la récupération de la note', error });
     }
 };
+
+// vérifie si le ticket est déjà noté ou pas 
+exports.ratingExists = async (req, res) => {
+    try {
+        const rating = await Rating.findOne({ ticketId: req.params.ticketId });
+        if (rating) {
+            return res.status(200).json({ exists: true });
+        }
+        res.status(200).json({ exists: false });
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors de la vérification de la note', error });
+    }
+};
