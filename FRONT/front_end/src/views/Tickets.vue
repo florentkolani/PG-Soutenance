@@ -74,12 +74,12 @@
         </svg>
         Modifier
       </button>
-    <button @click="openRatingModal(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m0 0l-3 3m3-3l-3-3" />
-    </svg>
-    Noter
-    </button>
+      <button @click="openRatingModal(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m0 0l-3 3m3-3l-3-3" />
+        </svg>
+        Noter
+     </button>
     </div>
   </div>
 </td>
@@ -97,24 +97,35 @@
       @create-ticket="createTicket"
       @update-ticket="updateTicket"
     />
+    <RatingModal
+  :showModal="showRatingModal"
+  :ticketId="selectedTicketId"
+  @close="closeRatingModal"
+  @submit-rating="submitRating"
+/>
   </div>
+  
 </template>
 
 <script>
 import TicketModal from '@/components/layouts/TicketModal.vue';
+import RatingModal from '@/components/layouts/RatingModal.vue';
 import axios from 'axios';
 
 export default {
   components: {
     TicketModal,
+    RatingModal,
   },
   data() {
     return {
       showTicketModal: false,
+      showRatingModal: false,
       isEdit: false,
       tickets: [],
       selectedTicket: null,
       dropdownOpen: null,
+      selectedTicketId: null,
     };
   },
   mounted() {
@@ -145,8 +156,8 @@ export default {
       }
     },
     openTicketDetails(ticket) {
-    this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
-  },
+      this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
+    },
     openTicketModal(ticket = null) {
       this.selectedTicket = ticket ? { ...ticket } : {};
       this.isEdit = !!ticket;
@@ -172,6 +183,57 @@ export default {
         })
         .catch(error => console.error('Erreur lors de la mise à jour du ticket:', error));
     },
+
+    openRatingModal(ticket) {
+  const token = localStorage.getItem('token');
+  this.selectedTicketId = ticket._id;
+
+  axios
+    .get(`http://localhost:5000/api/ratings/ticket/${this.selectedTicketId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then(response => {
+      if (response.data) { 
+        alert("Vous avez déjà noté ce ticket.");
+      } else {
+        this.showRatingModal = true; 
+      }
+    })
+    .catch(error => {
+      if (error.response && error.response.status === 404) {
+        this.showRatingModal = true;
+      } else {
+        console.error('Erreur lors de la vérification de la note:', error);
+      }
+    });
+}
+,
+
+    closeRatingModal() {
+      this.showRatingModal = false;
+      this.selectedTicketId = null;
+    },
+    submitRating(ratingData) {
+      const token = this.getToken();
+
+      axios.post('http://localhost:5000/api/ratings', ratingData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(() => {
+          this.closeRatingModal();
+        })
+        .catch(error => {
+          console.error('Erreur lors de la soumission de la note:', error);
+        });
+    },
+
+    getToken() {
+      return localStorage.getItem('token');
+    },
   },
-};
+}
 </script>
