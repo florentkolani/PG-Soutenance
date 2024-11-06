@@ -109,15 +109,25 @@
       </div>
     </div>
   </div>
+
+  <!-- Pagination -->
+  <Pagination
+        :total-items="totalItems" 
+        :items-per-page="itemsPerPage" 
+        @page-changed="goToPage" 
+      />
 </template>
 
 <script>
 import TypeModal from '@/components/layouts/TypeDeDemandeModal.vue';
+import Pagination from '@/components/layouts/Pagination.vue'; 
+
 
 export default {
   name: 'TypesDeDemande',
   components: {
     TypeModal,
+    Pagination,
   },
   data() {
     return {
@@ -128,6 +138,9 @@ export default {
       confirmArchiveId: null,
       alertMessage: '',
       alertTitle: '',
+      currentPage: 1, // Page actuelle
+      itemsPerPage: 10, // Nombre d'éléments par page
+      totalItems: 0, // Nombre total d'éléments
     };
   },
   methods: {
@@ -144,24 +157,32 @@ export default {
       return token;
     },
 
-    // Récupérer la liste des types de demandes depuis l'API
     async getTypes() {
-      const token = this.checkAuthorization();
-      if (!token) return;
+    const token = this.checkAuthorization();
+    if (!token) return;
 
-      try {
-        const response = await fetch(`http://localhost:5000/api/types`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+    try {
+        const response = await fetch(`http://localhost:5000/api/types?page=${this.currentPage}&limit=${this.itemsPerPage}`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
         });
+
         if (!response.ok) throw new Error('Erreur lors de la récupération des types de demande.');
+
         const data = await response.json();
-        this.types = data;
-      } catch (error) {
+        this.types = data.types;
+        this.totalItems = data.totalItems;
+        this.totalPages = data.totalPages;
+        this.currentPage = data.currentPage;
+    } catch (error) {
         console.error(error);
-      }
+    }
+},
+    goToPage(page) {
+      this.currentPage = page;
+      this.getTypes(); 
     },
     openModal() {
       this.showTypeModal = true;
@@ -178,6 +199,19 @@ export default {
     closeEditModal() {
       this.editTypeData = null;
     },
+
+    closeConfirmArchive() {
+      this.confirmArchiveId = null; 
+  },
+  confirmArchive(id) {
+      this.confirmArchiveId = id;
+    },
+
+  },
+  mounted() {
+    this.getTypes(); 
+    },
+    
     async updateType() {
       const token = this.getToken();
       if (!token) return;
@@ -205,9 +239,7 @@ export default {
         this.closeEditModal();
       }
     },
-    confirmArchive(id) {
-      this.confirmArchiveId = id;
-    },
+    
     async archiveType() {
       const token = this.getToken();
       if (!token) return;
@@ -233,10 +265,7 @@ export default {
         this.confirmArchiveId = null;
       }
     },
-    closeConfirmArchive() {
-      this.confirmArchiveId = null;
-    }
-  },
+
   mounted() {
     this.getTypes();
   },

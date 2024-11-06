@@ -13,15 +13,40 @@ exports.createTypeDeDemande = async (req, res) => {
     }
 };
 
-// Obtenir tous les types de demande
 exports.getAllTypesDeDemande = async (req, res) => {
     try {
-        const typesDeDemande = await TypeDeDemande.find();
-        res.status(200).json(typesDeDemande);
+        // Récupérer les paramètres de requête pour la pagination
+        const page = parseInt(req.query.page) || 1; 
+        const limit = parseInt(req.query.limit) || 10; 
+
+        // Calculer le nombre total d'éléments
+        const totalTypesDeDemande = await TypeDeDemande.countDocuments();
+
+        // Calculer les éléments à sauter pour la pagination
+        const skip = (page - 1) * limit;
+
+        // Récupérer les types de demande avec pagination
+        const typesDeDemande = await TypeDeDemande.find()
+            .skip(skip)
+            .limit(limit);
+
+        // Calculer le nombre total de pages
+        const totalPages = Math.ceil(totalTypesDeDemande / limit);
+
+        // Renvoyer les résultats avec des informations de pagination
+        res.status(200).json({
+            types: typesDeDemande,
+            totalItems: totalTypesDeDemande,
+            totalPages: totalPages,
+            currentPage: page,
+            itemsPerPage: limit
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Erreur lors de la récupération des types de demande', error });
+        console.error(error); // Plus de détails sur l'erreur
+        res.status(500).json({ message: 'Erreur lors de la récupération des types de demande', error: error.message });
     }
 };
+
 
 // Obtenir un type de demande par son ID
 exports.getTypeDeDemandeById = async (req, res) => {

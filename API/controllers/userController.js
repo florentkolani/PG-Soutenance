@@ -79,12 +79,26 @@ exports.getUserProfile = async (req, res) => {
     }
 };
 
-// Récupérer tous les utilisateurs
+// Récupérer tous les utilisateurs non archivés avec pagination
 exports.getAllUsers = async (req, res) => {
     console.log('getAllUsers called');
+
+    const page = parseInt(req.query.page) || 1; 
+    const limit = parseInt(req.query.limit) || 10;
+
     try {
-        const users = await User.find(); // Récupérer tous les utilisateurs
-        res.json(users);
+        
+        const skip = (page - 1) * limit;
+
+        const users = await User.find({ isArchived: false }).skip(skip).limit(limit);
+
+        const totalUsers = await User.countDocuments({ isArchived: false });
+        res.json({
+            data: users,
+            totalItems: totalUsers,
+            totalPages: Math.ceil(totalUsers / limit),
+            currentPage: page
+        });
     } catch (error) {
         res.status(500).json({ message: 'Erreur lors de la récupération des utilisateurs', error });
     }
@@ -101,7 +115,6 @@ exports.getUserById = async (req, res) => {
         res.status(500).json({ message: 'Erreur lors de la récupération de l\'utilisateur', error: error.message });
     }
 }
-// update user
 // Mettre à jour un utilisateur
 exports.updateUser = async (req, res) => {
     const { name, email, password, contact, role } = req.body;
