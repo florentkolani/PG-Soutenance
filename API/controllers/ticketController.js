@@ -46,12 +46,30 @@ exports.closeTicket = async (req, res) => {
     }
 };
 
-// Obtenir tous les tickets
+// Obtenir tous les tickets avec pagination
 exports.getTickets = async (req, res) => {
     try {
         const filter = req.user.role === 'Client' ? { userId: req.user._id } : {}; // Filtre pour les clients
-        const tickets = await Ticket.find(filter).populate('userId productId typeDeDemandeId');
-        res.status(200).json(tickets);
+
+        // Récupération des paramètres de pagination
+        const page = parseInt(req.query.page) || 1; // Page actuelle, par défaut à 1
+        const limit = parseInt(req.query.limit) || 10; // Limite, par défaut à 10
+        const skip = (page - 1) * limit; // Nombre d'éléments à ignorer
+
+        // Compter le nombre total de tickets correspondant au filtre
+        const total = await Ticket.countDocuments(filter);
+
+        // Récupérer les tickets avec pagination
+        const tickets = await Ticket.find(filter)
+            .populate('userId productId typeDeDemandeId')
+            .skip(skip)
+            .limit(limit);
+
+        // Retourner les tickets et le total
+        res.status(200).json({
+            tickets,
+            total, // Retourner le total pour la pagination
+        });
     } catch (error) {
         res.status(500).json({ message: 'Erreur lors de la récupération des tickets', error: error.message });
     }

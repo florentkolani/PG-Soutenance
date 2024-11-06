@@ -108,15 +108,24 @@
       <button @click="errorMessage = null" class="ml-2 text-sm">X</button>
     </div>
   </div>
+
+  <!-- Pagination -->
+ <Pagination
+        :total-items="totalItems" 
+        :items-per-page="itemsPerPage" 
+        @page-changed="goToPage" 
+      />
 </template>
 
 <script>
 import ProductModal from '@/components/layouts/ProductModal.vue';
+import Pagination from '@/components/layouts/Pagination.vue';
 
 export default {
   name: 'Produits',
   components: {
     ProductModal,
+    Pagination,
   },
   data() {
     return {
@@ -127,6 +136,10 @@ export default {
       confirmArchiveId: null,
       alertMessage: null,
       errorMessage: null,
+      currentPage: 1,
+      itemsPerPage: 10,
+      totalItems: 0,
+      totalPages: 1,
     };
   },
   methods: {
@@ -139,7 +152,6 @@ export default {
       }
       return text;
     },
-
     checkAuthorization() {
       const token = this.getToken();
       if (!token) {
@@ -149,13 +161,12 @@ export default {
       }
       return token;
     },
-
     async getProducts() {
       const token = this.checkAuthorization();
       if (!token) return;
 
       try {
-        const response = await fetch('http://localhost:5000/api/products', {
+        const response = await fetch(`http://localhost:5000/api/products?page=${this.currentPage}&limit=${this.itemsPerPage}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -164,7 +175,10 @@ export default {
         });
 
         if (response.ok) {
-          this.products = await response.json();
+          const data = await response.json();
+          this.products = data.products;
+          this.totalItems = data.pagination.totalProducts;
+          this.totalPages = data.pagination.totalPages;
         } else if (response.status === 401) {
           console.error("Non autorisé. Redirection vers la page de connexion.");
           this.$router.push('/login');
@@ -177,23 +191,22 @@ export default {
         this.showError("Erreur réseau. Veuillez réessayer.");
       }
     },
-
+    changePage(page) {
+      this.currentPage = page;
+      this.getProducts();
+    },
     viewDetails(product) {
       this.selectedProduct = product;
     },
-
     closeDetails() {
       this.selectedProduct = null;
     },
-
     openEditModal(product) {
       this.editProductData = { ...product };
     },
-
     closeEditModal() {
       this.editProductData = null;
     },
-
     async updateProduct() {
       const token = this.checkAuthorization();
       if (!token) return;
@@ -224,21 +237,18 @@ export default {
         this.showError("Erreur réseau. Veuillez réessayer.");
       }
     },
-
     confirmArchive(productId) {
       this.confirmArchiveId = productId;
     },
-
     closeConfirmArchive() {
       this.confirmArchiveId = null;
     },
-
     async archiveProduct() {
       const token = this.checkAuthorization();
       if (!token) return;
 
       try {
-        const response = await fetch(`http://localhost:5000/api/products/${this.archiveProduct}/archive`, {
+        const response = await fetch(`http://localhost:5000/api/products/${this.confirmArchiveId}/archive`, {
           method: 'PATCH',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -262,21 +272,21 @@ export default {
         this.showError("Erreur réseau. Veuillez réessayer.");
       }
     },
-
-    // Nouvelle méthode pour afficher un message d'alerte
     showAlert(message) {
       this.alertMessage = message;
       setTimeout(() => {
         this.alertMessage = null;
       }, 3000); // Disparaît après 3 secondes
     },
-
-    // Nouvelle méthode pour afficher un message d'erreur
     showError(message) {
       this.errorMessage = message;
       setTimeout(() => {
         this.errorMessage = null;
       }, 3000); // Disparaît après 3 secondes
+    },
+    goToPage(page) {
+      this.currentPage = page;
+      this.getProducts(); 
     },
   },
   mounted() {
@@ -284,8 +294,3 @@ export default {
   },
 };
 </script>
-
-
-<style scoped>
-/* Ajoutez vos styles personnalisés ici si nécessaire */
-</style>

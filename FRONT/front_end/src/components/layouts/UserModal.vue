@@ -119,7 +119,7 @@ export default {
     };
   },
   methods: {
-    async registerUser() {
+    async registerUser () {
       try {
         const response = await fetch('http://localhost:5000/api/auth/register', {
           method: 'POST',
@@ -128,20 +128,24 @@ export default {
           },
           body: JSON.stringify(this.user),
         });
+
+        // Vérifiez si la réponse est correcte
         if (response.ok) {
           this.dialogType = 'success';
-          this.dialogMessage = 'User registered successfully';
+          this.dialogMessage = 'User  registered successfully';
           this.showDialog = true;
           this.resetForm();
         } else {
+          // Récupérez le message d'erreur du serveur
+          const errorData = await response.json();
           this.dialogType = 'error';
-          this.dialogMessage = 'Failed to register user';
+          this.dialogMessage = errorData.message || 'Failed to register user';
           this.showDialog = true;
         }
       } catch (error) {
         console.error('Error registering user:', error);
         this.dialogType = 'error';
-        this.dialogMessage = 'An error occurred';
+        this.dialogMessage = 'An error occurred while registering the user';
         this.showDialog = true;
       }
     },

@@ -145,17 +145,26 @@
   </div>
 </div>
   </div>
+  
+  <!-- Pagination -->
+<Pagination
+        :total-items="totalItems" 
+        :items-per-page="itemsPerPage" 
+        @page-changed="goToPage" 
+      />
 </template>
 
 
 <script>
 import axios from 'axios';
 import UserModal from '@/components/layouts/UserModal.vue';
+import Pagination from '@/components/layouts/Pagination.vue'; 
 
 export default {
   name: 'Utilisateurs',
   components: {
     UserModal,
+    Pagination,
   },
   data() {
     return {
@@ -171,6 +180,10 @@ export default {
       editUserData: null,
       alert: { message: '', type: '' },
       showAlertModal: false,
+      currentPage: 1, 
+      itemsPerPage: 10,
+      totalItems: 0, 
+      totalPages: 0, 
     };
   },
   computed: {
@@ -193,65 +206,76 @@ export default {
       }
       return token;
     },
-    fetchUsers() {
-  const token = this.checkAuthorization(); // Ensure user is authorized
-  if (!token) return; // Prevent fetching if not authorized
 
-  axios.get('http://localhost:5000/api/users/all', {
-    headers: {
-      Authorization: `Bearer ${token}` // Send the token in the request
-    }
-  })
-  .then(response => {
-    // Filtrer les utilisateurs archivés ici si nécessaire
-    this.users = response.data.filter(user => !user.isArchived); // Supposant que `isArchived` est un champ dans vos données utilisateurs
-  })
-  .catch(error => {
-    console.error('Error fetching users:', error);
-  });
-},
+    fetchUsers(page = this.currentPage, limit = this.itemsPerPage) {
+      const token = this.checkAuthorization();
+      if (!token) return;
+
+      axios.get('http://localhost:5000/api/users/all', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        params: {
+          page: page,
+          limit: limit,
+        }
+      })
+      .then(response => {
+        // Filtrer les utilisateurs archivés ici si nécessaire
+        this.users = response.data.data.filter(user => !user.isArchived);
+        // Mettre à jour les informations de pagination
+        this.totalItems = response.data.totalItems;
+        this.totalPages = response.data.totalPages;
+        this.currentPage = response.data.currentPage;
+      })
+      .catch(error => {
+        console.error('Error fetching users:', error);
+      });
+    },
 
     openEditModal(user) {
       this.editUserData = { ...user };
-      this.showEditModal = true; // Show the modal when editing
+      this.showEditModal = true;
     },
     closeEditModal() {
       this.editUserData = null;
-      this.showEditModal = false; // Hide the modal when done
+      this.showEditModal = false;
     },
 
     showAlert(message, type) {
-    this.alert.message = message;
-    this.alert.type = type; // 'success' ou 'error'
-    this.showAlertModal = true;
+      this.alert.message = message;
+      this.alert.type = type;
+      this.showAlertModal = true;
 
-    // Fermez le modal après 3 secondes
-    setTimeout(() => {
-      this.showAlertModal = false;
-      this.alert.message = '';
-      this.alert.type = '';
-    }, 3000);
-  },
-     updateUser() {
-    const token = this.checkAuthorization(); // Ensure user is authorized
-    if (!token) return; // Prevent updating if not authorized
+      // Fermez le modal après 3 secondes
+      setTimeout(() => {
+        this.showAlertModal = false;
+        this.alert.message = '';
+        this.alert.type = '';
+      }, 3000);
+    },
 
-    axios.put(`http://localhost:5000/api/users/${this.editUserData._id}`, this.editUserData, {
-      headers: {
-        Authorization: `Bearer ${token}` // Send the token in the request
-      }
-    })
-    .then(response => {
-      console.log('Utilisateur mis à jour:', response.data);
-      this.fetchUsers();
-      this.closeEditModal();
-      this.showAlert('Utilisateur mis à jour avec succès.', 'success'); // Appel de showAlert
-    })
-    .catch(error => {
-      console.error('Error updating user:', error);
-      this.showAlert('Échec de la mise à jour de l\'utilisateur.', 'error'); // Appel de showAlert
-    });
-  },
+    updateUser() {
+      const token = this.checkAuthorization();
+      if (!token) return;
+
+      axios.put(`http://localhost:5000/api/users/${this.editUserData._id}`, this.editUserData, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      .then(response => {
+        console.log('Utilisateur mis à jour:', response.data);
+        this.fetchUsers();
+        this.closeEditModal();
+        this.showAlert('Utilisateur mis à jour avec succès.', 'success');
+      })
+      .catch(error => {
+        console.error('Error updating user:', error);
+        this.showAlert('Échec de la mise à jour de l\'utilisateur.', 'error');
+      });
+    },
+
     openArchiveModal(userId) {
       this.selectedUserId = userId;
       this.showArchiveModal = true;
@@ -261,29 +285,29 @@ export default {
       this.showArchiveModal = false;
     },
     archiveUser(userId) {
-    if (!userId) {
-      console.error('User ID is undefined');
-      return;
-    }
-    const token = this.checkAuthorization(); // Ensure user is authorized
-    if (!token) return; // Prevent archiving if not authorized
-
-    axios.put(`http://localhost:5000/api/users/${userId}/archive`, {}, {
-      headers: {
-        Authorization: `Bearer ${token}` // Send the token in the request
+      if (!userId) {
+        console.error('User ID is undefined');
+        return;
       }
-    })
-    .then(response => {
-      console.log('Utilisateur archivé:', response.data);
-      this.fetchUsers(); // Récupérez les utilisateurs mis à jour
-      this.closeArchiveModal();
-      this.showAlert('Utilisateur archivé avec succès.', 'success'); // Appel de showAlert
-    })
-    .catch(error => {
-      console.error('Error archiving user:', error);
-      this.showAlert('Échec de l\'archivage de l\'utilisateur.', 'error'); // Appel de showAlert
-    });
-  },
+      const token = this.checkAuthorization();
+      if (!token) return;
+
+      axios.put(`http://localhost:5000/api/users/${userId}/archive`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      .then(response => {
+        console.log('Utilisateur archivé:', response.data);
+        this.fetchUsers();
+        this.closeArchiveModal();
+        this.showAlert('Utilisateur archivé avec succès.', 'success');
+      })
+      .catch(error => {
+        console.error('Error archiving user:', error);
+        this.showAlert('Échec de l\'archivage de l\'utilisateur.', 'error');
+      });
+    },
 
     viewDetails(user) {
       this.selectedUser = user;
@@ -296,14 +320,16 @@ export default {
     filterByRole() {
       this.showFilterDropdown = !this.showFilterDropdown;
     },
+
+    // Méthodes de pagination
+    goToPage(page) {
+      if (page < 1 || page > this.totalPages) return; 
+      this.fetchUsers(page, this.itemsPerPage);
+    },
   },
+
   mounted() {
     this.fetchUsers();
   },
 };
 </script>
-
-
-<style scoped>
-/* Ajoutez ici des styles supplémentaires si nécessaire */
-</style>

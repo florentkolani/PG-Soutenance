@@ -103,6 +103,13 @@
   @close="closeRatingModal"
   @submit-rating="submitRating"
 />
+
+ <!-- Pagination -->
+ <Pagination
+        :total-items="totalItems" 
+        :items-per-page="itemsPerPage" 
+        @page-changed="goToPage" 
+      />
   </div>
   
 </template>
@@ -110,12 +117,14 @@
 <script>
 import TicketModal from '@/components/layouts/TicketModal.vue';
 import RatingModal from '@/components/layouts/RatingModal.vue';
+import Pagination from '@/components/layouts/Pagination.vue'; 
 import axios from 'axios';
 
 export default {
   components: {
     TicketModal,
     RatingModal,
+    Pagination,
   },
   data() {
     return {
@@ -123,9 +132,14 @@ export default {
       showRatingModal: false,
       isEdit: false,
       tickets: [],
+      products: [],
       selectedTicket: null,
       dropdownOpen: null,
       selectedTicketId: null,
+      currentPage: 1, 
+      itemsPerPage: 10, 
+      totalItems: 0, 
+      totalPages: 1,
     };
   },
   mounted() {
@@ -135,21 +149,27 @@ export default {
   beforeDestroy() {
     document.removeEventListener('click', this.closeDropdownOnClickOutside);
   },
-
   methods: {
     fetchTickets() {
       const token = localStorage.getItem('token');
       axios
-        .get('http://localhost:5000/api/tickets', {
+        .get(`http://localhost:5000/api/tickets?page=${this.currentPage}&limit=${this.itemsPerPage}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
-        .then(response => (this.tickets = response.data))
+        .then(response => {
+          if (response.data && Array.isArray(response.data.tickets)) {
+            this.tickets = response.data.tickets; 
+            this.totalItems = response.data.total; 
+            this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+          } else {
+            console.error('Réponse invalide pour les tickets:', response.data);
+          }
+        })
         .catch(error => console.error('Erreur lors de la récupération des tickets:', error));
     },
     toggleDropdown(id) {
       this.dropdownOpen = this.dropdownOpen === id ? null : id;
     },
-
     closeDropdownOnClickOutside(event) {
       if (!this.$el.contains(event.target)) {
         this.dropdownOpen = null;
@@ -168,61 +188,60 @@ export default {
       this.selectedTicket = null;
     },
     createTicket(ticketData) {
+      const token = localStorage.getItem('token');
       axios
-        .post('http://localhost:5000/api/tickets', ticketData)
+        .post('http://localhost:5000/api/tickets', ticketData, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
         .then(() => {
-          this.fetchTickets();
+          this.closeTicketModal(); // Fermer le modal après création
+          this.fetchTickets(); // Recharger les tickets
         })
         .catch(error => console.error('Erreur lors de la création du ticket:', error));
     },
     updateTicket(ticketData) {
+      const token = localStorage.getItem('token');
       axios
-        .put(`http://localhost:5000/api/tickets/${ticketData._id}`, ticketData)
+        .put(`http://localhost:5000/api/tickets/${ticketData._id}`, ticketData, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
         .then(() => {
-          this.fetchTickets();
+          this.closeTicketModal(); // Fermer le modal après mise à jour
+          this.fetchTickets(); // Recharger les tickets
         })
         .catch(error => console.error('Erreur lors de la mise à jour du ticket:', error));
     },
-
     openRatingModal(ticket) {
-  const token = localStorage.getItem('token');
-  this.selectedTicketId = ticket._id;
-
-  axios
-    .get(`http://localhost:5000/api/ratings/ticket/${this.selectedTicketId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    .then(response => {
-      if (response.data) { 
-        alert("Vous avez déjà noté ce ticket.");
-      } else {
-        this.showRatingModal = true; 
-      }
-    })
-    .catch(error => {
-      if (error.response && error.response.status === 404) {
-        this.showRatingModal = true;
-      } else {
-        console.error('Erreur lors de la vérification de la note:', error);
-      }
-    });
-}
-,
-
+      const token = localStorage.getItem('token');
+      this.selectedTicketId = ticket._id;
+      axios
+        .get(`http://localhost:5000/api/ratings/ticket/${this.selectedTicketId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then(response => {
+          if (response.data) { 
+            alert("Vous avez déjà noté ce ticket.");
+          } else {
+            this.showRatingModal = true; 
+          }
+        })
+        .catch(error => {
+          if (error.response && error.response.status === 404) {
+            this.showRatingModal = true;
+          } else {
+            console.error('Erreur lors de la vérification de la note:', error);
+          }
+        });
+    },
     closeRatingModal() {
       this.showRatingModal = false;
       this.selectedTicketId = null;
     },
     submitRating(ratingData) {
-      const token = this.getToken();
-
+      const token = localStorage.getItem('token');
       axios.post('http://localhost:5000/api/ratings', ratingData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        headers: { Authorization: `Bearer ${token}` },
+      })
         .then(() => {
           this.closeRatingModal();
         })
@@ -230,10 +249,10 @@ export default {
           console.error('Erreur lors de la soumission de la note:', error);
         });
     },
-
-    getToken() {
-      return localStorage.getItem('token');
+    goToPage(page) {
+      this.currentPage = page;
+      this.fetchTickets(); 
     },
   },
-}
+};
 </script>

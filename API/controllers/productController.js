@@ -24,15 +24,32 @@ exports.updateProduct = async (req, res) => {
     }
 };
 
-// Obtenir tous les produits
+// Obtenir tous les produits avec pagination
 exports.getProducts = async (req, res) => {
     try {
-        const products = await Product.find();
-        res.status(200).json(products);
+        const { page = 1, limit = 10 } = req.query;
+
+        const products = await Product.find()
+            .skip((page - 1) * limit)
+            .limit(parseInt(limit));
+
+        const totalProducts = await Product.countDocuments();
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        res.status(200).json({
+            products,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages,
+                totalProducts,
+                pageSize: parseInt(limit),
+            },
+        });
     } catch (error) {
         res.status(500).json({ message: 'Erreur lors de la récupération des produits', error });
     }
 };
+
 
 // Obtenir un produit par ID
 exports.getProductById = async (req, res) => {
