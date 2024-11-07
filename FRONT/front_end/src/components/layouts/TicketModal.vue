@@ -1,26 +1,19 @@
 <template>
-  <section
-    v-if="showModal"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-  >
-    <div
-      class="bg-white p-0 rounded-lg shadow-lg max-w-lg w-full max-h-[100vh] overflow-y-auto relative"
-    >
-      <button
-        @click="$emit('close')"
-        class="absolute top-4 right-6 text-red-600 hover:text-gray-700"
-      >
-        &times;
-      </button>
+  <div>
+
+    <section v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white p-0 rounded-lg shadow-lg max-w-lg w-full max-h-[100vh] overflow-y-auto relative">
+      <button @click="$emit('close')" class="absolute top-4 right-6 text-red-600 hover:text-gray-700">&times;</button>
 
       <div class="py-4 px-6">
-        <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white text-center">
+        <h2 class="mb-4 text-xl font-bold text-gray-900 text-center">
           {{ isEdit ? "Modifier le Ticket" : "Créer un Ticket" }}
         </h2>
         <form @submit.prevent="handleSubmit">
           <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
+            <!-- Product Select -->
             <div class="sm:col-span-2">
-              <label for="product" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Produit</label>
+              <label for="product" class="block mb-2 text-sm font-medium text-gray-900">Produit</label>
               <select
                 v-model="selectedProduct"
                 id="product"
@@ -32,8 +25,9 @@
               </select>
             </div>
 
+            <!-- Type de Demande Select -->
             <div class="sm:col-span-2">
-              <label for="typeDeDemande" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Type de Demande</label>
+              <label for="typeDeDemande" class="block mb-2 text-sm font-medium text-gray-900">Type de Demande</label>
               <select
                 v-model="selectedTypeDeDemande"
                 id="typeDeDemande"
@@ -45,46 +39,26 @@
               </select>
             </div>
 
+            <!-- Urgency, Description, and File Upload -->
             <div>
-              <label for="urgence" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Urgence</label>
-              <select
-                v-model="urgence"
-                id="urgence"
-                required
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-              >
+              <label for="urgence" class="block mb-2 text-sm font-medium text-gray-900">Urgence</label>
+              <select v-model="urgence" id="urgence" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg">
                 <option value="">Sélectionnez l'Urgence</option>
                 <option value="urgent">Urgent</option>
                 <option value="Pas Urgent">Pas Urgent</option>
               </select>
             </div>
-
             <div class="sm:col-span-2">
-              <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
-              <textarea
-                v-model="description"
-                id="description"
-                rows="2"
-                required
-                class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500"
-              ></textarea>
+              <label for="description" class="block mb-2 text-sm font-medium text-gray-900">Description</label>
+              <textarea v-model="description" id="description" rows="2" required class="block w-full text-sm bg-gray-50 rounded-lg border"></textarea>
             </div>
-
             <div class="sm:col-span-2">
-              <label for="screenshot" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Télécharger un fichier</label>
-              <input
-                type="file"
-                @change="handleFileChange"
-                id="screenshot"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-              />
+              <label for="screenshot" class="block mb-2 text-sm font-medium text-gray-900">Télécharger un fichier</label>
+              <input type="file" @change="handleFileChange" id="screenshot" class="bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5" />
             </div>
           </div>
           <div class="flex justify-center">
-            <button
-              type="submit"
-              class="inline-flex items-center px-5 py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-black bg-primary-700 rounded-lg hover:bg-green-800 bg-green-300"
-            >
+            <button type="submit" class="inline-flex items-center px-5 py-2.5 mt-4 text-sm font-medium text-black bg-green-300 rounded-lg hover:bg-green-800">
               {{ isEdit ? "Modifier le ticket" : "Créer un ticket" }}
             </button>
           </div>
@@ -92,6 +66,19 @@
       </div>
     </div>
   </section>
+   <!-- Boîte de dialogue de succès -->
+   <div v-if="showSuccessMessage" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white p-4 rounded-lg shadow-lg max-w-md w-full text-center">
+      <h3 class="text-xl font-bold mb-4">Succès</h3>
+      <p>{{ successMessage }}</p>
+      <button @click="closeSuccessDialog" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+        OK
+      </button>
+    </div>
+  </div>
+
+  </div>
+ 
 </template>
 
 <script>
@@ -108,6 +95,7 @@ export default {
       default: null,
     },
   },
+  emits: ['close', 'createTicket', 'updateTicket'],
   data() {
     return {
       products: [],
@@ -118,6 +106,8 @@ export default {
       description: '',
       status: 'ouvert',
       file: null,
+      showSuccessMessage: false,
+      successMessage: '',
     };
   },
   computed: {
@@ -130,8 +120,8 @@ export default {
       immediate: true,
       handler(ticket) {
         if (ticket) {
-          this.selectedProduct = this.products.find(product => product._id === ticket.productId)?._id || '';
-          this.selectedTypeDeDemande = this.typeDeDemandes.find(type => type._id === ticket.typeDeDemandeId)?._id || '';
+          this.selectedProduct = ticket.productId || '';
+          this.selectedTypeDeDemande = ticket.typeDeDemandeId || '';
           this.urgence = ticket.urgence;
           this.description = ticket.description;
         } else {
@@ -141,29 +131,7 @@ export default {
     },
   },
   mounted() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert("L'utilisateur n'est pas connecté");
-      return;
-    }
-
-    axios.get('http://localhost:5000/api/products', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(response => {
-        this.products = response.data || [];
-        console.log("Types de demandes chargés :", this.products);
-      })
-      .catch(error => console.error("Erreur lors du chargement des produits :", error));
-
-    axios.get('http://localhost:5000/api/types')
-      .then(response => {
-        this.typeDeDemandes = response.data || [];
-        console.log("Types de demandes chargés :", this.typeDeDemandes);
-      })
-      .catch(error => console.error("Erreur lors du chargement des types de demandes :", error));
+    this.loadProductsAndTypes();
   },
   methods: {
     resetFields() {
@@ -172,6 +140,27 @@ export default {
       this.urgence = '';
       this.description = '';
       this.file = null;
+    },
+    loadProductsAndTypes() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert("L'utilisateur n'est pas connecté");
+        return;
+      }
+
+      axios.get('http://localhost:5000/api/products', 
+      { headers: { Authorization: `Bearer ${token}` } })
+        .then(response => {
+          this.products = response.data.products || [];
+        })
+        .catch(error => console.error("Erreur lors du chargement des produits :", error));
+
+      axios.get('http://localhost:5000/api/types', 
+      { headers: { Authorization: `Bearer ${token}` } })
+        .then(response => {
+          this.typeDeDemandes = response.data.types || [];
+        })
+        .catch(error => console.error("Erreur lors du chargement des types de demandes :", error));
     },
     handleSubmit() {
       if (!this.selectedProduct || !this.selectedTypeDeDemande || !this.urgence || !this.description) {
@@ -185,13 +174,11 @@ export default {
         return;
       }
 
-      // Extract user ID from token
       let userId;
       try {
-        const decodedToken = JSON.parse(atob(token.split('.')[1]));
-        userId = decodedToken.id;
+        userId = JSON.parse(atob(token.split('.')[1])).id;
       } catch (error) {
-        console.error("Erreur lors de la récupération de userId à partir du token :", error);
+        console.error("Erreur lors de la récupération de userId :", error);
         alert("Erreur lors de la récupération de userId");
         return;
       }
@@ -199,7 +186,6 @@ export default {
       const apiEndpoint = this.isEdit ? `http://localhost:5000/api/tickets/${this.ticket._id}` : 'http://localhost:5000/api/tickets';
       const method = this.isEdit ? 'put' : 'post';
 
-      // Use FormData if there’s a file
       const data = this.file ? new FormData() : { 
         productId: this.selectedProduct,
         typeDeDemandeId: this.selectedTypeDeDemande,
@@ -229,8 +215,10 @@ export default {
         },
       })
         .then(response => {
-          console.log("Ticket traité avec succès :", response.data);
+          this.successMessage = this.isEdit ? "Ticket mis à jour avec succès !" : "Ticket créé avec succès !";
+          this.showSuccessMessage = true;
           this.$emit('close');
+          this.$emit('refreshData');
         })
         .catch(error => {
           console.error("Erreur lors de l'envoi des données :", error.response?.data || error.message);
@@ -240,6 +228,10 @@ export default {
 
     handleFileChange(event) {
       this.file = event.target.files[0];
+    },
+
+    closeSuccessDialog() {
+      this.showSuccessMessage = false;
     },
   },
 };
