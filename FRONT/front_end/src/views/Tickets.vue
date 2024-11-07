@@ -60,6 +60,21 @@
       </svg>
     </button>
 
+    <!-- Modal for alerting the user -->
+   <div v-if="showAlertModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+        <p class="text-lg text-center text-gray-800">{{ alertMessage }}</p>
+        <div class="mt-4 flex justify-center">
+          <button
+            class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600"
+            @click="closeAlertModal"
+          >
+            Ok
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Dropdown menu avec les boutons d'actions -->
     <div v-if="dropdownOpen === ticket._id" class="absolute right-0 mt-2 w-28 bg-white border border-gray-200 rounded shadow-lg">
       <button @click="openTicketDetails(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
@@ -90,13 +105,16 @@
 
     <!-- Modals -->
     <TicketModal
-      :showModal="showTicketModal"
-      :isEdit="isEdit"
-      :ticket="selectedTicket"
-      @close="closeTicketModal"
-      @create-ticket="createTicket"
-      @update-ticket="updateTicket"
-    />
+  :showModal="showTicketModal"
+  :isEdit="isEdit"
+  :ticket="selectedTicket"
+  :products="products"
+  :typesDeDemande="typesDeDemande"
+  @close="closeTicketModal"
+  @create-ticket="createTicket"
+  @update-ticket="updateTicket"
+/>
+
     <RatingModal
   :showModal="showRatingModal"
   :ticketId="selectedTicketId"
@@ -128,11 +146,14 @@ export default {
   },
   data() {
     return {
+      showAlertModal: false,
+      alertMessage: '',
       showTicketModal: false,
       showRatingModal: false,
       isEdit: false,
       tickets: [],
       products: [],
+      typesDeDemande: [],
       selectedTicket: null,
       dropdownOpen: null,
       selectedTicketId: null,
@@ -144,6 +165,8 @@ export default {
   },
   mounted() {
     this.fetchTickets();
+    this.fetchProducts();
+    this.fetchTypesDeDemande();
     document.addEventListener('click', this.closeDropdownOnClickOutside);
   },
   beforeDestroy() {
@@ -167,6 +190,30 @@ export default {
         })
         .catch(error => console.error('Erreur lors de la récupération des tickets:', error));
     },
+
+    fetchProducts() {
+    const token = localStorage.getItem('token');
+    axios
+      .get('http://localhost:5000/api/products', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(response => {
+        this.products = response.data.products;
+      })
+      .catch(error => console.error('Erreur lors de la récupération des produits:', error));
+  },
+  fetchTypesDeDemande() {
+    const token = localStorage.getItem('token');
+    axios
+      .get('http://localhost:5000/api/types', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(response => {
+        this.typesDeDemande = response.data.typesDeDemande;
+      })
+      .catch(error => console.error('Erreur lors de la récupération des types de demande:', error));
+  },
+
     toggleDropdown(id) {
       this.dropdownOpen = this.dropdownOpen === id ? null : id;
     },
@@ -194,8 +241,8 @@ export default {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then(() => {
-          this.closeTicketModal(); // Fermer le modal après création
-          this.fetchTickets(); // Recharger les tickets
+          this.closeTicketModal();
+          this.fetchTickets();
         })
         .catch(error => console.error('Erreur lors de la création du ticket:', error));
     },
@@ -206,8 +253,8 @@ export default {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then(() => {
-          this.closeTicketModal(); // Fermer le modal après mise à jour
-          this.fetchTickets(); // Recharger les tickets
+          this.closeTicketModal();
+          this.fetchTickets();
         })
         .catch(error => console.error('Erreur lors de la mise à jour du ticket:', error));
     },
@@ -219,10 +266,11 @@ export default {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then(response => {
-          if (response.data) { 
-            alert("Vous avez déjà noté ce ticket.");
+          if (response.data) {
+            this.alertMessage = "Vous avez déjà noté ce ticket.";
+            this.showAlertModal = true;
           } else {
-            this.showRatingModal = true; 
+            this.showRatingModal = true;
           }
         })
         .catch(error => {
@@ -233,6 +281,9 @@ export default {
           }
         });
     },
+    closeAlertModal() {
+      this.showAlertModal = false;
+    },
     closeRatingModal() {
       this.showRatingModal = false;
       this.selectedTicketId = null;
@@ -242,13 +293,26 @@ export default {
       axios.post('http://localhost:5000/api/ratings', ratingData, {
         headers: { Authorization: `Bearer ${token}` },
       })
-        .then(() => {
-          this.closeRatingModal();
-        })
-        .catch(error => {
-          console.error('Erreur lors de la soumission de la note:', error);
-        });
+      .then(response => {
+        // Clôturer le ticket après la soumission de la note
+        return this.closeTicket(response.data.ticketId); // Assurez-vous que l'ID du ticket est retourné
+      })
+      .then(() => {
+        this.closeRatingModal();
+        this.fetchTickets(); // Recharger la liste des tickets
+      })
+      .catch(error => {
+        console.error('Erreur lors de la soumission de la note ou de la clôture du ticket:', error);
+      });
     },
+    
+    closeTicket(ticketId) {
+      const token = localStorage.getItem('token');
+      return axios.put(`http://localhost:5000/api/tickets/${ticketId}/close`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    },
+    
     goToPage(page) {
       this.currentPage = page;
       this.fetchTickets(); 

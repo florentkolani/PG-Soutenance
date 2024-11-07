@@ -36,7 +36,7 @@ exports.updateTicket = async (req, res) => {
 // Fermer un ticket
 exports.closeTicket = async (req, res) => {
     try {
-        const ticket = await Ticket.findByIdAndUpdate(req.params.id, { status: 'fermé' }, { new: true }); // Changez 'statut' en 'status'
+        const ticket = await Ticket.findByIdAndUpdate(req.params.id, { status: 'fermé' }, { new: true });
         if (!ticket) {
             return res.status(404).json({ message: 'Ticket non trouvé' });
         }
