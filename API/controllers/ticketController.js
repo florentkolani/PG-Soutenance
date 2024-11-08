@@ -2,6 +2,7 @@ const Ticket = require('../models/ticketModel');
 // Créer un ticket
 exports.createTicket = async (req, res) => {
     console.log("Données reçues :", req.body);
+    console.log("Fichier reçu :", req.file);
     try {
         // Vérifier que les champs requis sont présents
         const requiredFields = ['userId', 'urgence', 'status']; 
@@ -10,6 +11,11 @@ exports.createTicket = async (req, res) => {
                 return res.status(400).json({ message: `Le champ ${field} est requis.` });
             }
         }
+        // Si un fichier est reçu, vous pouvez l'ajouter à l'objet ticket
+        const ticketData = {
+            ...req.body,
+            file: req.file ? req.file.path : null // Enregistrez le chemin du fichier
+        };
 
         // Créer le ticket
         const ticket = new Ticket(req.body);
