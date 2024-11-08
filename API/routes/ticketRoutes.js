@@ -1,9 +1,12 @@
 const express = require('express');
 const { createTicket, updateTicket, closeTicket, getTickets, getTicketById } = require('../controllers/ticketController');
 const { protect, restrictToRoles } = require('../middleware/authMiddleware');
-const router = express.Router();
 
-router.post('/', protect,  createTicket);
+const router = express.Router();
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' }); // Dossier où les fichiers seront stockés
+
+router.post('/', protect, upload.single('file'), createTicket);
 
 router.put('/:id', protect, updateTicket);
 
