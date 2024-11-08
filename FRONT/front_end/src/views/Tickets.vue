@@ -75,27 +75,30 @@
       </div>
     </div>
 
-    <!-- Dropdown menu avec les boutons d'actions -->
-    <div v-if="dropdownOpen === ticket._id" class="absolute right-0 mt-2 w-28 bg-white border border-gray-200 rounded shadow-lg">
-      <button @click="openTicketDetails(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m0 0H4.55M9 12h5l2.5 8.5M9 12H4.55M9 12v3m-1.6 5h7.2M9 9l-2.5 8.5M15 12l2.5 8.5M15 12l-2.5-8.5" />
-        </svg>
-        Message
-      </button>
-      <button @click="openTicketModal(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11V4m-7 7h14m-7 7v-3m-2-5h7m-3 0h4" />
-        </svg>
-        Modifier
-      </button>
-      <button @click="openRatingModal(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m0 0l-3 3m3-3l-3-3" />
-        </svg>
-        Noter
-     </button>
-    </div>
+     <!-- Dropdown menu avec les boutons d'actions -->
+  <div v-if="dropdownOpen === ticket._id" class="absolute right-0 mt-2 w-28 bg-white border border-gray-200 rounded shadow-lg">
+    <!-- Affichage du bouton "Message" pour tous les rôles -->
+    <button @click="openTicketDetails(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m0 0H4.55M9 12h5l2.5 8.5M9 12H4.55M9 12v3m-1.6 5h7.2M9 9l-2.5 8.5M15 12l2.5 8.5M15 12l-2.5-8.5" />
+      </svg>
+      Message
+    </button>
+
+    <!-- Affichage des boutons "Modifier" et "Noter" uniquement pour les Clients -->
+    <button v-if="userRole === 'Client'" @click="openTicketModal(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11V4m-7 7h14m-7 7v-3m-2-5h7m-3 0h4" />
+      </svg>
+      Modifier
+    </button>
+    <button v-if="userRole === 'Client'" @click="openRatingModal(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m0 0l-3 3m3-3l-3-3" />
+      </svg>
+      Noter
+    </button>
+  </div>
   </div>
 </td>
 </tr>
@@ -161,9 +164,11 @@ export default {
       itemsPerPage: 10, 
       totalItems: 0, 
       totalPages: 1,
+      userRole: null,
     };
   },
   mounted() {
+    this.fetchUserRole();
     this.fetchTickets();
     this.fetchProducts();
     this.fetchTypesDeDemande();
@@ -189,6 +194,14 @@ export default {
           }
         })
         .catch(error => console.error('Erreur lors de la récupération des tickets:', error));
+    },
+
+    fetchUserRole() {
+      const token = localStorage.getItem('token');
+      if (token) {
+        const decodedToken = JSON.parse(atob(token.split('.')[1])); // Décoder le JWT
+        this.userRole = decodedToken.role; // Stocker le rôle dans le data
+      }
     },
 
     fetchProducts() {
@@ -288,31 +301,63 @@ export default {
       this.showRatingModal = false;
       this.selectedTicketId = null;
     },
+    // Affichage conditionnel des actions selon le rôle
+    canEdit(ticket) {
+      return this.userRole === 'client'; // Seul un client peut modifier ou noter un ticket
+    },
+
+    canMessage() {
+      return this.userRole === 'client' || this.userRole === 'admin' || this.userRole === 'agentSupport';
+    },
     submitRating(ratingData) {
-      const token = localStorage.getItem('token');
-      axios.post('http://localhost:5000/api/ratings', ratingData, {
+    const token = localStorage.getItem('token');
+    axios.post('http://localhost:5000/api/ratings', ratingData, {
         headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(response => {
-        // Clôturer le ticket après la soumission de la note
-        return this.closeTicket(response.data.ticketId); // Assurez-vous que l'ID du ticket est retourné
-      })
-      .then(() => {
+    })
+    .then(response => {
+        const ticketId = response.data.ticketId;
+        return this.closeTicket(ticketId);
+    })
+    .then(response => {
+        // Mise à jour du ticket avec le statut "cloturé"
+        const ticketId = response.data._id;
+        const updatedTicket = { ...response.data, statut: 'cloturé' };
+        
+        // Mettre à jour l'état local avec le ticket mis à jour
+        this.updateTicketInState(ticketId, updatedTicket);
         this.closeRatingModal();
-        this.fetchTickets(); // Recharger la liste des tickets
-      })
-      .catch(error => {
+        this.fetchTickets();
+    })
+    .catch(error => {
         console.error('Erreur lors de la soumission de la note ou de la clôture du ticket:', error);
-      });
-    },
+    });
+},
+
+updateTicketInState(ticketId, updatedTicket) {
+    const index = this.tickets.findIndex(ticket => ticket._id === ticketId);
     
-    closeTicket(ticketId) {
-      const token = localStorage.getItem('token');
-      return axios.put(`http://localhost:5000/api/tickets/${ticketId}/close`, {}, {
+    if (index !== -1) {
+        // Mise à jour du ticket à cet index dans le tableau
+        this.tickets[index] = updatedTicket;
+    }
+},
+
+closeTicket(ticketId) {
+    const token = localStorage.getItem('token');
+    return axios.put(`http://localhost:5000/api/tickets/${ticketId}/close`, {}, {
         headers: { Authorization: `Bearer ${token}` },
-      });
-    },
-    
+    })
+    .then(response => {
+        if (!response || !response.data) {
+            throw new Error('Aucune donnée de réponse');
+        }
+        console.log('Ticket fermé avec succès:', response.data);
+        return response;
+    })
+    .catch(error => {
+        console.error('Erreur lors de la fermeture du ticket:', error);
+    });
+}, 
     goToPage(page) {
       this.currentPage = page;
       this.fetchTickets(); 

@@ -35,26 +35,29 @@ exports.updateTicket = async (req, res) => {
 
 // Fermer un ticket
 exports.closeTicket = async (req, res) => {
-    try {
-        const ticket = await Ticket.findByIdAndUpdate(req.params.id, { status: 'fermé' }, { new: true });
-        if (!ticket) {
-            return res.status(404).json({ message: 'Ticket non trouvé' });
-        }
-        res.status(200).json(ticket);
-    } catch (error) {
-        res.status(400).json({ message: 'Erreur lors de la fermeture du ticket', error: error.message });
-    }
+    const ticketId = req.params.ticketId;
+    Ticket.findByIdAndUpdate(ticketId, { statut: 'cloturé' }, { new: true })
+        .then(updatedTicket => {
+            if (!updatedTicket) {
+                return res.status(404).send('Ticket not found');
+            }
+            console.log('Ticket closed successfully:', updatedTicket);
+            res.status(200).json(updatedTicket);
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).send('Erreur lors de la clôture du ticket');
+        });
 };
 
 // Obtenir tous les tickets avec pagination
 exports.getTickets = async (req, res) => {
     try {
-        const filter = req.user.role === 'Client' ? { userId: req.user._id } : {}; // Filtre pour les clients
-
+        const filter = req.user.role === 'Client' ? { userId: req.user._id } : {};
         // Récupération des paramètres de pagination
-        const page = parseInt(req.query.page) || 1; // Page actuelle, par défaut à 1
-        const limit = parseInt(req.query.limit) || 10; // Limite, par défaut à 10
-        const skip = (page - 1) * limit; // Nombre d'éléments à ignorer
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
 
         // Compter le nombre total de tickets correspondant au filtre
         const total = await Ticket.countDocuments(filter);
