@@ -61,7 +61,7 @@
     </button>
 
     <!-- Modal for alerting the user -->
-   <div v-if="showAlertModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-50 bg-opacity-20">
+   <div v-if="showAlertModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-15">
       <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
         <p class="text-lg text-center text-gray-800">{{ alertMessage }}</p>
         <div class="mt-4 flex justify-center">

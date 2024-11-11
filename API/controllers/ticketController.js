@@ -1,4 +1,33 @@
 const Ticket = require('../models/ticketModel');
+const nodemailer = require("nodemailer");
+
+//Configuration de Nodemailer
+require('dotenv').config();
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
+
+// Fonction pour envoyer un email
+async function envoyerEmail(ticket) {
+    try {
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: 'kolaniflorent446@gmail.com', // Email des admins et agents support
+            subject: `Nouveau ticket créé par ${ticket.userId}`, // Utilisez des infos du ticket
+            text: `Bonjour,\n\nUn nouveau ticket a été créé par ${ticket.userId}.\n\nDétails du ticket:\n- ID: ${ticket._id}\n- Urgence: ${ticket.urgence}\n- Statut: ${ticket.status}\n- Description: ${ticket.description}\n\nMerci de prendre en charge ce ticket.\n\nCordialement,\nNOVA LEAD`,
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log("Email envoyé avec succès.");
+    } catch (error) {
+        console.error("Erreur lors de l'envoi de l'email:", error);
+    }
+}
+
 // Créer un ticket
 exports.createTicket = async (req, res) => {
     console.log("Données reçues :", req.body);
@@ -20,6 +49,9 @@ exports.createTicket = async (req, res) => {
         // Créer le ticket
         const ticket = new Ticket(req.body);
         await ticket.save();
+        // Envoyer un email aux admins et agents support
+        await envoyerEmail(ticket);
+
         res.status(201).json(ticket);
     } catch (error) {
         res.status(400).json({ message: 'Erreur lors de la création du ticket', error: error.message });
