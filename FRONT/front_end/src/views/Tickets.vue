@@ -40,12 +40,12 @@
             <td class="border px-4 py-2 text-center">{{ ticket.typeDeDemandeId?.name || 'Inconnu' }}</td>
             <td class="border px-4 py-2 text-center">{{ ticket.productId?.name || 'Inconnu' }}</td>
             <td class="border px-4 py-2 text-center">
-              <span v-if="ticket.urgence === 'urgent'" class="inline-block w-4 h-4 bg-red-500 rounded-full"></span>
+              <span v-if="ticket.urgence === 'urgent'" class="inline-block w-4 h-4 bg-red-800 rounded-full"></span>
               <span v-else class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
             </td>
             <td class="border px-4 py-2 text-center">
-              <span v-if="ticket.statut === 'ouvert'" class="inline-block w-4 h-4 bg-red-500 rounded-full"></span>
-              <span v-else-if="ticket.statut === 'en cours'" class="inline-block w-4 h-4 bg-yellow-500 rounded-full"></span>
+              <span v-if="ticket.statut === 'ouvert'" class="inline-block w-4 h-4 bg-red-800 rounded-full"></span>
+              <span v-else-if="ticket.statut === 'en cours'" class="inline-block w-4 h-4 bg-orange-300 rounded-full"></span>
               <span v-else class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
             </td>
             <td class="border px-4 py-2 text-center">{{ new Date(ticket.createdAt).toLocaleDateString() }}</td>
@@ -235,9 +235,47 @@ export default {
         this.dropdownOpen = null;
       }
     },
+    // openTicketDetails(ticket) {
+    //   this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
+    // },
+
     openTicketDetails(ticket) {
-      this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
-    },
+    // Vérifiez si l'utilisateur est admin ou agent de support
+    if (this.userRole === 'Admin' || this.userRole === 'AgentSupport') {
+        // Vérifiez si le ticket est encore "ouvert"
+        if (ticket.statut === 'ouvert') {
+            // Mettez à jour le statut du ticket à "en cours"
+            this.updateTicketStatus(ticket._id, { statut: 'en cours' })
+                .then(() => {
+                    // Une fois le statut mis à jour, redirigez vers les détails du ticket
+                    this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la mise à jour du statut du ticket:', error);
+                });
+        } else {
+            // Si le ticket n'est pas "ouvert", redirigez simplement vers les détails
+            this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
+        }
+    } else {
+        // Si l'utilisateur n'est pas admin ou agent de support, redirigez directement
+        this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
+    }
+},
+updateTicketStatus(ticketId, statusData) {
+    const token = localStorage.getItem('token');
+    return axios.put(`http://localhost:5000/api/tickets/${ticketId}/statut`, statusData, {
+        headers: { Authorization: `Bearer ${token}` },
+    })
+    .then(response => {
+        console.log('Statut du ticket mis à jour avec succès:', response.data);
+        return response;
+    })
+    .catch(error => {
+        console.error('Erreur lors de la mise à jour du statut du ticket:', error);
+    });
+},
+
     openTicketModal(ticket = null) {
       this.selectedTicket = ticket ? { ...ticket } : {};
       this.isEdit = !!ticket;

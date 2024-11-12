@@ -1,4 +1,5 @@
 const Ticket = require('../models/ticketModel');
+const User = require('../models/userModel');
 const nodemailer = require("nodemailer");
 
 //Configuration de Nodemailer
@@ -11,14 +12,21 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// Fonction pour envoyer un email
+// Fonction pour envoyer un email à NOVA LEAD
 async function envoyerEmail(ticket) {
     try {
+        // Récupérer le nom de l'utilisateur à partir de l'ID
+        const user = await User.findById(ticket.userId); // Assurez-vous que `User` est importé
+
+        if (!user) {
+            throw new Error("Utilisateur non trouvé");
+        }
+
         const mailOptions = {
             from: process.env.EMAIL_USER,
-            to: 'kolaniflorent446@gmail.com', // Email des admins et agents support
-            subject: `Nouveau ticket créé par ${ticket.userId}`, // Utilisez des infos du ticket
-            text: `Bonjour,\n\nUn nouveau ticket a été créé par ${ticket.userId}.\n\nDétails du ticket:\n- ID: ${ticket._id}\n- Urgence: ${ticket.urgence}\n- Statut: ${ticket.status}\n- Description: ${ticket.description}\n\nMerci de prendre en charge ce ticket.\n\nCordialement,\nNOVA LEAD`,
+            to: 'florentinoperez446@gmail.com', // Email des admins et agents support
+            subject: `Nouveau ticket créé par ${user.name}`, // Utiliser le nom de l'utilisateur
+            text: `Bonjour,\n\nUn nouveau ticket a été créé par ${user.name}.\n\nDétails du ticket:\n- Urgence: ${ticket.urgence}\n- Statut: ${ticket.statut}\n- Description: ${ticket.description}\n\nMerci de prendre en charge ce ticket.\n\nCordialement,\n${user.name}`,
         };
 
         await transporter.sendMail(mailOptions);
@@ -27,6 +35,34 @@ async function envoyerEmail(ticket) {
         console.error("Erreur lors de l'envoi de l'email:", error);
     }
 }
+
+// Fonction pour envoyer un email à l'entreprise cliente
+async function envoyerEmailAuClient(ticket) {
+    try {
+        // Récupérer l'utilisateur (client) qui a créé le ticket
+        const user = await User.findById(ticket.userId).populate('entreprise');
+
+        if (!user || !user.entreprise) {
+            throw new Error("Utilisateur ou entreprise non trouvé");
+        }
+
+        const entreprise = user.entreprise;
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: user.email, // L'email de l'entreprise
+            subject: `Assistance en cours pour votre ticket #${ticket._id}`,
+            text: `Bonjour ${entreprise.name},\n\nNous vous informons qu'un de nos agents est prêt à vous assister concernant votre demande.\n\nDétails du ticket:\n- ID: ${ticket._id}\n- Urgence: ${ticket.urgence}\n- Statut: ${ticket.status}\n- Description: ${ticket.description}\n\nMerci pour votre patience.\n\nCordialement,\nL'équipe d'assistance de NOVA LEAD`,
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log("Email de notification envoyé à l'entreprise avec succès.");
+    } catch (error) {
+        console.error("Erreur lors de l'envoi de l'email à l'entreprise:", error);
+    }
+}
+
+
 
 // Créer un ticket
 exports.createTicket = async (req, res) => {
@@ -57,6 +93,20 @@ exports.createTicket = async (req, res) => {
         res.status(400).json({ message: 'Erreur lors de la création du ticket', error: error.message });
     }
 };
+// Mettre à jour le statut du ticket
+exports.updateTicketStatus = async (req, res) => {
+    try {
+        const ticket = await Ticket.findById(req.params.ticketId);
+        if (!ticket) {
+            return res.status(404).json({ message: 'Ticket non trouvé' });
+        }
+        ticket.statut = req.body.statut || ticket.statut;
+        await ticket.save();
+        res.status(200).json(ticket);
+    } catch (error) {
+        res.status(400).json({ message: 'Erreur lors de la mise à jour du statut du ticket', error: error.message });
+    }
+};
 
 // Mettre à jour un ticket
 exports.updateTicket = async (req, res) => {
@@ -70,6 +120,7 @@ exports.updateTicket = async (req, res) => {
         res.status(400).json({ message: 'Erreur lors de la mise à jour du ticket', error: error.message });
     }
 };
+
 
 // Fermer un ticket
 exports.closeTicket = async (req, res) => {

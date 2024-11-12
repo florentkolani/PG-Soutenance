@@ -95,7 +95,7 @@ export default {
       default: null,
     },
   },
-  emits: ['close', 'createTicket', 'updateTicket'],
+  emits: ['close', 'createTicket', 'updateTicket', 'refreshData'],
   data() {
     return {
       products: [],
