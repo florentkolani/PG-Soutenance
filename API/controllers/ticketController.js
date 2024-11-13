@@ -1,5 +1,6 @@
 const Ticket = require('../models/ticketModel');
 const User = require('../models/userModel');
+const type = require('../models/typeDeDemandeModel');
 const nodemailer = require("nodemailer");
 
 //Configuration de Nodemailer
@@ -7,7 +8,7 @@ require('dotenv').config();
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER,
+        user: process.env.EMAIL_NOVA_LEAD,
         pass: process.env.EMAIL_PASS,
     },
 });
@@ -23,7 +24,7 @@ async function envoyerEmail(ticket) {
         }
 
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: process.env.EMAIL_NOVA_LEAD, // email du client
             to: 'florentinoperez446@gmail.com', // Email des admins et agents support
             subject: `Nouveau ticket créé par ${user.name}`, // Utiliser le nom de l'utilisateur
             text: `Bonjour,\n\nUn nouveau ticket a été créé par ${user.name}.\n\nDétails du ticket:\n- Urgence: ${ticket.urgence}\n- Statut: ${ticket.statut}\n- Description: ${ticket.description}\n\nMerci de prendre en charge ce ticket.\n\nCordialement,\n${user.name}`,
@@ -36,32 +37,29 @@ async function envoyerEmail(ticket) {
     }
 }
 
-// Fonction pour envoyer un email à l'entreprise cliente
+// Fonction pour envoyer un email à l'utilisateur (client) qui a créé le ticket
 async function envoyerEmailAuClient(ticket) {
     try {
-        // Récupérer l'utilisateur (client) qui a créé le ticket
-        const user = await User.findById(ticket.userId).populate('entreprise');
+        // Récupérer l'utilisateur (client) qui a créé le ticket sans populate
+        const user = await User.findById(ticket.userId);
 
-        if (!user || !user.entreprise) {
-            throw new Error("Utilisateur ou entreprise non trouvé");
+        if (!user) {
+            throw new Error("Utilisateur non trouvé");
         }
 
-        const entreprise = user.entreprise;
-
         const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: user.email, // L'email de l'entreprise
-            subject: `Assistance en cours pour votre ticket #${ticket._id}`,
-            text: `Bonjour ${entreprise.name},\n\nNous vous informons qu'un de nos agents est prêt à vous assister concernant votre demande.\n\nDétails du ticket:\n- ID: ${ticket._id}\n- Urgence: ${ticket.urgence}\n- Statut: ${ticket.status}\n- Description: ${ticket.description}\n\nMerci pour votre patience.\n\nCordialement,\nL'équipe d'assistance de NOVA LEAD`,
+            from: process.env.EMAIL_NOVA_LEAD, // email de NOVA LEAD
+            to: user.email, // Email de l'utilisateur
+            subject: `Assistance en cours pour votre ticket ${ticket._id}`,
+            text: `Bonjour ${user.name},\n\nNous vous informons qu'un de nos agents est prêt à vous assister concernant votre demande.\n\nDétails du ticket:\n- ID: ${ticket._id}\n- Urgence: ${ticket.urgence}\n- Statut: ${ticket.statut}\n- Description: ${ticket.description}\n\nMerci pour votre patience.\n\nCordialement,\nL'équipe d'assistance de NOVA LEAD`,
         };
 
         await transporter.sendMail(mailOptions);
-        console.log("Email de notification envoyé à l'entreprise avec succès.");
+        console.log("Email de notification envoyé à l'utilisateur avec succès.");
     } catch (error) {
-        console.error("Erreur lors de l'envoi de l'email à l'entreprise:", error);
+        console.error("Erreur lors de l'envoi de l'email à l'utilisateur:", error);
     }
 }
-
 
 
 // Créer un ticket
@@ -102,6 +100,12 @@ exports.updateTicketStatus = async (req, res) => {
         }
         ticket.statut = req.body.statut || ticket.statut;
         await ticket.save();
+
+         // Envoyez un email au client si le statut est changé en "en cours"
+         if (ticket.statut === 'en cours') {
+            await envoyerEmailAuClient(ticket);
+        }
+
         res.status(200).json(ticket);
     } catch (error) {
         res.status(400).json({ message: 'Erreur lors de la mise à jour du statut du ticket', error: error.message });

@@ -1,6 +1,5 @@
 <template>
   <div class="bg-gray-100 min-h-screen">
-    <!-- Header -->
     <header class="bg-lime-500 p-4 shadow-md">
       <div class="container mx-auto flex justify-between items-center">
         <div class="flex items-center space-x-2">
