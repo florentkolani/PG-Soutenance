@@ -240,11 +240,8 @@ export default {
     // },
 
     openTicketDetails(ticket) {
-    // Vérifiez si l'utilisateur est admin ou agent de support
     if (this.userRole === 'Admin' || this.userRole === 'AgentSupport') {
-        // Vérifiez si le ticket est encore "ouvert"
         if (ticket.statut === 'ouvert') {
-            // Mettez à jour le statut du ticket à "en cours"
             this.updateTicketStatus(ticket._id, { statut: 'en cours' })
                 .then(() => {
                     // Une fois le statut mis à jour, redirigez vers les détails du ticket
