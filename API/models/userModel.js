@@ -26,6 +26,14 @@ const userSchema = new mongoose.Schema({
         enum: ['Admin', 'Client', 'AgentSupport'],
         default: 'Client',
     },
+    pays: {
+        type: String,
+        required: true,
+    },
+    ville: {
+        type: String,
+        required: true,
+    },
     isArchived: {
         type: Boolean,
         default: false,

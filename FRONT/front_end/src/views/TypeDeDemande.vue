@@ -1,24 +1,11 @@
 <template>
   <div class="bg-gray-100 min-h-screen">
-    <header class="bg-lime-500 p-4 shadow-md">
-      <div class="container mx-auto flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-          <img src="../assets/logo.png" alt="Logo" class="h-10" />
-          <span class="text-white text-xl font-bold">NOVA Lead</span>
-        </div>
-        <div class="flex items-center space-x-4">
-          <button @click="showTypeModal = true" class="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition">
-            Nouveau <span class="ml-1">+</span>
-          </button>
-          <button class="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition flex items-center">
-            Filtrer
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </header>
+    <Header 
+      title="NOVA LEAD" 
+      primaryActionText="New TypeDeDemande" 
+      @primaryAction="showTypeModal = true" 
+      @filterAction="openRequestTypeFilterOptions" 
+    />
 
     <main class="container mx-auto p-4">
       <h1 class="text-2xl font-bold mb-4">Liste des Types de Demande</h1>
@@ -120,7 +107,8 @@
 
 <script>
 import TypeModal from '@/components/layouts/TypeDeDemandeModal.vue';
-import Pagination from '@/components/layouts/Pagination.vue'; 
+import Pagination from '@/components/layouts/Pagination.vue';
+import Header from '@/components/layouts/Header.vue'; 
 
 
 export default {
@@ -128,6 +116,7 @@ export default {
   components: {
     TypeModal,
     Pagination,
+    Header,
   },
   data() {
     return {
@@ -147,6 +136,11 @@ export default {
     getToken() {
       return localStorage.getItem('token');
     },
+
+    openRequestTypeFilterOptions() {
+      // Logic for filtering request types
+    },
+
     checkAuthorization() {
       const token = this.getToken();
       if (!token) {

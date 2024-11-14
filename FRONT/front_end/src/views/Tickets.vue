@@ -1,25 +1,14 @@
 <template>
   <div class="bg-gray-100 min-h-screen">
-    <header class="bg-lime-500 p-4 shadow-md">
-      <div class="container mx-auto flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-          <img src="@/assets/logo.png" alt="Logo" class="h-10" />
-          <span class="text-white text-xl font-bold">NOVA Lead</span>
-        </div>
-        <div class="flex items-center space-x-4">
-          <button @click="showTicketModal = true" class="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition">
-            New <span class="ml-1">+</span>
-          </button>
-          <button class="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition flex items-center">
-            Filtrer
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </header>
-
+    <Header 
+      title="NOVA LEAD" 
+      primaryActionText="New Ticket" 
+      @primaryAction="showTicketModal = true" 
+      @filterChanged="onFilterChanged"
+      :filterAction="true" 
+      :filterOptions="ticketFilterOptions" 
+    />
+    
     <main class="container mx-auto p-4">
       <h1 class="text-2xl font-bold mb-4">Liste des Tickets</h1>
       <table class="min-w-full bg-white">
@@ -35,10 +24,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="ticket in tickets" :key="ticket._id">
-            <td class="border px-4 py-2 text-center">{{ ticket.userId?.name || 'Inconnu' }}</td>
-            <td class="border px-4 py-2 text-center">{{ ticket.typeDeDemandeId?.name || 'Inconnu' }}</td>
-            <td class="border px-4 py-2 text-center">{{ ticket.productId?.name || 'Inconnu' }}</td>
+          <tr v-for="ticket in filteredTickets" :key="ticket._id">
+            <td class="border px-4 py-2 ">{{ ticket.userId?.name || 'Inconnu' }}</td>
+            <td class="border px-4 py-2 ">{{ ticket.typeDeDemandeId?.name || 'Inconnu' }}</td>
+            <td class="border px-4 py-2 ">{{ ticket.productId?.name || 'Inconnu' }}</td>
             <td class="border px-4 py-2 text-center">
               <span v-if="ticket.urgence === 'urgent'" class="inline-block w-4 h-4 bg-red-800 rounded-full"></span>
               <span v-else class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
@@ -138,7 +127,8 @@
 <script>
 import TicketModal from '@/components/layouts/TicketModal.vue';
 import RatingModal from '@/components/layouts/RatingModal.vue';
-import Pagination from '@/components/layouts/Pagination.vue'; 
+import Pagination from '@/components/layouts/Pagination.vue';
+import Header from '@/components/layouts/Header.vue'; 
 import axios from 'axios';
 
 export default {
@@ -146,6 +136,7 @@ export default {
     TicketModal,
     RatingModal,
     Pagination,
+    Header,
   },
   data() {
     return {
@@ -155,6 +146,12 @@ export default {
       showRatingModal: false,
       isEdit: false,
       tickets: [],
+      selectedStatus: '',
+      ticketFilterOptions: [
+        { value: 'ouvert', label: 'Ouvert' },
+        { value: 'en cours', label: 'En cours' },
+        { value: 'cloturé', label: 'Clôturé' },
+      ],
       products: [],
       typesDeDemande: [],
       selectedTicket: null,
@@ -167,6 +164,15 @@ export default {
       userRole: null,
     };
   },
+  computed: {
+    filteredTickets() {
+      if (this.selectedStatus === '') {
+        return this.tickets;
+      }
+      return this.tickets.filter(ticket => ticket.statut === this.selectedStatus);
+    },
+  },
+
   mounted() {
     this.fetchUserRole();
     this.fetchTickets();
@@ -177,7 +183,9 @@ export default {
   beforeDestroy() {
     document.removeEventListener('click', this.closeDropdownOnClickOutside);
   },
+
   methods: {
+
     fetchTickets() {
       const token = localStorage.getItem('token');
       axios
@@ -194,6 +202,10 @@ export default {
           }
         })
         .catch(error => console.error('Erreur lors de la récupération des tickets:', error));
+    },
+
+    onFilterChanged(statut) {
+      this.selectedStatus = statut;
     },
 
     fetchUserRole() {
@@ -400,3 +412,8 @@ closeTicket(ticketId) {
   },
 };
 </script>
+
+<style scoped>
+/* Ajoutez des styles ici si nécessaire */
+</style>
+

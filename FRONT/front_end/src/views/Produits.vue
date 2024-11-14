@@ -1,7 +1,11 @@
 <template>
   <div class="bg-gray-100 min-h-screen">
-    <!-- Importation du composant Header -->
-    <Header @showProductModal="showProductModal = true" />
+    <Header 
+      title="NOVA LEAD" 
+      primaryActionText="New Product" 
+      @primaryAction="showProductModal = true" 
+      @filterAction="openFilterOptions" 
+    />
 
     <main class="container mx-auto p-4">
       <h1 class="text-2xl font-bold mb-4">Liste des Produits</h1>
@@ -131,6 +135,11 @@ export default {
     getToken() {
       return localStorage.getItem('token');
     },
+
+    openFilterOptions() {
+      // Logic for filtering products
+    },
+
     truncateText(text, length) {
       if (text.length > length) {
         return text.substring(0, length) + '...';

@@ -63,6 +63,38 @@
                 />
               </div>
               <div>
+  <label for="pays" class="block mb-2 text-sm font-medium text-gray-900">Pays</label>
+  <select
+    v-model="user.pays"
+    id="pays"
+    class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
+    required
+  >
+    <option value="" disabled hidden>Veuillez sélectionner votre pays</option>
+    <option value="Togo">Togo</option>
+    <option value="Cameroun">Cameroun</option>
+    <option value="Benin">Benin</option>
+    <option value="Mauritanie">Mauritanie</option>
+  </select>
+</div>
+
+<div class="mt-4">
+  <label for="ville" class="block mb-2 text-sm font-medium text-gray-900">Ville</label>
+  <select
+    v-model="user.ville"
+    id="ville"
+    class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
+    required
+  >
+    <option value="" disabled hidden>Veuillez sélectionner votre ville</option>
+    <option value="Lomé">Lomé</option>
+    <option value="Yaoundé">Yaoundé</option>
+    <option value="Cotonou">Cotonou</option>
+    <option value="Nouakchott">Nouakchott</option>
+  </select>
+</div>
+
+              <div>
                 <label for="role" class="block mb-2 text-sm font-medium text-gray-900">Role</label>
                 <select
                   v-model="user.role"
