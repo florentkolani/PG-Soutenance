@@ -1,41 +1,14 @@
 <template>
   <div class="bg-gray-100 min-h-screen">
-    <header class="bg-lime-500 p-4 shadow-md">
-      <div class="container mx-auto flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-          <img src="../assets/logo.png" alt="Logo" class="h-10" />
-          <span class="text-white text-xl font-bold">NOVA Lead</span>
-        </div>
-        <div class="flex items-center space-x-4">
-          <button
-            @click="showModal = true"
-            class="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition"
-          >
-            New <span class="ml-2">+</span>
-          </button>
-          <button
-            @click="filterByRole"
-            class="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition flex items-center"
-          >
-            Filtrer
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="w-4 h-4 ml-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 12h16m-7 6h7"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </header>
+    
+    <Header 
+      title="NOVA LEAD" 
+      primaryActionText="New User" 
+      @primaryAction="showModal = true" 
+      @filterChanged="onFilterChanged"
+      :filterAction="true" 
+      :filterOptions="userFilterOptions" 
+    />
 
     <main class="container mx-auto p-4">
       <h1 class="text-2xl font-bold mb-4">Liste des Utilisateurs</h1>
@@ -65,11 +38,13 @@
             <td class="py-3 px-6 text-left">{{ user.email }}</td>
             <td class="py-3 px-6 text-left">{{ user.contact }}</td>
             <td class="py-3 px-6 text-left">{{ user.role }}</td>
+            
             <td class="py-3 px-6 text-center">
               <button @click="viewDetails(user)" class="bg-green-500 text-white px-4 py-2 rounded mr-2">Détails</button>
               <button @click="openEditModal(user)" class="bg-blue-500 text-white px-4 py-2 rounded mr-2">Modifier</button>
               <button @click="openArchiveModal(user._id)" class="bg-yellow-500 text-white px-4 py-2 rounded mr-2">Archiver</button>
-            </td>
+            </td> 
+            
           </tr>
         </tbody>
       </table>
@@ -87,6 +62,8 @@
         <p><strong>Email :</strong> <span class="ml-2">{{ selectedUser.email }}</span></p>
         <p><strong>Contact :</strong> <span class="ml-2">{{ selectedUser.contact }}</span></p>
         <p><strong>Rôle :</strong> <span class="ml-2">{{ selectedUser.role }}</span></p>
+        <p><strong>pays :</strong> <span class="ml-2">{{ selectedUser.pays }}</span></p>
+        <p><strong>ville :</strong> <span class="ml-2">{{ selectedUser.ville }}</span></p>
       </div>
       <button @click="closeDetailsModal" class="mt-6 bg-green-500 text-white px-4 py-2 rounded mx-auto block">Fermer</button>
     </div>
@@ -112,6 +89,14 @@
             <div class="mb-4">
               <label class="block text-gray-700">Rôle:</label>
               <input v-model="editUserData.role" type="text" class="w-full px-4 py-2 border rounded-md" />
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700">pays:</label>
+              <input v-model="editUserData.pays" type="text" class="w-full px-4 py-2 border rounded-md" />
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700">ville:</label>
+              <input v-model="editUserData.ville" type="text" class="w-full px-4 py-2 border rounded-md" />
             </div>
             <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Enregistrer</button>
             <button @click="closeEditModal" class="bg-gray-500 text-white px-4 py-2 ml-2 rounded-md">Annuler</button>
@@ -158,12 +143,14 @@
 import axios from 'axios';
 import UserModal from '@/components/layouts/UserModal.vue';
 import Pagination from '@/components/layouts/Pagination.vue'; 
+import Header from '@/components/layouts/Header.vue';
 
 export default {
   name: 'Utilisateurs',
   components: {
     UserModal,
     Pagination,
+    Header,
   },
   data() {
     return {
@@ -171,7 +158,14 @@ export default {
       showEditModal: false,
       showDetailsModal: false,
       showArchiveModal: false,
+      dropdownOpen: null,
       users: [],
+      selectedRole: '',
+      userFilterOptions: [
+        { value: 'Admin', label: 'Admin' },
+        { value: 'Client', label: 'Client' },
+        { value: 'AgentSupport', label: 'Agent' },
+      ],
       filterRole: '',
       selectedUser: null,
       selectedUserId: null,
@@ -191,11 +185,28 @@ export default {
         return this.filterRole ? user.role === this.filterRole : true;
       });
     },
+
+    filteredUsers() {
+      if (this.selectedRole === '') {
+        return this.users;
+      }
+      return this.users.filter(user => user.role === this.selectedRole);
+    },
+
   },
   methods: {
     getToken() {
       return localStorage.getItem('token');
     },
+
+    openUserFilterOptions() {
+      // Logic for filtering users
+    },
+
+    toggleDropdown(userId) {
+    this.dropdownOpen = this.dropdownOpen === userId ? null : userId;
+  },
+
     checkAuthorization() {
       const token = this.getToken();
       if (!token) {
@@ -230,6 +241,10 @@ export default {
       .catch(error => {
         console.error('Error fetching users:', error);
       });
+    },
+
+    onFilterChanged(role) {
+      this.selectedRole = role;
     },
 
     openEditModal(user) {

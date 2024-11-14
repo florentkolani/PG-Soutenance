@@ -43,7 +43,7 @@ exports.login = async (req, res) => {
 
 // Enregistrement d'un nouvel utilisateur
 exports.register = async (req, res) => {
-    const { name, email, password, contact, role } = req.body;
+    const { name, email, password, contact, role, pays, ville } = req.body;
 
     try {
         // Vérifier si l'utilisateur existe déjà
@@ -57,6 +57,8 @@ exports.register = async (req, res) => {
         const user = new User({
             name, 
             email,
+            pays,
+            ville,
             password,
             contact,
             role: role || 'Client', 

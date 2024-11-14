@@ -9,7 +9,7 @@ const generateToken = (id) => {
 
 // Inscription
 exports.registerUser = async (req, res) => {
-    const { name, email, password, contact, role } = req.body;
+    const { name, email, password, contact, role, pays, ville } = req.body;
 
     try {
         // Vérifier si l'utilisateur existe déjà
@@ -19,7 +19,7 @@ exports.registerUser = async (req, res) => {
         }
 
         // Créer un nouvel utilisateur
-        const user = new User({ name, email, password, contact, role });
+        const user = new User({ name, email, password, contact, role, pays, ville });
         await user.save();
 
         // Répondre avec le token et les infos utilisateur
@@ -27,6 +27,8 @@ exports.registerUser = async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
+            pays: user.pays,
+            ville: user.ville,
             role: user.role,
             token: generateToken(user._id)
         });
@@ -48,6 +50,8 @@ exports.loginUser = async (req, res) => {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
+                pays: user.pays,
+                ville: user.ville,
                 role: user.role,
                 token: generateToken(user._id)
             });
@@ -70,6 +74,8 @@ exports.getUserProfile = async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
+            pays: user.pays,
+            ville: user.ville,
             role: user.role,
             contact: user.contact,
             lastLogin: user.lastLogin
@@ -117,7 +123,7 @@ exports.getUserById = async (req, res) => {
 }
 // Mettre à jour un utilisateur
 exports.updateUser = async (req, res) => {
-    const { name, email, password, contact, role } = req.body;
+    const { name, email, password, contact, role, pays, ville } = req.body;
 
     try {
         // Vérifier si l'utilisateur existe
@@ -129,6 +135,8 @@ exports.updateUser = async (req, res) => {
         // Mettre à jour les informations de l'utilisateur
         user.name = name || user.name;
         user.email = email || user.email;
+        user.pays = pays || user.pays;
+        user.ville = ville || user.ville;
         user.contact = contact || user.contact;
         user.role = role || user.role;
 
@@ -143,6 +151,8 @@ exports.updateUser = async (req, res) => {
             _id: updatedUser._id,
             name: updatedUser.name,
             email: updatedUser.email,
+            pays: updatedUser.pays,
+            ville: updatedUser.ville,
             role: updatedUser.role,
         });
     } catch (error) {
