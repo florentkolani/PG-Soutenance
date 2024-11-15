@@ -11,7 +11,9 @@
 
           <form @submit.prevent="addProduct">
             <div class="mb-4">
-              <label for="name" class="block mb-2 text-sm font-medium text-gray-900">Product Name</label>
+              <label for="name" class="block mb-2 text-sm font-medium text-gray-900">
+                Product Name <span class="text-red-500">*</span>
+              </label>
               <input v-model="product.name" type="text" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5" placeholder="Enter product name" required />
             </div>
             

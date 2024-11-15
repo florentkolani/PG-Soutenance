@@ -13,7 +13,9 @@
           <!-- Modal body -->
           <form @submit.prevent="addTypeDeDemande">
             <div class="mb-4">
-              <label for="name" class="block mb-2 text-sm font-medium text-gray-900">Name</label>
+              <label for="name" class="block mb-2 text-sm font-medium text-gray-900">
+                TypeDeDemande Name <span class="text-red-500">*</span>
+              </label>
               <input v-model="typeDeDemande.name" type="text" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5" placeholder="Enter type de demande name" required />
             </div>
             <div class="mb-4">

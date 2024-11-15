@@ -38,16 +38,35 @@
   <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
 </svg>
 </div>
+</header>
 
-      </header>
+<div class="flex space-x-4 p-6 bg-gray-100">
+  <div class="bg-white shadow-md rounded-lg p-4 w-1/4 text-center">
+    <h4 class="text-lg font-semibold text-gray-700">Total Tickets</h4>
+    <p class="text-2xl font-bold text-indigo-500">{{ ticketData.total }}</p>
+  </div>
+  <div class="bg-white shadow-md rounded-lg p-4 w-1/4 text-center">
+    <h4 class="text-lg font-semibold text-gray-700">Ouverts</h4>
+    <p class="text-2xl font-bold text-red-500">{{ ticketData.open }}</p>
+  </div>
+  <div class="bg-white shadow-md rounded-lg p-4 w-1/4 text-center">
+    <h4 class="text-lg font-semibold text-gray-700">En Cours</h4>
+    <p class="text-2xl font-bold text-blue-500">{{ ticketData.inProgress }}</p>
+  </div>
+  <div class="bg-white shadow-md rounded-lg p-4 w-1/4 text-center">
+    <h4 class="text-lg font-semibold text-gray-700">Résolus</h4>
+    <p class="text-2xl font-bold text-yellow-500">{{ ticketData.resolved }}</p>
+  </div>
+</div>
+
 <!-- Main View with Transition -->
-      <transition name="fade" mode="out-in">
-        <main class="flex-1 p-6 overflow-y-auto bg-gray-50" key="$route.fullPath">
-          <router-view />
-          <!-- Affichage du graphique -->
-          <TicketChart :data="[10, 5, 20]" />
-        </main>
-      </transition>
+<transition name="fade" mode="out-in">
+  <main class="flex-1 p-6 overflow-y-auto bg-gray-50" key="$route.fullPath">
+    <router-view />
+    <TicketChart :data="[ticketData.open, ticketData.inProgress, ticketData.resolved]" />
+  </main>
+</transition>
+
     </div>
   </div>
 </template>
@@ -62,11 +81,18 @@ import TicketChart from '@/views/TicketChart.vue';
 export default {
   name: 'Dashboard',
   data() {
-    return {
-      role: null,
-      userInfo: null,
-    };
-  },
+  return {
+    role: null,
+    userInfo: null,
+    ticketData: {
+      total: 35,
+      open: 10,
+      inProgress: 5,
+      resolved: 20
+    }
+  };
+},
+
 
   async created() {
     this.role = getUserRole();
