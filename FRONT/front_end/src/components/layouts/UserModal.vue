@@ -19,7 +19,9 @@
           <form @submit.prevent="registerUser">
             <div class="grid gap-4 mb-4 sm:grid-cols-2">
               <div>
-                <label for="name" class="block mb-2 text-sm font-medium text-gray-900">Name</label>
+                <label for="name" class="block mb-2 text-sm font-medium text-gray-900">
+                  Name <span class="text-red-500">*</span>
+                </label>
                 <input
                   v-model="user.name"
                   type="text"
@@ -30,7 +32,9 @@
                 />
               </div>
               <div>
-                <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Email</label>
+                <label for="email" class="block mb-2 text-sm font-medium text-gray-900">
+                  Email <span class="text-red-500">*</span>
+                </label>
                 <input
                   v-model="user.email"
                   type="email"
@@ -41,7 +45,9 @@
                 />
               </div>
               <div>
-                <label for="password" class="block mb-2 text-sm font-medium text-gray-900">Password</label>
+                <label for="password" class="block mb-2 text-sm font-medium text-gray-900">
+                  Password <span class="text-red-500">*</span>
+                </label>
                 <input
                   v-model="user.password"
                   type="password"
@@ -52,7 +58,9 @@
                 />
               </div>
               <div>
-                <label for="contact" class="block mb-2 text-sm font-medium text-gray-900">Contact</label>
+                <label for="contact" class="block mb-2 text-sm font-medium text-gray-900">
+                  Contact <span class="text-red-500">*</span>
+                </label>
                 <input
                   v-model="user.contact"
                   type="text"
@@ -63,7 +71,9 @@
                 />
               </div>
               <div>
-  <label for="pays" class="block mb-2 text-sm font-medium text-gray-900">Pays</label>
+  <label for="pays" class="block mb-2 text-sm font-medium text-gray-900">
+    Pays <span class="text-red-500">*</span>
+  </label>
   <select
     v-model="user.pays"
     id="pays"
@@ -79,7 +89,9 @@
 </div>
 
 <div class="mt-4">
-  <label for="ville" class="block mb-2 text-sm font-medium text-gray-900">Ville</label>
+  <label for="ville" class="block mb-2 text-sm font-medium text-gray-900">
+    Ville <span class="text-red-500">*</span>
+  </label>
   <select
     v-model="user.ville"
     id="ville"
@@ -95,7 +107,9 @@
 </div>
 
               <div>
-                <label for="role" class="block mb-2 text-sm font-medium text-gray-900">Role</label>
+                <label for="role" class="block mb-2 text-sm font-medium text-gray-900">
+                  Role <span class="text-red-500">*</span>
+                </label>
                 <select
                   v-model="user.role"
                   id="role"

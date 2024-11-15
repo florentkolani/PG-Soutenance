@@ -1,85 +1,108 @@
 <template>
   <div>
-
     <section v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white p-0 rounded-lg shadow-lg max-w-lg w-full max-h-[100vh] overflow-y-auto relative">
-      <button @click="$emit('close')" class="absolute top-4 right-6 text-red-600 hover:text-gray-700">&times;</button>
+      <div class="bg-white p-0 rounded-lg shadow-lg max-w-lg w-full max-h-[100vh] overflow-y-auto relative">
+        <button @click="$emit('close')" class="absolute top-4 right-6 text-red-600 hover:text-gray-700">&times;</button>
 
-      <div class="py-4 px-6">
-        <h2 class="mb-4 text-xl font-bold text-gray-900 text-center">
-          {{ isEdit ? "Modifier le Ticket" : "Créer un Ticket" }}
-        </h2>
-        <form @submit.prevent="handleSubmit">
-          <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
-            <!-- Product Select -->
-            <div class="sm:col-span-2">
-              <label for="product" class="block mb-2 text-sm font-medium text-gray-900">Produit</label>
-              <select
-                v-model="selectedProduct"
-                id="product"
-                required
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+        <div class="py-4 px-6">
+          <h2 class="mb-4 text-xl font-bold text-gray-900 text-center">
+            {{ isEdit ? "Modifier le Ticket" : "Créer un Ticket" }}
+          </h2>
+          <form @submit.prevent="handleSubmit">
+            <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
+              <!-- Product Select -->
+              <div class="sm:col-span-2">
+                <label for="product" class="block mb-2 text-sm font-medium text-gray-900">
+                  Produit <span class="text-red-500">*</span>
+                </label>
+                <select
+                  v-model="selectedProduct"
+                  id="product"
+                  required
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                >
+                  <option value="">Sélectionner un produit</option>
+                  <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}</option>
+                </select>
+              </div>
+
+              <!-- Type de Demande Select -->
+              <div class="sm:col-span-2">
+                <label for="typeDeDemande" class="block mb-2 text-sm font-medium text-gray-900">
+                  Type de Demande <span class="text-red-500">*</span>
+                </label>
+                <select
+                  v-model="selectedTypeDeDemande"
+                  id="typeDeDemande"
+                  required
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                >
+                  <option value="">Sélectionner un type de demande</option>
+                  <option v-for="type in typeDeDemandes" :key="type._id" :value="type._id">{{ type.name }}</option>
+                </select>
+              </div>
+
+              <!-- Urgency, Description, and File Upload -->
+              <div>
+                <label for="urgence" class="block mb-2 text-sm font-medium text-gray-900">
+                  Urgence <span class="text-red-500">*</span>
+                </label>
+                <select v-model="urgence" id="urgence" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg">
+                  <option value="">Sélectionnez l'Urgence</option>
+                  <option value="urgent">Urgent</option>
+                  <option value="Pas Urgent">Pas Urgent</option>
+                </select>
+              </div>
+              <div class="sm:col-span-2">
+                <label for="description" class="block mb-2 text-sm font-medium text-gray-900">
+                  Description <span class="text-red-500">*</span>
+                </label>
+                <textarea
+                  v-model="description"
+                  id="description"
+                  rows="2"
+                  required
+                  class="block w-full text-sm bg-gray-50 rounded-lg border"
+                ></textarea>
+              </div>
+              <div class="sm:col-span-2">
+                <label for="screenshot" class="block mb-2 text-sm font-medium text-gray-900">
+                  Télécharger un fichier (optionnel)
+                </label>
+                <input
+                  type="file"
+                  @change="handleFileChange"
+                  id="screenshot"
+                  class="bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5"
+                />
+              </div>
+            </div>
+            <div class="flex justify-center">
+              <button
+                type="submit"
+                class="inline-flex items-center px-5 py-2.5 mt-4 text-sm font-medium text-black bg-green-300 rounded-lg hover:bg-green-800"
               >
-                <option value="">Sélectionner un produit</option>
-                <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}</option>
-              </select>
+                {{ isEdit ? "Modifier le ticket" : "Créer un ticket" }}
+              </button>
             </div>
+          </form>
+        </div>
+      </div>
+    </section>
 
-            <!-- Type de Demande Select -->
-            <div class="sm:col-span-2">
-              <label for="typeDeDemande" class="block mb-2 text-sm font-medium text-gray-900">Type de Demande</label>
-              <select
-                v-model="selectedTypeDeDemande"
-                id="typeDeDemande"
-                required
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-              >
-                <option value="">Sélectionner un type de demande</option>
-                <option v-for="type in typeDeDemandes" :key="type._id" :value="type._id">{{ type.name }}</option>
-              </select>
-            </div>
-
-            <!-- Urgency, Description, and File Upload -->
-            <div>
-              <label for="urgence" class="block mb-2 text-sm font-medium text-gray-900">Urgence</label>
-              <select v-model="urgence" id="urgence" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg">
-                <option value="">Sélectionnez l'Urgence</option>
-                <option value="urgent">Urgent</option>
-                <option value="Pas Urgent">Pas Urgent</option>
-              </select>
-            </div>
-            <div class="sm:col-span-2">
-              <label for="description" class="block mb-2 text-sm font-medium text-gray-900">Description</label>
-              <textarea v-model="description" id="description" rows="2" required class="block w-full text-sm bg-gray-50 rounded-lg border"></textarea>
-            </div>
-            <div class="sm:col-span-2">
-              <label for="screenshot" class="block mb-2 text-sm font-medium text-gray-900">Télécharger un fichier</label>
-              <input type="file" @change="handleFileChange" id="screenshot" class="bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5" />
-            </div>
-          </div>
-          <div class="flex justify-center">
-            <button type="submit" class="inline-flex items-center px-5 py-2.5 mt-4 text-sm font-medium text-black bg-green-300 rounded-lg hover:bg-green-800">
-              {{ isEdit ? "Modifier le ticket" : "Créer un ticket" }}
-            </button>
-          </div>
-        </form>
+    <!-- Boîte de dialogue de succès -->
+    <div v-if="showSuccessMessage" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white p-4 rounded-lg shadow-lg max-w-md w-full text-center">
+        <h3 class="text-xl font-bold mb-4">Succès</h3>
+        <p>{{ successMessage }}</p>
+        <button @click="closeSuccessDialog" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+          OK
+        </button>
       </div>
     </div>
-  </section>
-   <!-- Boîte de dialogue de succès -->
-   <div v-if="showSuccessMessage" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white p-4 rounded-lg shadow-lg max-w-md w-full text-center">
-      <h3 class="text-xl font-bold mb-4">Succès</h3>
-      <p>{{ successMessage }}</p>
-      <button @click="closeSuccessDialog" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-        OK
-      </button>
-    </div>
   </div>
-
-  </div>
- 
 </template>
+
 
 <script>
 import axios from 'axios';
