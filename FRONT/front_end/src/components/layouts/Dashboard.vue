@@ -129,12 +129,30 @@ export default {
 };
 
 async function fetchUserInfo(userId) {
-  const response = await fetch(`http://localhost:5000/api/users/${userId}`);
-  console.log(response);
+  const token = localStorage.getItem('token'); // Récupère le token depuis le stockage local
+  if (!token) {
+    console.error("Token manquant, redirection vers la page de connexion");
+    throw new Error("Token d'authentification manquant");
+  }
+
+  const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`, // Ajoute le token dans les en-têtes
+      'Content-Type': 'application/json'
+    }
+  });
+
+  console.log("Response:", response);
   
-  if (!response.ok) throw new Error("Échec de la récupération des informations utilisateur");
+  if (!response.ok) {
+    console.error("Erreur HTTP:", response.status, response.statusText);
+    throw new Error("Échec de la récupération des informations utilisateur");
+  }
+
   return await response.json();
 }
+
 </script>
 
 

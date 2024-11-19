@@ -180,3 +180,26 @@ exports.archiveUser = async (req, res) => {
     }
 };
 
+// Récupérer tous les utilisateurs archivés avec pagination
+exports.getArchivedUsers = async (req, res) => {
+    const { page = 1, limit = 10 } = req.query;
+  
+    try {
+      const archivedUsers = await User.find({ isArchived: true })
+        .skip((page - 1) * limit)
+        .limit(Number(limit));
+  
+      const totalItems = await User.countDocuments({ isArchived: true });
+  
+      res.status(200).json({
+        data: archivedUsers,
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        currentPage: Number(page),
+      });
+    } catch (error) {
+      console.error('Error fetching archived users:', error);
+      res.status(500).json({ message: 'Erreur serveur.' });
+    }
+  };
+  

@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema({
         enum: ['Admin', 'Client', 'AgentSupport'],
         default: 'Client',
     },
+    mustChangePassword: {
+        type: Boolean,
+        default: true, // True par défaut pour exiger un changement de mot de passe à la première connexion
+    },
 }, {
     timestamps: true,
 });

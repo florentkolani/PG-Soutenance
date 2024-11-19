@@ -17,6 +17,7 @@ const routes = [
     { path: '/tickets',    name: 'Tickets',component: Tickets },
   { path: '/TypeDeDemande', component: TypesDeDemandes },
   {path: '/ticket/:ticketId',name: 'TicketDetails',component: TicketDetails,props: true},
+  {path: '/Archives', name: 'Archives', component: () => import('@/views/Archives.vue'), meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({

@@ -34,6 +34,15 @@
                   <span class="ml-3">TypeDemande</span>
               </router-link>
           </li>
+          <li>
+                <router-link to="/Archives" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                    <!-- Icône d'archive -->
+                    <svg aria-hidden="true" class="flex-shrink-0 w-6 h-6 text-gray-400 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 6h14a1 1 0 011 1v9a1 1 0 01-1 1H3a1 1 0 01-1-1V7a1 1 0 011-1zM2 5a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V5z"></path>
+                    </svg>
+                    <span class="ml-3">Archives</span>
+                </router-link>
+            </li>
       </ul>
       <ul class="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
           <li>
@@ -48,6 +57,8 @@
                   <span class="ml-3">À propos</span>
               </router-link>
           </li>
+           
+
       </ul>
   </div>
 </aside>
