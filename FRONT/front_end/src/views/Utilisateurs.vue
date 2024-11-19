@@ -11,14 +11,8 @@
     />
 
     <main class="container mx-auto p-4">
-      <h1 class="text-2xl font-bold mb-4">Liste des Utilisateurs</h1>
-      <div v-if="showFilterDropdown" class="mb-4">
-        <select v-model="filterRole" @change="fetchUsers" class="border rounded p-2">
-          <option value="">Tous les Rôles</option>
-          <option value="Admin">Admin</option>
-          <option value="Client">Client</option>
-          <option value="AgentSupport">Agent Support</option>
-        </select>
+      <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold">Liste des Utilisateurs</h1>
       </div>
 
       <!-- Table des utilisateurs -->
@@ -181,12 +175,6 @@ export default {
   },
   computed: {
     filteredUsers() {
-      return this.users.filter(user => {
-        return this.filterRole ? user.role === this.filterRole : true;
-      });
-    },
-
-    filteredUsers() {
       if (this.selectedRole === '') {
         return this.users;
       }
@@ -197,10 +185,6 @@ export default {
   methods: {
     getToken() {
       return localStorage.getItem('token');
-    },
-
-    openUserFilterOptions() {
-      // Logic for filtering users
     },
 
     toggleDropdown(userId) {
@@ -216,7 +200,7 @@ export default {
       }
       return token;
     },
-
+    //charge tous les utilisateurs non archivées
     fetchUsers(page = this.currentPage, limit = this.itemsPerPage) {
       const token = this.checkAuthorization();
       if (!token) return;
@@ -231,12 +215,13 @@ export default {
         }
       })
       .then(response => {
-        // Filtrer les utilisateurs archivés ici si nécessaire
         this.users = response.data.data.filter(user => !user.isArchived);
-        // Mettre à jour les informations de pagination
-        this.totalItems = response.data.totalItems;
-        this.totalPages = response.data.totalPages;
-        this.currentPage = response.data.currentPage;
+      this.pagination = {
+        currentPage: response.data.currentPage,
+        totalItems: response.data.totalItems,
+        totalPages: response.data.totalPages,
+        itemsPerPage: limit,
+      }
       })
       .catch(error => {
         console.error('Error fetching users:', error);
@@ -272,7 +257,7 @@ export default {
     updateUser() {
       const token = this.checkAuthorization();
       if (!token) return;
-
+//Mise à jour de l'utilisateur
       axios.put(`http://localhost:5000/api/users/${this.editUserData._id}`, this.editUserData, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -305,7 +290,7 @@ export default {
       }
       const token = this.checkAuthorization();
       if (!token) return;
-
+// archivation de l'utilisateur 
       axios.put(`http://localhost:5000/api/users/${userId}/archive`, {}, {
         headers: {
           Authorization: `Bearer ${token}`
