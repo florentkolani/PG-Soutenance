@@ -9,6 +9,7 @@
       :filterAction="true" 
       :filterOptions="userFilterOptions" 
     />
+    <GoToDashboard />
 
     <main class="container mx-auto p-4">
       <div class="flex justify-between items-center mb-4">
@@ -138,6 +139,7 @@ import axios from 'axios';
 import UserModal from '@/components/layouts/UserModal.vue';
 import Pagination from '@/components/layouts/Pagination.vue'; 
 import Header from '@/components/layouts/Header.vue';
+import GoToDashboard from '@/components/layouts/GoToDashboard.vue';
 
 export default {
   name: 'Utilisateurs',
@@ -145,6 +147,7 @@ export default {
     UserModal,
     Pagination,
     Header,
+    GoToDashboard
   },
   data() {
     return {
@@ -329,6 +332,10 @@ export default {
 
   mounted() {
     this.fetchUsers();
+    this.interval = setInterval(() => {
+      this.fetchUsers();
+    }, 1000);
+    
   },
 };
 </script>

@@ -66,12 +66,21 @@ exports.getProductById = async (req, res) => {
 // Archiver un produit
 exports.archiveProduct = async (req, res) => {
     try {
-        const product = await Product.findByIdAndUpdate(req.params.id, { archived: true }, { new: true });
-        if (!product) {
-            return res.status(404).json({ message: 'Produit non trouvé' });
-        }
-        res.status(200).json({ message: 'Produit archivé avec succès', product });
+      const productId = req.params.id;
+  
+      // Vérifiez si le produit existe
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.status(404).json({ message: "Produit non trouvé" });
+      }
+  
+      // Mettez à jour le champ `archived` (par exemple)
+      product.archived = true;
+      await product.save();
+  
+      res.status(200).json({ message: "Produit archivé avec succès", product });
     } catch (error) {
-        res.status(400).json({ message: 'Erreur lors de l\'archivage du produit', error });
+      console.error("Erreur lors de l'archivage du produit :", error);
+      res.status(500).json({ message: "Erreur interne du serveur", error });
     }
-};
+  };

@@ -8,7 +8,8 @@
       :filterAction="true" 
       :filterOptions="ticketFilterOptions" 
     />
-    
+    <GoToDashboard />
+
     <main class="container mx-auto p-4">
       <h1 class="text-2xl font-bold mb-4">Liste des Tickets</h1>
       <table class="min-w-full bg-white">
@@ -129,6 +130,7 @@ import TicketModal from '@/components/layouts/TicketModal.vue';
 import RatingModal from '@/components/layouts/RatingModal.vue';
 import Pagination from '@/components/layouts/Pagination.vue';
 import Header from '@/components/layouts/Header.vue'; 
+import GoToDashboard from '../components/layouts/GoToDashboard.vue';
 import axios from 'axios';
 
 export default {
@@ -137,6 +139,7 @@ export default {
     RatingModal,
     Pagination,
     Header,
+    GoToDashboard,
   },
   data() {
     return {
@@ -179,7 +182,9 @@ export default {
     this.fetchProducts();
     this.fetchTypesDeDemande();
     document.addEventListener('click', this.closeDropdownOnClickOutside);
+    this.interval = setInterval(() => {this.fetchTickets(); }, 1000); 
   },
+  
   beforeDestroy() {
     document.removeEventListener('click', this.closeDropdownOnClickOutside);
   },

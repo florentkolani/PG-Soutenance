@@ -6,6 +6,7 @@
       @primaryAction="showTypeModal = true" 
       @filterAction="openRequestTypeFilterOptions" 
     />
+    <GoToDashboard />
 
     <main class="container mx-auto p-4">
       <h1 class="text-2xl font-bold mb-4">Liste des Types de Demande</h1>
@@ -109,6 +110,7 @@
 import TypeModal from '@/components/layouts/TypeDeDemandeModal.vue';
 import Pagination from '@/components/layouts/Pagination.vue';
 import Header from '@/components/layouts/Header.vue'; 
+import GoToDashboard from '@/components/layouts/GoToDashboard.vue';
 
 
 export default {
@@ -117,6 +119,7 @@ export default {
     TypeModal,
     Pagination,
     Header,
+    GoToDashboard,
   },
   data() {
     return {
@@ -132,6 +135,12 @@ export default {
       totalItems: 0, // Nombre total d'éléments
     };
   },
+
+  mounted() {
+    this.getTypes(); 
+    this.interval = setInterval(() => {this.getTypes();}, 1000); 
+    },
+    
   methods: {
     getToken() {
       return localStorage.getItem('token');
@@ -202,9 +211,6 @@ export default {
     },
 
   },
-  mounted() {
-    this.getTypes(); 
-    },
     
     async updateType() {
       const token = this.getToken();
@@ -259,10 +265,6 @@ export default {
         this.confirmArchiveId = null;
       }
     },
-
-  mounted() {
-    this.getTypes();
-  },
 };
 </script>
 
