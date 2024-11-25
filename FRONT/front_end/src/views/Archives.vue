@@ -8,6 +8,7 @@
         :filterAction="true" 
         :filterOptions="userFilterOptions" 
       />
+      <GoToDashboard />
   
       <main class="container mx-auto p-4">
         <div class="flex justify-between items-center mb-4">
@@ -70,12 +71,14 @@
   import axios from 'axios';
   import Pagination from '@/components/layouts/Pagination.vue'; 
   import Header from '@/components/layouts/Header.vue';
+import GoToDashboard from '@/components/layouts/GoToDashboard.vue';
   
   export default {
     name: 'ArchivedUsers',
     components: {
       Pagination,
       Header,
+      GoToDashboard,
     },
     data() {
       return {

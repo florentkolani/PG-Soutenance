@@ -10,11 +10,31 @@ exports.sendMessage = async (req, res) => {
             userId: req.user.id
         });
         await message.save();
-        res.status(201).json(message);
+
+        const populatedMessage = await Message.findById(message._id).populate('userId', 'name');
+        res.status(201).json(populatedMessage);
     } catch (error) {
-        res.status(400).json({ message: 'Erreur lors de l\'envoi du message', error });
+        res.status(400).json({ message: "Erreur lors de l'envoi du message", error });
     }
 };
+
+// Récupérer les messages d'un ticket spécifique
+exports.getMessagesByTicket = async (req, res) => {
+    try {
+        const ticketId = req.params.ticketId;
+
+        if (!mongoose.Types.ObjectId.isValid(ticketId)) {
+            return res.status(400).json({ message: 'ID de ticket invalide' });
+        }
+
+        const messages = await Message.find({ ticketId }).populate('userId', 'name');
+        res.status(200).json(messages);
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors de la récupération des messages', error: error.message });
+    }
+};
+
+
 
 // Récupérer tous les messages
 exports.getAllMessages = async (req, res) => {
@@ -26,23 +46,23 @@ exports.getAllMessages = async (req, res) => {
     }
 };
 
-// Récupérer les messages d'un ticket spécifique
-exports.getMessagesByTicket = async (req, res) => {
-    try {
-        const ticketId = req.params.ticketId;
+// // Récupérer les messages d'un ticket spécifique
+// exports.getMessagesByTicket = async (req, res) => {
+//     try {
+//         const ticketId = req.params.ticketId;
 
-        // Vérifier si l'ID est un ObjectId valide
-        if (!mongoose.Types.ObjectId.isValid(ticketId)) {
-            return res.status(400).json({ message: 'ID de ticket invalide' });
-        }
+//         // Vérifier si l'ID est un ObjectId valide
+//         if (!mongoose.Types.ObjectId.isValid(ticketId)) {
+//             return res.status(400).json({ message: 'ID de ticket invalide' });
+//         }
 
-        const messages = await Message.find({ ticketId: ticketId }).populate('userId', 'name'); // Population des utilisateurs
-        if (messages.length === 0) {
-            return res.status(404).json({ message: 'Aucun message trouvé pour ce ticket' });
-        }
+//         const messages = await Message.find({ ticketId: ticketId }).populate('userId', 'name'); // Population des utilisateurs
+//         if (messages.length === 0) {
+//             return res.status(404).json({ message: 'Aucun message trouvé pour ce ticket' });
+//         }
 
-        res.status(200).json(messages);
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur lors de la récupération des messages', error: error.message });
-    }
-};
+//         res.status(200).json(messages);
+//     } catch (error) {
+//         res.status(500).json({ message: 'Erreur lors de la récupération des messages', error: error.message });
+//     }
+// };

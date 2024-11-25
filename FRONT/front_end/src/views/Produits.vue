@@ -6,6 +6,7 @@
       @primaryAction="showProductModal = true" 
       @filterAction="openFilterOptions" 
     />
+    <GoToDashboard />
 
     <main class="container mx-auto p-4">
       <h1 class="text-2xl font-bold mb-4">Liste des Produits</h1>
@@ -108,13 +109,15 @@
 import ProductModal from '@/components/layouts/ProductModal.vue';
 import Pagination from '@/components/layouts/Pagination.vue';
 import Header from "@/components/layouts/Header.vue";
+import GoToDashboard from '@/components/layouts/GoToDashboard.vue';
 
 export default {
   name: 'Produits',
   components: {
     ProductModal,
     Pagination,
-    Header
+    Header,
+    GoToDashboard,
   },
   data() {
     return {
@@ -131,6 +134,14 @@ export default {
       totalPages: 1,
     };
   },
+
+  mounted() {
+    this.getProducts();
+    this.interval = setInterval(() => {
+      this.getProducts();
+    }, 1000);
+  },
+
   methods: {
     getToken() {
       return localStorage.getItem('token');
@@ -282,9 +293,6 @@ export default {
       this.currentPage = page;
       this.getProducts(); 
     },
-  },
-  mounted() {
-    this.getProducts();
   },
 };
 </script>
