@@ -83,7 +83,11 @@ exports.register = async (req, res) => {
             return res.status(400).json({ message: 'Utilisateur déjà enregistré' });
         }
 
-
+         // Vérifier la longueur du mot de passe
+         if (password.length < 6) {
+            return res.status(400).json({ message: 'Le mot de passe doit contenir au moins 6 caractères.' });
+        }
+        
         // Créer un nouvel utilisateur
         const user = new User({
             name, 

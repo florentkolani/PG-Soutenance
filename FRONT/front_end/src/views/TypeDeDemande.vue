@@ -161,28 +161,57 @@ export default {
     },
 
     async getTypes() {
-    const token = this.checkAuthorization();
-    if (!token) return;
+  const token = this.checkAuthorization();
+  if (!token) return;
 
-    try {
-        const response = await fetch(`http://localhost:5000/api/types?page=${this.currentPage}&limit=${this.itemsPerPage}`, {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+  try {
+    const response = await fetch(`http://localhost:5000/api/types?page=${this.currentPage}&limit=${this.itemsPerPage}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-        if (!response.ok) throw new Error('Erreur lors de la récupération des types de demande.');
+    if (!response.ok) throw new Error('Erreur lors de la récupération des types de demande.');
 
-        const data = await response.json();
-        this.types = data.types;
-        this.totalItems = data.totalItems;
-        this.totalPages = data.totalPages;
-        this.currentPage = data.currentPage;
-    } catch (error) {
-        console.error(error);
-    }
+    const data = await response.json();
+    this.types = data.types; // Charge uniquement les non-archivés
+    this.totalItems = data.totalItems;
+    this.totalPages = data.totalPages;
+    this.currentPage = data.currentPage;
+  } catch (error) {
+    console.error(error);
+  }
 },
+
+
+async archiveType() {
+  const token = this.getToken();
+  if (!token) return;
+
+  try {
+    const response = await fetch(`http://localhost:5000/api/types/${this.confirmArchiveId}/archive`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) throw new Error('Erreur lors de l\'archivage du type de demande.');
+
+    this.alertTitle = 'Succès';
+    this.alertMessage = 'Le type de demande a été archivé avec succès.';
+    await this.getTypes(); // Recharge les types après l'archivage
+  } catch (error) {
+    console.error(error);
+    this.alertTitle = 'Erreur';
+    this.alertMessage = 'Une erreur est survenue lors de l\'archivage.';
+  } finally {
+    this.confirmArchiveId = null;
+  }
+},
+
     goToPage(page) {
       this.currentPage = page;
       this.getTypes(); 

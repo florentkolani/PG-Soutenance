@@ -1,4 +1,5 @@
 const Product = require('../models/productModel');
+const mongoose = require('mongoose');
 
 // Créer un produit
 exports.createProduct = async (req, res) => {
@@ -50,6 +51,17 @@ exports.getProducts = async (req, res) => {
     }
 };
 
+exports.getProducts = async (req, res) => {
+    try {
+      const products = await Product.find({ isArchived: false }); // Exclut les produits archivés
+      res.status(200).json(products);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des produits :", error);
+      res.status(500).json({ message: "Erreur interne du serveur", error: error.message });
+    }
+  };
+  
+
 
 // Obtenir un produit par ID
 exports.getProductById = async (req, res) => {
@@ -68,19 +80,25 @@ exports.archiveProduct = async (req, res) => {
     try {
       const productId = req.params.id;
   
+      // Vérifiez si l'ID est valide
+      if (!mongoose.Types.ObjectId.isValid(productId)) {
+        return res.status(400).json({ message: "ID produit invalide." });
+      }
+  
       // Vérifiez si le produit existe
       const product = await Product.findById(productId);
       if (!product) {
-        return res.status(404).json({ message: "Produit non trouvé" });
+        return res.status(404).json({ message: "Produit non trouvé." });
       }
   
-      // Mettez à jour le champ `archived` (par exemple)
-      product.archived = true;
+      // Archivez le produit
+      product.isArchived = true;
       await product.save();
   
       res.status(200).json({ message: "Produit archivé avec succès", product });
     } catch (error) {
       console.error("Erreur lors de l'archivage du produit :", error);
-      res.status(500).json({ message: "Erreur interne du serveur", error });
+      res.status(500).json({ message: "Erreur interne du serveur", error: error.message });
     }
   };
+  
