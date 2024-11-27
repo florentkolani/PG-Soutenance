@@ -67,7 +67,7 @@
       <!-- Modal pour l'édition d'utilisateur -->
       <div v-if="editUserData" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
         <div class="bg-white rounded-lg p-4 w-1/3 shadow-md">
-          <h2 class="text-xl font-bold mb-2">Modifier l'Utilisateur</h2>
+          <h2 class="text-xl font-bold mb-2 text-center">Modifier l'Utilisateur</h2>
           <form @submit.prevent="updateUser">
             <div class="mb-4">
               <label class="block text-gray-700">Nom:</label>
@@ -93,8 +93,11 @@
               <label class="block text-gray-700">ville:</label>
               <input v-model="editUserData.ville" type="text" class="w-full px-4 py-2 border rounded-md" />
             </div>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Enregistrer</button>
+            <div class="flex justify-center">
+              <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Enregistrer</button>
             <button @click="closeEditModal" class="bg-gray-500 text-white px-4 py-2 ml-2 rounded-md">Annuler</button>
+            </div>
+            
           </form>
         </div>
       </div>

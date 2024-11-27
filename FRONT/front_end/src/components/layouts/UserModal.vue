@@ -46,7 +46,7 @@
               </div>
               <div>
                 <label for="password" class="block mb-2 text-sm font-medium text-gray-900">
-                  Password <span class="text-red-500">*</span>
+                  Password <span class="text-red-500">*</span> <br> <span class="text-red-500">Minimum 6 caractères</span>
                 </label>
                 <input
                   v-model="user.password"

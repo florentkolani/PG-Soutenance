@@ -1,19 +1,22 @@
 const express = require('express');
 const {
     createTypeDeDemande,
-    getAllTypesDeDemande,
+    getTypesDeDemande,
     getTypeDeDemandeById,
     updateTypeDeDemande,
-    deleteTypeDeDemande
+    deleteTypeDeDemande,
+    archiveTypeDeDemande
 } = require('../controllers/typeDeDemandeController');
 
 const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
+
+// Routes
 router.post('/', protect, createTypeDeDemande);
-router.get('/', getAllTypesDeDemande);
-router.get('/:id', getTypeDeDemandeById);
+router.get('/', protect, getTypesDeDemande);
+router.get('/:id', protect, getTypeDeDemandeById);
 router.put('/:id', protect, updateTypeDeDemande);
-router.delete('/:id', protect, deleteTypeDeDemande);
+router.patch('/:id/archive', protect, archiveTypeDeDemande);
 
 module.exports = router;

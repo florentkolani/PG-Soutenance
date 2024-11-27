@@ -54,7 +54,7 @@
     <!-- Dialogue pour l'édition -->
     <div v-if="editProductData" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
       <div class="bg-white rounded-lg p-4 w-1/3 shadow-md">
-        <h2 class="text-xl font-bold mb-2">Modifier le Produit</h2>
+        <h2 class="text-xl font-bold mb-2 text-center">Modifier le Produit</h2>
         <form @submit.prevent="updateProduct">
           <div class="mb-4">
             <label class="block text-gray-700">Nom:</label>
@@ -73,11 +73,11 @@
       </div>
     </div>
 
-    <!-- Confirmation de suppression -->
+    <!-- Confirmation d'archivage -->
     <div v-if="confirmArchiveId" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
       <div class="bg-white rounded-lg p-4 w-1/3 shadow-md">
-        <h2 class="text-xl font-bold mb-4">Archiver le Produit</h2>
-        <p>Êtes-vous sûr de vouloir archiver ce produit ?</p>
+        <h2 class="text-xl font-bold mb-4 text-center">Archiver le Produit</h2>
+        <p class="text-center m-2">Êtes-vous sûr de vouloir archiver ce produit ?</p>
         <div class="flex justify-center">
           <button @click="archiveProduct" class="bg-red-500 text-white px-4 py-2 rounded-md">Oui, archiver</button>
         <button @click="closeConfirmArchive" class="bg-gray-500 text-white px-4 py-2 ml-2 rounded-md">Annuler</button>
@@ -167,35 +167,31 @@ export default {
       return token;
     },
     async getProducts() {
-      const token = this.checkAuthorization();
-      if (!token) return;
+  try {
+    const token = this.checkAuthorization();
+    if (!token) return;
 
-      try {
-        const response = await fetch(`http://localhost:5000/api/products?page=${this.currentPage}&limit=${this.itemsPerPage}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+    const response = await fetch('http://localhost:5000/api/products', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
 
-        if (response.ok) {
-          const data = await response.json();
-          this.products = data.products;
-          this.totalItems = data.pagination.totalProducts;
-          this.totalPages = data.pagination.totalPages;
-        } else if (response.status === 401) {
-          console.error("Non autorisé. Redirection vers la page de connexion.");
-          this.$router.push('/login');
-        } else {
-          console.error("Erreur lors de la récupération des produits.");
-          this.showError("Erreur lors de la récupération des produits.");
-        }
-      } catch (error) {
-        console.error("Erreur réseau :", error);
-        this.showError("Erreur réseau. Veuillez réessayer.");
-      }
-    },
+    if (response.ok) {
+      this.products = await response.json(); // Charge uniquement les produits non archivés
+    } else if (response.status === 401) {
+      console.error("Non autorisé. Redirection vers la page de connexion.");
+      this.$router.push('/login');
+    } else {
+      console.error("Erreur lors du chargement des produits.");
+      this.showError("Erreur lors du chargement des produits.");
+    }
+  } catch (error) {
+    console.error("Erreur réseau :", error);
+    this.showError("Erreur réseau. Veuillez réessayer.");
+  }
+}
+,
     changePage(page) {
       this.currentPage = page;
       this.getProducts();
@@ -249,34 +245,34 @@ export default {
       this.confirmArchiveId = null;
     },
     async archiveProduct() {
-      const token = this.checkAuthorization();
-      if (!token) return;
+  const token = this.checkAuthorization();
+  if (!token) return;
 
-      try {
-        const response = await fetch(`http://localhost:5000/api/products/${this.confirmArchiveId}/archive`, {
-          method: 'PATCH',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+  try {
+    const response = await fetch(`http://localhost:5000/api/products/${this.confirmArchiveId}/archive`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
-        if (response.ok) {
-          this.showAlert("Produit archivé avec succès.");
-          this.getProducts();
-          this.closeConfirmArchive();
-        } else if (response.status === 401) {
-          console.error("Non autorisé. Redirection vers la page de connexion.");
-          this.$router.push('/login');
-        } else {
-          console.error("Erreur lors de l'archivage du produit.");
-          this.showError("Erreur lors de l'archivage du produit.");
-        }
-      } catch (error) {
-        console.error("Erreur réseau :", error);
-        this.showError("Erreur réseau. Veuillez réessayer.");
-      }
-    },
+    if (response.ok) {
+      this.showAlert("Produit archivé avec succès.");
+      await this.getProducts(); // Recharge les produits après l'archivage
+      this.closeConfirmArchive();
+    } else if (response.status === 401) {
+      console.error("Non autorisé. Redirection vers la page de connexion.");
+      this.$router.push('/login');
+    } else {
+      console.error("Erreur lors de l'archivage du produit.");
+      this.showError("Erreur lors de l'archivage du produit.");
+    }
+  } catch (error) {
+    console.error("Erreur réseau :", error);
+    this.showError("Erreur réseau. Veuillez réessayer.");
+  }
+},
     showAlert(message) {
       this.alertMessage = message;
       setTimeout(() => {

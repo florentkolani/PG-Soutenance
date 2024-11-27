@@ -13,40 +13,29 @@ exports.createTypeDeDemande = async (req, res) => {
     }
 };
 
-exports.getAllTypesDeDemande = async (req, res) => {
+exports.getTypesDeDemande = async (req, res) => {
     try {
-        // Récupérer les paramètres de requête pour la pagination
-        const page = parseInt(req.query.page) || 1; 
-        const limit = parseInt(req.query.limit) || 10; 
-
-        // Calculer le nombre total d'éléments
-        const totalTypesDeDemande = await TypeDeDemande.countDocuments();
-
-        // Calculer les éléments à sauter pour la pagination
-        const skip = (page - 1) * limit;
-
-        // Récupérer les types de demande avec pagination
-        const typesDeDemande = await TypeDeDemande.find()
-            .skip(skip)
-            .limit(limit);
-
-        // Calculer le nombre total de pages
-        const totalPages = Math.ceil(totalTypesDeDemande / limit);
-
-        // Renvoyer les résultats avec des informations de pagination
-        res.status(200).json({
-            types: typesDeDemande,
-            totalItems: totalTypesDeDemande,
-            totalPages: totalPages,
-            currentPage: page,
-            itemsPerPage: limit
-        });
+      const { page = 1, limit = 10 } = req.query;
+      const skip = (page - 1) * limit;
+  
+      const types = await TypeDeDemande.find({ isArchived: false }) // Exclut les archivés
+        .skip(skip)
+        .limit(parseInt(limit));
+  
+      const totalItems = await TypeDeDemande.countDocuments({ isArchived: false }); // Compte uniquement les non-archivés
+  
+      res.status(200).json({
+        types,
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        currentPage: parseInt(page),
+      });
     } catch (error) {
-        console.error(error); // Plus de détails sur l'erreur
-        res.status(500).json({ message: 'Erreur lors de la récupération des types de demande', error: error.message });
+      console.error('Erreur lors de la récupération des types de demande :', error);
+      res.status(500).json({ message: 'Erreur interne du serveur', error: error.message });
     }
-};
-
+  };
+  
 
 // Obtenir un type de demande par son ID
 exports.getTypeDeDemandeById = async (req, res) => {
@@ -83,18 +72,21 @@ exports.updateTypeDeDemande = async (req, res) => {
     }
 };
 
-// Supprimer un type de demande
-exports.deleteTypeDeDemande = async (req, res) => {
+exports.archiveTypeDeDemande = async (req, res) => {
     try {
-        const typeDeDemande = await TypeDeDemande.findByIdAndDelete(req.params.id);
-
-        if (!typeDeDemande) {
-            return res.status(404).json({ message: 'Type de demande non trouvé' });
-        }
-
-        res.status(200).json({ message: 'Type de demande supprimé avec succès' });
+      const typeDeDemande = await TypeDeDemande.findById(req.params.id);
+  
+      if (!typeDeDemande) {
+        return res.status(404).json({ message: 'Type de demande non trouvé' });
+      }
+  
+      typeDeDemande.isArchived = true; // Marque comme archivé
+      await typeDeDemande.save();
+  
+      res.status(200).json({ message: 'Type de demande archivé avec succès', typeDeDemande });
     } catch (error) {
-        res.status(500).json({ message: 'Erreur lors de la suppression du type de demande', error: error.message });
+      console.error('Erreur lors de l\'archivage du type de demande :', error);
+      res.status(500).json({ message: 'Erreur interne du serveur', error: error.message });
     }
-};
-
+  };
+  
