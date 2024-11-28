@@ -29,44 +29,46 @@
         </div>
         <div class="flex items-center space-x-4">
           <!-- User Welcome and Info moved to the right -->
-          <div class="text-right">
+          <div
+          class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer mt-4"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+          </svg>
+        </div>
+          <div class="text-left">
             <h3 class="text-lg font-semibold">{{ userInfo?.name || 'Utilisateur' }}</h3>
             <p class="text-sm text-gray-600">{{ userInfo?.email || 'Non disponible' }}</p>
           </div>
-          <div class="mt-5">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-        </svg>
-          </div>
-        
-<!-- Logout Section -->
-<div class="text-center mt-0">
-  <span class="block text-gray-900 font-bold mb-1">Logout</span>
-  <div class="flex justify-center">
-    <button
-      @click="logout"
-      class="flex items-center justify-center bg-red-500 text-white px-2 py-1 rounded-full shadow-md hover:bg-red-600 focus:outline-none"
+<!-- Admin Image with Dropdown -->
+<div class="relative">
+  <!-- "Logout" text at the top -->
+  <span class="text-lg font-semibold text-gray-900 text-center block">Logout</span>
+
+  <!-- Admin Image centered at the bottom -->
+  <div
+    class="h-10 w-10 rounded-full bg-red-500 flex items-center justify-center cursor-pointer mx-auto"
+    @click="logout"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="black"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="10"
-        height="10"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="white"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path d="M12 2v10" />
-        <path d="M6.35 6.35a8 8 0 1 0 11.3 0" />
-      </svg>
-    </button>
+      <path d="M12 2v10" />
+      <path d="M6.35 6.35a8 8 0 1 0 11.3 0" />
+    </svg>
   </div>
 </div>
 
 
-</div>
+    </div>
 </header>
 
 <div class="flex space-x-4 p-6 bg-gray-100">
@@ -118,7 +120,9 @@ export default {
       open: 10,
       inProgress: 5,
       resolved: 20
-    }
+    },
+    showDropdown: false,
+
   };
 },
 
@@ -150,10 +154,14 @@ export default {
   },
   methods: {
     logout() {
-      localStorage.removeItem('token'); // Supprime le token
-      this.$router.push('/login'); // Redirige vers la page de connexion
-    }
+      localStorage.removeItem('token');
+      this.$router.push('/login');
+    },
+    toggleDropdown() {
+      this.showDropdown = !this.showDropdown;
+    },
   },
+
   
   components: {
     AdminModules,
@@ -200,3 +208,4 @@ async function fetchUserInfo(userId) {
 }
 
 </style>
+
