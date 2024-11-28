@@ -88,7 +88,7 @@ exports.getUserProfile = async (req, res) => {
 
 // Récupérer tous les utilisateurs non archivés avec pagination
 exports.getAllUsers = async (req, res) => {
-    console.log('getAllUsers called');
+    // console.log('getAllUsers called');
 
     const page = parseInt(req.query.page) || 1; 
     const limit = parseInt(req.query.limit) || 10;

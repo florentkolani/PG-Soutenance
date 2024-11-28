@@ -20,11 +20,6 @@ exports.login = async (req, res) => {
             return res.status(400).json({ message: 'Mot de passe incorrect' });
         }
 
-        // // Vérifier si l'utilisateur doit changer son mot de passe
-        // if (user.mustChangePassword) {
-        //     return res.status(403).json({ message: 'Vous devez changer votre mot de passe avant de continuer.' });
-        // }
-
         // Générer un jeton JWT
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
