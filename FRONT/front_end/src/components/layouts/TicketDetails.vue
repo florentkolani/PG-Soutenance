@@ -52,12 +52,22 @@
 </div>
 
     <!-- Zone de saisie pour envoyer un message -->
-    <div class="bg-white p-2 rounded shadow">
-      <form @submit.prevent="sendMessage" class="flex justify-end space-x-6">
-        <textarea v-model="newMessage" placeholder="Écrivez un message..." class="w-full p-2 h-10 resize-none border rounded mb-4"></textarea>
-        <button type="submit" class="bg-blue-500 text-white p-4 py-2 h-10 rounded hover:bg-blue-700 transition">Envoyer</button>
-      </form>
-    </div>
+<div class="bg-white p-4 rounded-lg shadow-lg">
+  <form @submit.prevent="sendMessage" class="flex justify-between items-center space-x-4">
+    <textarea
+      v-model="newMessage"
+      placeholder="Écrivez un message..."
+      class="w-full p-3 h-12 resize-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-200"
+    ></textarea>
+    <button
+      type="submit"
+      class="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+    >
+      Envoyer
+    </button>
+  </form>
+</div>
+
   </div>
 </template>
 
@@ -94,6 +104,7 @@ export default {
             createdAt: this.ticket.createdAt
           });
         }
+        
         this.fetchMessages();
       })
       .catch(error => {
