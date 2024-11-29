@@ -22,14 +22,16 @@ exports.login = async (req, res) => {
 
         // Générer un jeton JWT
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        // Vérifier si c'est la première connexion
+        const mustChangePassword = user.mustChangePassword || false;
 
         // Redirection selon le rôle de l'utilisateur
         if (user.role === 'Admin') {
-            return res.json({ message: 'Bienvenue Admin', token });
+            return res.json({ message: 'Bienvenue Admin', token, mustChangePassword});
         } else if (user.role === 'Client') {
-            return res.json({ message: 'Bienvenue Client', token });
+            return res.json({ message: 'Bienvenue Client', token, mustChangePassword });
         } else if (user.role === 'AgentSupport') {
-            return res.json({ message: 'Bienvenue Agent de Support', token });
+            return res.json({ message: 'Bienvenue Agent de Support', token, mustChangePassword });
         }
     } catch (error) {
         console.error('Erreur de serveur lors de la connexion:', error);
@@ -39,15 +41,26 @@ exports.login = async (req, res) => {
 
 
 exports.changePassword = async (req, res) => {
-    const { userId, newPassword } = req.body;
+    const { newPassword } = req.body;
+    const token = req.headers.authorization?.split(' ')[1]; // Extraire le token de l'en-tête Authorization
+
+    if (!token) {
+        return res.status(401).json({ message: 'Accès non autorisé. Token manquant.' });
+    }
 
     try {
+        // Vérifier et décoder le token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Extraire l'ID de l'utilisateur depuis le token décodé
+        const userId = decoded.id;
+
         // Vérifier la longueur du mot de passe
         if (newPassword.length < 6) {
             return res.status(400).json({ message: 'Le mot de passe doit contenir au moins 6 caractères.' });
         }
 
-        // Rechercher l'utilisateur
+        // Rechercher l'utilisateur par ID
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'Utilisateur non trouvé.' });
@@ -64,7 +77,6 @@ exports.changePassword = async (req, res) => {
         res.status(500).json({ message: 'Erreur de serveur' });
     }
 };
-
 
 
 // Enregistrement d'un nouvel utilisateur
