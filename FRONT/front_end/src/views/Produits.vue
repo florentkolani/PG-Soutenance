@@ -21,8 +21,8 @@
         </thead>
         <tbody class="text-gray-600 text-sm font-light">
           <tr v-for="product in products" :key="product._id" class="border-b border-gray-200 hover:bg-gray-100">
-            <td class=" px-4 py-2 text-center">{{ product.name }}</td>
-            <td class="px-4 py-2 text-center"> {{ truncateText(product.description, 50) }}</td>
+            <td class=" px-4 py-2">{{ product.name }}</td>
+            <td class="px-4 py-2"> {{ truncateText(product.description, 50) }}</td>
             <td class=" px-4 py-2 text-center">{{ new Date(product.createdAt).toLocaleDateString() }}</td>
             <td class=" px-4 py-2 text-center">
               <button @click="viewDetails(product)" class="bg-green-500 text-white px-2 py-1 rounded mr-2 hover:bg-green-600">Détails</button>

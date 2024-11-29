@@ -14,16 +14,18 @@
       <h1 class="text-2xl font-bold mb-4">Liste des Tickets</h1>
       <table class="min-w-full bg-white">
         <thead>
-          <tr class="text-center">
-            <th class="py-2">Client</th>
-            <th class="py-2">Type de Demande</th>
-            <th class="py-2">Produit</th>
-            <th class="py-2">Urgence</th>
-            <th class="py-2">Statut</th>
-            <th class="py-2">Date de Création</th>
-            <th class="py-2">Actions</th>
+          <tr>
+            <th class="py-2 pl-4 text-left">Client</th>
+            <th class="py-2 pl-4 text-left">Type de Demande</th>
+            <th class="py-2 pl-4 text-left">Produit</th>
+            <th class="py-2 text-center">Urgence</th>
+            <th class="py-2 text-center">Statut</th>
+            <th class="py-2 text-center">Date de Création</th>
+            <th class="py-2 text-center">Actions</th>
           </tr>
-        </thead>
+      </thead>
+
+
         <tbody>
           <tr v-for="ticket in filteredTickets" :key="ticket._id">
             <td class="border px-4 py-2 ">{{ ticket.userId?.name || 'Inconnu' }}</td>

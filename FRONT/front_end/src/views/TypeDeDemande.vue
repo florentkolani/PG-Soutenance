@@ -13,15 +13,15 @@
       <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
         <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
           <tr>
-            <th class="border border-gray-300 px-4 py-2">Nom</th>
-            <th class="border border-gray-300 px-4 py-2">Description</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Nom</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Description</th>
             <th class="border border-gray-300 px-4 py-2">Actions</th>
           </tr>
         </thead>
         <tbody class="text-gray-600 text-sm font-light">
           <tr v-for="type in types" :key="type._id" class="border-b border-gray-200 hover:bg-gray-100">
-            <td class="border border-gray-300 px-4 py-2 text-center">{{ type.name }}</td>
-            <td class="border border-gray-300 px-4 py-2 text-center">{{ type.description }}</td>
+            <td class="border border-gray-300 px-4 py-2">{{ type.name }}</td>
+            <td class="border border-gray-300 px-4 py-2">{{ type.description }}</td>
             <td class="border border-gray-300 px-4 py-2 text-center">
               <button @click="viewDetails(type)" class="bg-green-500 text-white px-2 py-1 rounded mr-2 hover:bg-green-600">Détails</button>
               <button @click="openEditModal(type)" class="bg-blue-500 text-white px-2 py-1 rounded mr-2 hover:bg-blue-600">Modifier</button>

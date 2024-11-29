@@ -165,26 +165,37 @@ export default {
       this.file = null;
     },
     loadProductsAndTypes() {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert("L'utilisateur n'est pas connecté");
-        return;
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert("L'utilisateur n'est pas connecté");
+    return;
+  }
+
+  // Chargement des produits
+  axios.get('http://localhost:5000/api/products', 
+  { headers: { Authorization: `Bearer ${token}` } })
+    .then(response => {
+      console.log("Produits reçus :", response.data); 
+      if (!Array.isArray(response.data)) {  // Vérification directe de response.data
+        console.error("Données produits invalides :", response.data);
+        this.products = [];
+      } else {
+        this.products = response.data;  // Utilisation de response.data directement
       }
+    })
+    .catch(error => console.error("Erreur lors du chargement des produits :", error));
 
-      axios.get('http://localhost:5000/api/products', 
-      { headers: { Authorization: `Bearer ${token}` } })
-        .then(response => {
-          this.products = response.data.products || [];
-        })
-        .catch(error => console.error("Erreur lors du chargement des produits :", error));
+  // Chargement des types de demandes
+  axios.get('http://localhost:5000/api/types', 
+  { headers: { Authorization: `Bearer ${token}` } })
+    .then(response => {
+      console.log("Types reçus :", response.data); // Debug
+      this.typeDeDemandes = response.data.types || [];
+    })
+    .catch(error => console.error("Erreur lors du chargement des types de demandes :", error));
+}
 
-      axios.get('http://localhost:5000/api/types', 
-      { headers: { Authorization: `Bearer ${token}` } })
-        .then(response => {
-          this.typeDeDemandes = response.data.types || [];
-        })
-        .catch(error => console.error("Erreur lors du chargement des types de demandes :", error));
-    },
+,
     handleSubmit() {
       if (!this.selectedProduct || !this.selectedTypeDeDemande || !this.urgence || !this.description) {
         alert("Veuillez remplir tous les champs obligatoires.");
