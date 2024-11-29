@@ -43,6 +43,7 @@
 
 <script>
 import { loginUser } from '@/services/authService';
+import axios from 'axios';
 
 export default {
   name: 'LoginView',
@@ -56,26 +57,47 @@ export default {
   },
   methods: {
     async login() {
-      try {
-        const credentials = { email: this.email, password: this.password };
-        const response = await loginUser(credentials);
-        
-        // Enregistrer le token dans le localStorage
-        localStorage.setItem('token', response.token);
+  console.log('Tentative de connexion...');
+  if (!this.email || !this.password) {
+    console.error('Email ou mot de passe manquant');
+    this.showAlert = true;
+    return;
+  }
 
+  try {
+    const credentials = { email: this.email, password: this.password };
+    const response = await axios.post('http://localhost:5000/api/auth/login', credentials);
+
+    // Afficher la réponse pour vérifier sa structure
+    console.log('Réponse de la connexion:', response);
+
+    // Vérifier si la structure de la réponse est correcte
+    if (response && response.data && response.data.token) {
+      localStorage.setItem('token', response.data.token);
+
+      // Vérification de mustChangePassword
+      if (response.data.mustChangePassword) {
+        console.log("Première connexion - redirection vers la page de modification");
+        this.$router.push('/changePassword');
+      } else {
+        console.log("Connexion réussie - redirection vers le tableau de bord");
         this.$router.push('/dashboard');
-      } catch (error) {
-        console.error('Login failed:', error);
-        this.showAlert = true; // Afficher le message d'alerte
       }
-    },
-    togglePasswordVisibility() {
-      this.showPassword = !this.showPassword;
-    },
-    closeAlert() {
-      this.showAlert = false;
+    } else {
+      console.error('Token manquant dans la réponse');
+      this.showAlert = true; // Afficher l'alerte en cas de réponse invalide
+    }
+  } catch (error) {
+    console.error('Login failed:', error);
+    this.showAlert = true; // Afficher l'alerte en cas d'échec
+    if (error.response) {
+      console.error('Erreur de serveur:', error.response.data);
     }
   }
+}
+
+}
+
 };
 </script>
 

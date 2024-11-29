@@ -6,6 +6,7 @@ import TypesDeDemandes from '../views/TypeDeDemande.vue';
 import Tickets from '@/views/tickets.vue';
 import LoginView from '@/views/LoginView.vue';
 import TicketDetails from '../components/layouts/TicketDetails.vue';
+import ChangePassword from '@/views/ChangePassword.vue'
 
 const routes = [
   { path: '/login', component: LoginView },
@@ -18,6 +19,7 @@ const routes = [
   { path: '/TypeDeDemande', component: TypesDeDemandes },
   {path: '/ticket/:ticketId',name: 'TicketDetails',component: TicketDetails,props: true},
   {path: '/Archives', name: 'Archives', component: () => import('@/views/Archives.vue'), meta: { requiresAuth: true } },
+  { path: '/ChangePassword',    name: 'ChangePassword',component: ChangePassword },
 ];
 
 const router = createRouter({
