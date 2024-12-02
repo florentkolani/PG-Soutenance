@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 async function envoyerEmail(ticket) {
     try {
         // Récupérer le nom de l'utilisateur à partir de l'ID
-        const user = await User.findById(ticket.userId); // Assurez-vous que `User` est importé
+        const user = await User.findById(ticket.userId);
 
         if (!user) {
             throw new Error("Utilisateur non trouvé");
@@ -27,7 +27,21 @@ async function envoyerEmail(ticket) {
             from: process.env.EMAIL_NOVA_LEAD, // email du client
             to: 'florentinoperez446@gmail.com', // Email des admins et agents support
             subject: `Nouveau ticket créé par ${user.name}`, // Utiliser le nom de l'utilisateur
-            text: `Bonjour,\n\nUn nouveau ticket a été créé par ${user.name}.\n\nDétails du ticket:\n- Urgence: ${ticket.urgence}\n- Statut: ${ticket.statut}\n- Description: ${ticket.description}\n\nMerci de prendre en charge ce ticket.\n\nCordialement,\n${user.name}`,
+            html: `
+                <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <h3>Nouveau ticket créé par ${user.name}</h3>
+                    <p><strong>Détails du ticket :</strong></p>
+                    <ul>
+                        <li><strong>Urgence :</strong> ${ticket.urgence}</li>
+                        <li><strong>Statut :</strong> ${ticket.statut}</li>
+                        <li><strong>Description :</strong> ${ticket.description}</li>
+                    </ul>
+                    <p>Merci de prendre en charge ce ticket.</p>
+                    <p style="text-align: right; margin-top: 20px;">Cordialement,<br>${user.name}</p>
+                </body>
+                </html>
+            `,
         };
 
         await transporter.sendMail(mailOptions);
@@ -36,6 +50,7 @@ async function envoyerEmail(ticket) {
         console.error("Erreur lors de l'envoi de l'email:", error);
     }
 }
+
 
 // Fonction pour envoyer un email à l'utilisateur (client) qui a créé le ticket
 async function envoyerEmailAuClient(ticket) {
@@ -51,7 +66,23 @@ async function envoyerEmailAuClient(ticket) {
             from: process.env.EMAIL_NOVA_LEAD, // email de NOVA LEAD
             to: user.email, // Email de l'utilisateur
             subject: `Assistance en cours pour votre ticket ${ticket._id}`,
-            text: `Bonjour ${user.name},\n\nNous vous informons qu'un de nos agents est prêt à vous assister concernant votre demande.\n\nDétails du ticket:\n- ID: ${ticket._id}\n- Urgence: ${ticket.urgence}\n- Statut: ${ticket.statut}\n- Description: ${ticket.description}\n\nMerci pour votre patience.\n\nCordialement,\nL'équipe d'assistance de NOVA LEAD`,
+            html: `
+                <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <h3>Bonjour ${user.name},</h3>
+                    <p>Nous vous informons qu'un de nos agents est prêt à vous assister concernant votre demande.</p>
+                    <p><strong>Détails du ticket :</strong></p>
+                    <ul>
+                        <li><strong>ID :</strong> ${ticket._id}</li>
+                        <li><strong>Urgence :</strong> ${ticket.urgence}</li>
+                        <li><strong>Statut :</strong> ${ticket.statut}</li>
+                        <li><strong>Description :</strong> ${ticket.description}</li>
+                    </ul>
+                    <p>Merci pour votre patience.</p>
+                    <p style="text-align: right; margin-top: 20px;">Cordialement,<br>L'équipe d'assistance de NOVA LEAD</p>
+                </body>
+                </html>
+            `,
         };
 
         await transporter.sendMail(mailOptions);
