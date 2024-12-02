@@ -9,12 +9,12 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-exports.sendEmail = async (to, subject, text) => {
+exports.sendEmail = async (to, subject, html) => {
     const mailOptions = {
         from: process.env.EMAIL_NOVA_LEAD, 
         to,                          
         subject,                      
-        text                          
+        html                          
     };
 
     try {

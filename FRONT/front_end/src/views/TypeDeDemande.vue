@@ -49,41 +49,82 @@
     <!-- Type Modal -->
     <TypeModal :showModal="showTypeModal" @close="showTypeModal = false" @type-added="getTypes" />
 
-    <!-- Dialogue pour les détails -->
-  <div v-if="selectedType" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
-    <div class="bg-white rounded-lg p-6 w-1/3 shadow-md">
-      <h2 class="text-xl font-bold mb-4 text-center">Détails du Type de Demande</h2>
-      <div class="text-left space-y-2 pl-4">
-        <p><strong>ID :</strong> <span class="ml-2">{{ selectedType._id }}</span></p>
-        <p><strong>Nom :</strong> <span class="ml-2">{{ selectedType.name }}</span></p>
-        <p><strong>Description :</strong> <span class="ml-2">{{ selectedType.description }}</span></p>
-      </div>
-      <div class="flex justify-center mt-6">
-        <button @click="closeDetails" class="bg-gray-500 text-white px-4 py-2 rounded-md">Fermer</button>
-      </div>
+    <div v-if="selectedType" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
+  <div class="bg-white rounded-lg p-6 w-2/3 shadow-md">
+    <h2 class="text-xl font-bold mb-4 text-center">Détails du Type de Demande</h2>
+    <table class="table-auto w-full border-collapse border border-gray-300">
+      <thead>
+        <tr class="bg-gray-200 text-left">
+          <th class="border border-gray-300 px-4 py-2">Champ</th>
+          <th class="border border-gray-300 px-4 py-2">Valeur</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="border border-gray-300 px-4 py-2 font-bold">ID</td>
+          <td class="border border-gray-300 px-4 py-2">{{ selectedType._id }}</td>
+        </tr>
+        <tr>
+          <td class="border border-gray-300 px-4 py-2 font-bold">Nom</td>
+          <td class="border border-gray-300 px-4 py-2">{{ selectedType.name }}</td>
+        </tr>
+        <tr>
+          <td class="border border-gray-300 px-4 py-2 font-bold">Description</td>
+          <td class="border border-gray-300 px-4 py-2">{{ selectedType.description }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="flex justify-center mt-6">
+      <button @click="closeDetails" class="bg-gray-500 text-white px-4 py-2 rounded-md">Fermer</button>
     </div>
   </div>
+</div>
+
 
     <!-- Dialogue pour l'édition -->
-    <div v-if="editTypeData" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
-      <div class="bg-white rounded-lg p-4 w-1/3 shadow-md">
-        <h2 class="text-xl font-bold mb-2 text-center">Modifier le Type de Demande</h2>
-        <form @submit.prevent="updateType">
-          <div class="mb-4">
-            <label class="block text-gray-700">Nom:</label>
-            <input v-model="editTypeData.name" type="text" class="w-full px-4 py-2 border rounded-md" />
-          </div>
-          <div class="mb-4">
-            <label class="block text-gray-700">Description:</label>
-            <textarea v-model="editTypeData.description" class="w-full px-4 py-2 border rounded-md"></textarea>
-          </div>
-          <div class="flex justify-center mt-4">
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Enregistrer</button>
-            <button @click="closeEditModal" class="bg-gray-500 text-white px-4 py-2 ml-2 rounded-md">Annuler</button>
-          </div>
-        </form>
+<div v-if="editTypeData" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+  <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Modifier le Type de Demande</h2>
+    <form @submit.prevent="updateType">
+      <!-- Champ Nom -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Nom :</label>
+        <input 
+          v-model="editTypeData.name" 
+          type="text" 
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
+          placeholder="Entrez le nom"
+        />
       </div>
-    </div>
+      <!-- Champ Description -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Description :</label>
+        <textarea 
+          v-model="editTypeData.description" 
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
+          placeholder="Entrez une description"
+        ></textarea>
+      </div>
+      <!-- Boutons -->
+      <div class="flex justify-center space-x-4">
+        <button 
+          type="submit" 
+          class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md shadow-md transition-all"
+        >
+          Enregistrer
+        </button>
+        <button 
+          @click="closeEditModal" 
+          type="button" 
+          class="bg-gray-500 hover:bg-gray-300 text-black px-6 py-2 rounded-md shadow-md transition-all"
+        >
+          Annuler
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 
     <!-- Confirmation de suppression -->
     <div v-if="confirmArchiveId" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center text-center">

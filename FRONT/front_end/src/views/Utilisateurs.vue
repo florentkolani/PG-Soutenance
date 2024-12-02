@@ -47,60 +47,139 @@
       <!-- Modal d'enregistrement d'utilisateur -->
       <UserModal v-if="showModal" @close="showModal = false" />
 
-       <!-- Modal de détails -->
-  <div v-if="showDetailsModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center text-center">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-96 relative">
-      <h2 class="text-xl font-bold mb-6 text-center">Détails de l'utilisateur</h2>
-      <div class="text-left space-y-2 pl-4">
-        <p><strong>Id :</strong> <span class="ml-2">{{ selectedUser._id }}</span></p>
-        <p><strong>Nom :</strong> <span class="ml-2">{{ selectedUser.name }}</span></p>
-        <p><strong>Email :</strong> <span class="ml-2">{{ selectedUser.email }}</span></p>
-        <p><strong>Contact :</strong> <span class="ml-2">{{ selectedUser.contact }}</span></p>
-        <p><strong>Rôle :</strong> <span class="ml-2">{{ selectedUser.role }}</span></p>
-        <p><strong>pays :</strong> <span class="ml-2">{{ selectedUser.pays }}</span></p>
-        <p><strong>ville :</strong> <span class="ml-2">{{ selectedUser.ville }}</span></p>
-      </div>
-      <button @click="closeDetailsModal" class="mt-6 bg-green-500 text-white px-4 py-2 rounded mx-auto block">Fermer</button>
+      <!-- Modal de détails -->
+<div v-if="showDetailsModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+  <div class="bg-white p-6 rounded-lg shadow-lg w-2/3">
+    <h2 class="text-xl font-bold mb-6 text-center">Détails de l'utilisateur</h2>
+    <table class="table-auto w-full border-collapse border border-gray-300">
+      <thead>
+        <tr class="bg-gray-200 text-left">
+          <th class="border border-gray-300 px-4 py-2">Champ</th>
+          <th class="border border-gray-300 px-4 py-2">Valeur</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="border border-gray-300 px-4 py-2 font-bold">ID</td>
+          <td class="border border-gray-300 px-4 py-2">{{ selectedUser._id }}</td>
+        </tr>
+        <tr>
+          <td class="border border-gray-300 px-4 py-2 font-bold">Nom</td>
+          <td class="border border-gray-300 px-4 py-2">{{ selectedUser.name }}</td>
+        </tr>
+        <tr>
+          <td class="border border-gray-300 px-4 py-2 font-bold">Email</td>
+          <td class="border border-gray-300 px-4 py-2">{{ selectedUser.email }}</td>
+        </tr>
+        <tr>
+          <td class="border border-gray-300 px-4 py-2 font-bold">Contact</td>
+          <td class="border border-gray-300 px-4 py-2">{{ selectedUser.contact }}</td>
+        </tr>
+        <tr>
+          <td class="border border-gray-300 px-4 py-2 font-bold">Rôle</td>
+          <td class="border border-gray-300 px-4 py-2">{{ selectedUser.role }}</td>
+        </tr>
+        <tr>
+          <td class="border border-gray-300 px-4 py-2 font-bold">Pays</td>
+          <td class="border border-gray-300 px-4 py-2">{{ selectedUser.pays }}</td>
+        </tr>
+        <tr>
+          <td class="border border-gray-300 px-4 py-2 font-bold">Ville</td>
+          <td class="border border-gray-300 px-4 py-2">{{ selectedUser.ville }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="flex justify-center mt-6">
+      <button @click="closeDetailsModal" class="bg-green-500 text-white px-4 py-2 rounded-md">Fermer</button>
     </div>
   </div>
+</div>
+
 
       <!-- Modal pour l'édition d'utilisateur -->
-      <div v-if="editUserData" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
-        <div class="bg-white rounded-lg p-4 w-1/3 shadow-md">
-          <h2 class="text-xl font-bold mb-2 text-center">Modifier l'Utilisateur</h2>
-          <form @submit.prevent="updateUser">
-            <div class="mb-4">
-              <label class="block text-gray-700">Nom:</label>
-              <input v-model="editUserData.name" type="text" class="w-full px-4 py-2 border rounded-md" />
-            </div>
-            <div class="mb-4">
-              <label class="block text-gray-700">Email:</label>
-              <input v-model="editUserData.email" type="email" class="w-full px-4 py-2 border rounded-md" />
-            </div>
-            <div class="mb-4">
-              <label class="block text-gray-700">Contact:</label>
-              <input v-model="editUserData.contact" type="text" class="w-full px-4 py-2 border rounded-md" />
-            </div>
-            <div class="mb-4">
-              <label class="block text-gray-700">Rôle:</label>
-              <input v-model="editUserData.role" type="text" class="w-full px-4 py-2 border rounded-md" />
-            </div>
-            <div class="mb-4">
-              <label class="block text-gray-700">pays:</label>
-              <input v-model="editUserData.pays" type="text" class="w-full px-4 py-2 border rounded-md" />
-            </div>
-            <div class="mb-4">
-              <label class="block text-gray-700">ville:</label>
-              <input v-model="editUserData.ville" type="text" class="w-full px-4 py-2 border rounded-md" />
-            </div>
-            <div class="flex justify-center">
-              <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Enregistrer</button>
-            <button @click="closeEditModal" class="bg-gray-500 text-white px-4 py-2 ml-2 rounded-md">Annuler</button>
-            </div>
-            
-          </form>
-        </div>
+<div v-if="editUserData" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+  <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Modifier l'Utilisateur</h2>
+    <form @submit.prevent="updateUser">
+      <!-- Champ Nom -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Nom :</label>
+        <input 
+          v-model="editUserData.name" 
+          type="text" 
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
+          placeholder="Entrez le nom"
+        />
       </div>
+      <!-- Champ Email -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Email :</label>
+        <input 
+          v-model="editUserData.email" 
+          type="email" 
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
+          placeholder="Entrez l'email"
+        />
+      </div>
+      <!-- Champ Contact -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Contact :</label>
+        <input 
+          v-model="editUserData.contact" 
+          type="text" 
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
+          placeholder="Entrez le contact"
+        />
+      </div>
+      <!-- Champ Rôle -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Rôle :</label>
+        <input 
+          v-model="editUserData.role" 
+          type="text" 
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
+          placeholder="Entrez le rôle"
+        />
+      </div>
+      <!-- Champ Pays -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Pays :</label>
+        <input 
+          v-model="editUserData.pays" 
+          type="text" 
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
+          placeholder="Entrez le pays"
+        />
+      </div>
+      <!-- Champ Ville -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Ville :</label>
+        <input 
+          v-model="editUserData.ville" 
+          type="text" 
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
+          placeholder="Entrez la ville"
+        />
+      </div>
+      <!-- Boutons -->
+      <div class="flex justify-center space-x-4">
+        <button 
+          type="submit" 
+          class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md shadow-md transition-all"
+        >
+          Enregistrer
+        </button>
+        <button 
+          @click="closeEditModal" 
+          type="button" 
+          class="bg-gray-500 hover:bg-gray-300 text-black px-6 py-2 rounded-md shadow-md transition-all"
+        >
+          Annuler
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 
       <!-- Confirmation d'archivage -->
       <div v-if="showArchiveModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center text-enter">

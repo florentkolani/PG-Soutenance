@@ -111,7 +111,22 @@ exports.register = async (req, res) => {
 
         // Envoyer un e-mail contenant les informations de connexion
         const emailSubject = 'Bienvenue chez NOVA LEAD';
-        const emailContent = `Bonjour ${name},Votre compte a été créé avec succès.\n\n Voici vos informations de connexion :\n\n- Email : ${email} \n\n- Mot de passe : ${password}. \n\nVeuillez vous connecter pour accéder à votre tableau de bord.Cordialement. \n\nL'équipe de support`;
+        const emailContent = `
+        <html>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+            <p>Bonjour ${name},</p>
+            <p>Votre compte a été créé avec succès.</p>
+            <p>Voici vos informations de connexion :</p>
+            <ul>
+              <li><strong>Email</strong>: ${email}</li>
+              <li><strong>Mot de passe</strong>: ${password}</li>
+            </ul>
+            <p>Veuillez vous connecter pour modifier votre mot de passe et accéder à votre tableau de bord.</p>
+            <p style="text-align: right; margin-top: 20px;">Cordialement,</p>
+            <p style="text-align: right;">L'équipe de support</p>
+          </body>
+        </html>
+      `;
 
         await sendEmail(user.email, emailSubject, emailContent);
 
