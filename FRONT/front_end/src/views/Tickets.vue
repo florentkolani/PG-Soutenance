@@ -2,16 +2,53 @@
   <div class="bg-gray-100 min-h-screen">
     <Header 
       title="NOVA LEAD" 
-      primaryActionText="New Ticket" 
+      primaryActionText="Nouveau Ticket" 
       @primaryAction="showTicketModal = true" 
       @filterChanged="onFilterChanged"
+      @goToDashboard="redirectToDashboard"
       :filterAction="true" 
       :filterOptions="ticketFilterOptions" 
     />
-    <GoToDashboard />
 
     <main class="container mx-auto p-4">
-      <h1 class="text-2xl font-bold mb-4">Liste des Tickets</h1>
+<!-- Titre et légende -->
+<div class="flex flex-row items-center justify-between space-x-4 mb-4">
+  <h1 class="text-2xl font-bold">Liste des Tickets</h1>
+
+  <!-- Tableau des légendes -->
+  <div class="overflow-x-auto border-gray-500 bg-slate-200 rounded-lg">
+    <table class="table-auto border-collapse border border-gray-300 w-500 ml-auto">
+      <tbody>
+        <tr>
+          <!-- Légende Urgence -->
+          <td class="px-4 py-2 text-sm text-gray-900 border border-gray-300">
+            <div class="flex items-center space-x-2">
+              <span class="font-bold">URGENCE :</span>
+              <span class="inline-block w-4 h-4 bg-red-800 rounded-full"></span>
+              <span>Urgent</span>
+              <span class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
+              <span>Pas Urgent</span>
+            </div>
+          </td>
+
+          <!-- Légende Statut -->
+          <td class="px-4 py-2 text-sm text-gray-900 border border-gray-300">
+            <div class="flex items-center space-x-2">
+              <span class="font-bold">STATUT :</span>
+              <span class="inline-block w-4 h-4 bg-red-800 rounded-full"></span>
+              <span>Ouvert</span>
+              <span class="inline-block w-4 h-4 bg-orange-300 rounded-full"></span>
+              <span>En cours</span>
+              <span class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
+              <span>Clôturé</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
       <table class="min-w-full bg-white">
         <thead>
           <tr>
@@ -74,7 +111,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m0 0H4.55M9 12h5l2.5 8.5M9 12H4.55M9 12v3m-1.6 5h7.2M9 9l-2.5 8.5M15 12l2.5 8.5M15 12l-2.5-8.5" />
       </svg>
-      Message
+      Messages
     </button>
 
     <!-- Affichage des boutons "Modifier" et "Noter" uniquement pour les Clients -->
@@ -88,7 +125,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m0 0l-3 3m3-3l-3-3" />
       </svg>
-      Noter
+      Clôturer
     </button>
   </div>
   </div>
@@ -192,6 +229,9 @@ export default {
   },
 
   methods: {
+    redirectToDashboard() {
+      this.$router.push('/dashboard'); // Redirection vers la route du dashboard
+    },
 
     fetchTickets() {
       const token = localStorage.getItem('token');
@@ -254,44 +294,11 @@ export default {
         this.dropdownOpen = null;
       }
     },
-    // openTicketDetails(ticket) {
-    //   this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
-    // },
-
     openTicketDetails(ticket) {
-    if (this.userRole === 'Admin' || this.userRole === 'AgentSupport') {
-        if (ticket.statut === 'ouvert') {
-            this.updateTicketStatus(ticket._id, { statut: 'en cours' })
-                .then(() => {
-                    // Une fois le statut mis à jour, redirigez vers les détails du ticket
-                    this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
-                })
-                .catch(error => {
-                    console.error('Erreur lors de la mise à jour du statut du ticket:', error);
-                });
-        } else {
-            // Si le ticket n'est pas "ouvert", redirigez simplement vers les détails
-            this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
-        }
-    } else {
-        // Si l'utilisateur n'est pas admin ou agent de support, redirigez directement
-        this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
-    }
-},
-updateTicketStatus(ticketId, statusData) {
-    const token = localStorage.getItem('token');
-    return axios.put(`http://localhost:5000/api/tickets/${ticketId}/statut`, statusData, {
-        headers: { Authorization: `Bearer ${token}` },
-    })
-    .then(response => {
-        console.log('Statut du ticket mis à jour avec succès:', response.data);
-        return response;
-    })
-    .catch(error => {
-        console.error('Erreur lors de la mise à jour du statut du ticket:', error);
-    });
-},
+      this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
+    },
 
+    
     openTicketModal(ticket = null) {
       this.selectedTicket = ticket ? { ...ticket } : {};
       this.isEdit = !!ticket;
@@ -313,6 +320,7 @@ updateTicketStatus(ticketId, statusData) {
         })
         .catch(error => console.error('Erreur lors de la création du ticket:', error));
     },
+    
     updateTicket(ticketData) {
       const token = localStorage.getItem('token');
       axios

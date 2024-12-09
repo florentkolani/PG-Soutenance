@@ -1,7 +1,9 @@
 <template>
   <header class="bg-lime-500 p-4 shadow-md">
     <div class="container mx-auto flex justify-between items-center">
-      <div class="flex items-center space-x-2">
+       <!-- Logo avec redirection vers le Dashboard -->
+       <div class="flex items-center space-x-2 cursor-pointer" @click="$emit('goToDashboard')">
+        <GoToDashboard />
         <img src="@/assets/logo.png" alt="Logo" class="h-10" />
         <span class="text-white text-xl font-bold">{{ title }}</span>
       </div>
@@ -36,6 +38,7 @@
 </template>
 
 <script>
+import GoToDashboard from "@/components/layouts/GoToDashboard.vue";
 export default {
   name: "Header",
   props: {

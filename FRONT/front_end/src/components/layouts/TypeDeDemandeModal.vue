@@ -6,7 +6,7 @@
         <div class="relative p-4">
           <!-- Modal header -->
           <div class="flex justify-between items-center pb-4 mb-4 border-b">
-            <h3 class="text-lg font-semibold text-gray-900">Add Type de Demande</h3>
+            <h3 class="text-lg font-semibold text-gray-900">Ajouter TypeDeDemande</h3>
             <button @click="$emit('close')" class="text-red-600 hover:text-red-800 text-2xl">&times;</button>
           </div>
 
@@ -14,15 +14,15 @@
           <form @submit.prevent="addTypeDeDemande">
             <div class="mb-4">
               <label for="name" class="block mb-2 text-sm font-medium text-gray-900">
-                TypeDeDemande Name <span class="text-red-500">*</span>
+                Nom du TypeDeDemande  <span class="text-red-500">*</span>
               </label>
-              <input v-model="typeDeDemande.name" type="text" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5" placeholder="Enter type de demande name" required />
+              <input v-model="typeDeDemande.name" type="text" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5" placeholder="Entrez le nom TypeDeDemande" required />
             </div>
             <div class="mb-4">
-              <label for="description" class="block mb-2 text-sm font-medium text-gray-900">Description</label>
-              <textarea v-model="typeDeDemande.description" id="description" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5" placeholder="Enter description"></textarea>
+              <label for="description" class="block mb-2 text-sm font-medium text-gray-900">Description du TypeDeDemande</label>
+              <textarea v-model="typeDeDemande.description" id="description" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5" placeholder="Entrez la description du TypeDeDemande"></textarea>
             </div>
-            <button type="submit" class="text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5">Add Type de Demande</button>
+            <button type="submit" class="text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5">Ajouter</button>
           </form>
         </div>
       </div>
