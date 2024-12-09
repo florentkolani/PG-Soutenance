@@ -1,14 +1,25 @@
 const express = require('express');
-const { sendMessage, getMessagesByTicket, getAllMessages } = require('../controllers/messageController');
-const messageController = require('../controllers/messageController');
-const { protect } = require('../middleware/authMiddleware');
+const { 
+    sendMessage, 
+    getMessagesByTicket, 
+    getAllMessages 
+} = require('../controllers/messageController');
+
+const { updateTicketStatus } = require('../controllers/ticketController'); // Importer la fonction du contrôleur pour la mise à jour du statut
+
+const { protect, restrictToRoles } = require('../middleware/authMiddleware');
 const router = express.Router();
 
-
+// Route pour envoyer un message
 router.post('/:ticketId/messages', protect, sendMessage);
 
+// Route pour récupérer tous les messages
 router.get('/messages', protect, getAllMessages);
 
+// Route pour récupérer les messages par ticket
 router.get('/:ticketId/messages', protect, getMessagesByTicket);
+
+// Route pour mettre à jour le statut d'un ticket
+router.put('/:ticketId/statut', protect, restrictToRoles('Admin', 'AgentSupport'), updateTicketStatus);
 
 module.exports = router;

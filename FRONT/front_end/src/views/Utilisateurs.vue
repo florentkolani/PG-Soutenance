@@ -3,13 +3,13 @@
     
     <Header 
       title="NOVA LEAD" 
-      primaryActionText="New User" 
+      primaryActionText="Nouveau Utilisateur" 
       @primaryAction="showModal = true" 
       @filterChanged="onFilterChanged"
+       @goToDashboard="redirectToDashboard"
       :filterAction="true" 
       :filterOptions="userFilterOptions" 
     />
-    <GoToDashboard />
 
     <main class="container mx-auto p-4">
       <div class="flex justify-between items-center mb-4">
@@ -59,10 +59,6 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td class="border border-gray-300 px-4 py-2 font-bold">ID</td>
-          <td class="border border-gray-300 px-4 py-2">{{ selectedUser._id }}</td>
-        </tr>
         <tr>
           <td class="border border-gray-300 px-4 py-2 font-bold">Nom</td>
           <td class="border border-gray-300 px-4 py-2">{{ selectedUser.name }}</td>
@@ -268,6 +264,9 @@ export default {
 
   },
   methods: {
+    redirectToDashboard() {
+      this.$router.push('/dashboard'); // Redirection vers la route du dashboard
+    },
     getToken() {
       return localStorage.getItem('token');
     },
@@ -309,7 +308,7 @@ export default {
       }
       })
       .catch(error => {
-        console.error('Error fetching users:', error);
+        console.error('Erreur de chargement des Utilisateurs:', error);
       });
     },
 
@@ -336,7 +335,7 @@ export default {
         this.showAlertModal = false;
         this.alert.message = '';
         this.alert.type = '';
-      }, 3000);
+      }, 1000);
     },
 
     updateUser() {
@@ -355,7 +354,7 @@ export default {
         this.showAlert('Utilisateur mis à jour avec succès.', 'success');
       })
       .catch(error => {
-        console.error('Error updating user:', error);
+        console.error('Erreur de Mise à jour de Utilisateur:', error);
         this.showAlert('Échec de la mise à jour de l\'utilisateur.', 'error');
       });
     },
@@ -370,7 +369,7 @@ export default {
     },
     archiveUser(userId) {
       if (!userId) {
-        console.error('User ID is undefined');
+        console.error("Id de l' Utilisateur n'est pas défini");
         return;
       }
       const token = this.checkAuthorization();
@@ -416,7 +415,7 @@ export default {
     this.fetchUsers();
     this.interval = setInterval(() => {
       this.fetchUsers();
-    }, 1000);
+    }, 2000);
     
   },
 };

@@ -2,14 +2,14 @@
   <div class="bg-gray-100 min-h-screen">
     <Header 
       title="NOVA LEAD" 
-      primaryActionText="New TypeDeDemande" 
+      primaryActionText="Nouveau TypeDeDemande" 
       @primaryAction="showTypeModal = true" 
       @filterAction="openRequestTypeFilterOptions" 
+       @goToDashboard="redirectToDashboard"
     />
-    <GoToDashboard />
 
     <main class="container mx-auto p-4">
-      <h1 class="text-2xl font-bold mb-4">Liste des Types de Demande</h1>
+      <h1 class="text-2xl font-bold mb-4">Liste des TypesDeDemande</h1>
       <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
         <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
           <tr>
@@ -51,7 +51,7 @@
 
     <div v-if="selectedType" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
   <div class="bg-white rounded-lg p-6 w-2/3 shadow-md">
-    <h2 class="text-xl font-bold mb-4 text-center">Détails du Type de Demande</h2>
+    <h2 class="text-xl font-bold mb-4 text-center">Détails du TypeDeDemande</h2>
     <table class="table-auto w-full border-collapse border border-gray-300">
       <thead>
         <tr class="bg-gray-200 text-left">
@@ -60,10 +60,6 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td class="border border-gray-300 px-4 py-2 font-bold">ID</td>
-          <td class="border border-gray-300 px-4 py-2">{{ selectedType._id }}</td>
-        </tr>
         <tr>
           <td class="border border-gray-300 px-4 py-2 font-bold">Nom</td>
           <td class="border border-gray-300 px-4 py-2">{{ selectedType.name }}</td>
@@ -84,7 +80,7 @@
     <!-- Dialogue pour l'édition -->
 <div v-if="editTypeData" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
   <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg">
-    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Modifier le Type de Demande</h2>
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Modifier le TypeDeDemande</h2>
     <form @submit.prevent="updateType">
       <!-- Champ Nom -->
       <div class="mb-4">
@@ -129,8 +125,8 @@
     <!-- Confirmation de suppression -->
     <div v-if="confirmArchiveId" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center text-center">
       <div class="bg-white rounded-lg p-4 w-1/3 shadow-md">
-        <h2 class="text-xl font-bold mb-4 text-center">Archiver le Type de Demande</h2>
-        <p class="text-center">Êtes-vous sûr de vouloir archiver ce type de demande ?</p>
+        <h2 class="text-xl font-bold mb-4 text-center">Archiver le TypeDeDemande</h2>
+        <p class="text-center">Êtes-vous sûr de vouloir archiver ce TypeDedemande ?</p>
         <div class="flex justify-center mt-4">
           <button @click="archiveType" class="bg-red-500 text-white px-4 py-2 rounded-md">Oui, archiver</button>
           <button @click="closeConfirmArchive" class="bg-gray-500 text-white px-4 py-2 ml-2 rounded-md">Annuler</button>
@@ -183,6 +179,9 @@ export default {
     },
     
   methods: {
+    redirectToDashboard() {
+      this.$router.push('/dashboard'); // Redirection vers la route du dashboard
+    },
     getToken() {
       return localStorage.getItem('token');
     },
@@ -213,7 +212,7 @@ export default {
       },
     });
 
-    if (!response.ok) throw new Error('Erreur lors de la récupération des types de demande.');
+    if (!response.ok) throw new Error('Erreur lors de la récupération des TypesDeDemande.');
 
     const data = await response.json();
     this.types = data.types; // Charge uniquement les non-archivés
@@ -241,8 +240,8 @@ async archiveType() {
 
     if (!response.ok) throw new Error('Erreur lors de l\'archivage du type de demande.');
 
-    this.alertTitle = 'Succès';
-    this.alertMessage = 'Le type de demande a été archivé avec succès.';
+    // this.alertTitle = 'Succès';
+    this.alertMessage = 'Le TypeDeDemande a été archivé avec succès.';
     await this.getTypes(); // Recharge les types après l'archivage
   } catch (error) {
     console.error(error);
@@ -296,10 +295,10 @@ async archiveType() {
           body: JSON.stringify(this.editTypeData),
         });
 
-        if (!response.ok) throw new Error('Erreur lors de la mise à jour du type de demande.');
+        if (!response.ok) throw new Error('Erreur lors de la mise à jour du TypeDeDemande.');
 
         this.alertTitle = 'Succès';
-        this.alertMessage = 'Le type de demande a été mis à jour avec succès.';
+        this.alertMessage = 'Le TypeDeDemande a été mis à jour avec succès.';
         this.getTypes();
       } catch (error) {
         console.error(error);
@@ -322,10 +321,10 @@ async archiveType() {
           },
         });
 
-        if (!response.ok) throw new Error('Erreur lors de l\'archivage du type de demande.');
+        if (!response.ok) throw new Error('Erreur lors de l\'archivage du TypeDeDemande.');
 
-        this.alertTitle = 'Succès';
-        this.alertMessage = 'Le type de demande a été archivé avec succès.';
+        // this.alertTitle = 'Succès';
+        this.alertMessage = 'Le TypeDeDemande a été archivé avec succès.';
         this.getTypes();
       } catch (error) {
         console.error(error);

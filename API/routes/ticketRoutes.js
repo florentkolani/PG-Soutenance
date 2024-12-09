@@ -10,7 +10,7 @@ router.post('/', protect, upload.single('file'), createTicket);
 router.put('/:id', protect, updateTicket);
 
 // Route pour mettre à jour le statut d'un ticket
-router.put('/:ticketId/statut', protect, restrictToRoles('Admin', 'AgentSupport'), updateTicketStatus);
+// router.put('/:ticketId/statut', protect, restrictToRoles('Admin', 'AgentSupport'), updateTicketStatus);
 
 router.put('/:ticketId/close', protect, restrictToRoles('Client'), closeTicket);
 router.get('/', protect, getTickets);

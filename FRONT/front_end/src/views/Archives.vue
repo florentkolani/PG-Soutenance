@@ -2,13 +2,13 @@
     <div class="bg-gray-100 min-h-screen">
       <Header 
         title="NOVA LEAD" 
-        primaryActionText="New User" 
+        primaryActionText="Nouveau Utilisateur" 
         @primaryAction="showModal = true" 
         @filterChanged="onFilterChanged"
+         @goToDashboard="redirectToDashboard"
         :filterAction="true" 
         :filterOptions="userFilterOptions" 
       />
-      <GoToDashboard />
   
       <main class="container mx-auto p-4">
         <div class="flex justify-between items-center mb-4">
@@ -45,7 +45,6 @@
           <div class="bg-white p-6 rounded-lg shadow-lg w-96 relative">
             <h2 class="text-xl font-bold mb-6 text-center">Détails de l'utilisateur</h2>
             <div class="text-left space-y-2 pl-4">
-              <p><strong>Id :</strong> <span class="ml-2">{{ selectedUser._id }}</span></p>
               <p><strong>Nom :</strong> <span class="ml-2">{{ selectedUser.name }}</span></p>
               <p><strong>Email :</strong> <span class="ml-2">{{ selectedUser.email }}</span></p>
               <p><strong>Contact :</strong> <span class="ml-2">{{ selectedUser.contact }}</span></p>
@@ -110,6 +109,9 @@ import GoToDashboard from '@/components/layouts/GoToDashboard.vue';
 
     },
     methods: {
+      redirectToDashboard() {
+      this.$router.push('/dashboard'); // Redirection vers la route du dashboard
+    },
       getToken() {
         return localStorage.getItem('token');
       },

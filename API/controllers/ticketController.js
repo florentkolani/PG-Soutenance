@@ -25,7 +25,7 @@ async function envoyerEmail(ticket) {
 
         const mailOptions = {
             from: process.env.EMAIL_NOVA_LEAD, // email du client
-            to: 'florentinoperez446@gmail.com', // Email des admins et agents support
+            to: user.email, // Email des admins et agents support
             subject: `Nouveau ticket créé par ${user.name}`, // Utiliser le nom de l'utilisateur
             html: `
                 <html>
@@ -50,48 +50,6 @@ async function envoyerEmail(ticket) {
         console.error("Erreur lors de l'envoi de l'email:", error);
     }
 }
-
-
-// Fonction pour envoyer un email à l'utilisateur (client) qui a créé le ticket
-async function envoyerEmailAuClient(ticket) {
-    try {
-        // Récupérer l'utilisateur (client) qui a créé le ticket sans populate
-        const user = await User.findById(ticket.userId);
-
-        if (!user) {
-            throw new Error("Utilisateur non trouvé");
-        }
-
-        const mailOptions = {
-            from: process.env.EMAIL_NOVA_LEAD, // email de NOVA LEAD
-            to: user.email, // Email de l'utilisateur
-            subject: `Assistance en cours pour votre ticket ${ticket._id}`,
-            html: `
-                <html>
-                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-                    <h3>Bonjour ${user.name},</h3>
-                    <p>Nous vous informons qu'un de nos agents est prêt à vous assister concernant votre demande.</p>
-                    <p><strong>Détails du ticket :</strong></p>
-                    <ul>
-                        <li><strong>ID :</strong> ${ticket._id}</li>
-                        <li><strong>Urgence :</strong> ${ticket.urgence}</li>
-                        <li><strong>Statut :</strong> ${ticket.statut}</li>
-                        <li><strong>Description :</strong> ${ticket.description}</li>
-                    </ul>
-                    <p>Merci pour votre patience.</p>
-                    <p style="text-align: right; margin-top: 20px;">Cordialement,<br>L'équipe d'assistance de NOVA LEAD</p>
-                </body>
-                </html>
-            `,
-        };
-
-        await transporter.sendMail(mailOptions);
-        console.log("Email de notification envoyé à l'utilisateur avec succès.");
-    } catch (error) {
-        console.error("Erreur lors de l'envoi de l'email à l'utilisateur:", error);
-    }
-}
-
 
 // Créer un ticket
 exports.createTicket = async (req, res) => {
@@ -124,6 +82,7 @@ exports.createTicket = async (req, res) => {
 };
 // Mettre à jour le statut du ticket
 exports.updateTicketStatus = async (req, res) => {
+    console.log('Requête reçue pour mettre à jour le statut:', req.body, 'Ticket ID:', req.params.ticketId);
     try {
         const ticket = await Ticket.findById(req.params.ticketId);
         if (!ticket) {
@@ -131,11 +90,6 @@ exports.updateTicketStatus = async (req, res) => {
         }
         ticket.statut = req.body.statut || ticket.statut;
         await ticket.save();
-
-         // Envoyez un email au client si le statut est changé en "en cours"
-         if (ticket.statut === 'en cours') {
-            await envoyerEmailAuClient(ticket);
-        }
 
         res.status(200).json(ticket);
     } catch (error) {
@@ -228,19 +182,5 @@ exports.addMessageToTicket = async (req, res) => {
         res.status(200).json(ticket);
     } catch (error) {
         res.status(400).json({ message: 'Erreur lors de l\'ajout du message', error: error.message });
-    }
-};
-
-// Changer le statut d'un ticket
-exports.changeTicketStatus = async (req, res) => {
-    try {
-        const { status } = req.body; // Assurez-vous que ce champ est envoyé
-        const ticket = await Ticket.findByIdAndUpdate(req.params.id, { status }, { new: true });
-        if (!ticket) {
-            return res.status(404).json({ message: 'Ticket non trouvé' });
-        }
-        res.status(200).json(ticket);
-    } catch (error) {
-        res.status(400).json({ message: 'Erreur lors de la mise à jour du statut', error: error.message });
     }
 };

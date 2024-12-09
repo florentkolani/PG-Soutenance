@@ -2,7 +2,8 @@
   <div>
     <section v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div class="bg-white p-0 rounded-lg shadow-lg max-w-lg w-full max-h-[100vh] overflow-y-auto relative">
-        <button @click="$emit('close')" class="absolute top-4 right-6 text-red-600 hover:text-gray-700">&times;</button>
+        <button @click="$emit('close')" 
+        class="absolute top-4 right-6 text-red-600 hover:text-gray-700 text-2xl w-10 h-10 flex items-center justify-center">&times;</button>
 
         <div class="py-4 px-6">
           <h2 class="mb-4 text-xl font-bold text-gray-900 text-center">
@@ -78,12 +79,16 @@
               </div>
             </div>
             <div class="flex justify-center">
-              <button
-                type="submit"
-                class="inline-flex items-center px-5 py-2.5 mt-4 text-sm font-medium text-black bg-green-300 rounded-lg hover:bg-green-800"
-              >
-                {{ isEdit ? "Modifier le ticket" : "Créer un ticket" }}
-              </button>
+              <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div class="w-12 h-12 border-4 border-green-400 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+                <button
+                  type="submit"
+                  class="inline-flex items-center px-5 py-2.5 mt-4 text-sm font-medium text-black bg-green-300 rounded-lg hover:bg-green-800 disabled:opacity-50"
+                  :disabled="isLoading"
+                >
+                  {{ isLoading ? "Chargement..." : (isEdit ? "Modifier le ticket" : "Créer un ticket") }}
+                </button>
             </div>
           </form>
         </div>
@@ -131,6 +136,7 @@ export default {
       file: null,
       showSuccessMessage: false,
       successMessage: '',
+      isLoading: false,
     };
   },
   computed: {
@@ -174,8 +180,7 @@ export default {
   // Chargement des produits
   axios.get('http://localhost:5000/api/products', 
   { headers: { Authorization: `Bearer ${token}` } })
-    .then(response => {
-      console.log("Produits reçus :", response.data); 
+    .then(response => { 
       if (!Array.isArray(response.data)) {  // Vérification directe de response.data
         console.error("Données produits invalides :", response.data);
         this.products = [];
@@ -189,12 +194,10 @@ export default {
   axios.get('http://localhost:5000/api/types', 
   { headers: { Authorization: `Bearer ${token}` } })
     .then(response => {
-      console.log("Types reçus :", response.data); // Debug
       this.typeDeDemandes = response.data.types || [];
     })
     .catch(error => console.error("Erreur lors du chargement des types de demandes :", error));
 }
-
 ,
     handleSubmit() {
       if (!this.selectedProduct || !this.selectedTypeDeDemande || !this.urgence || !this.description) {
@@ -239,6 +242,9 @@ export default {
         data.append('userId', userId);
       }
 
+      // Activation de l'indicateur de chargement
+    this.isLoading = true;
+
       axios({
         method,
         url: apiEndpoint,
@@ -250,14 +256,18 @@ export default {
       })
         .then(response => {
           this.successMessage = this.isEdit ? "Ticket mis à jour avec succès !" : "Ticket créé avec succès !";
-          this.showSuccessMessage = true;
           this.$emit('close');
-          this.$emit('refreshData');
+          this.showSuccessMessage = true;
+          
         })
         .catch(error => {
           console.error("Erreur lors de l'envoi des données :", error.response?.data || error.message);
           alert(`Erreur : ${error.response?.data?.message || 'Erreur inconnue'}`);
-        });
+        })
+        .finally(() => {
+        this.isLoading = false; // Désactivation de l'indicateur de chargement
+        this.$emit('refreshData');
+      });
     },
 
     handleFileChange(event) {
@@ -266,7 +276,11 @@ export default {
 
     closeSuccessDialog() {
       this.showSuccessMessage = false;
+      setTimeout(() => {
+    location.reload();
+  }, 5000); 
     },
   },
 };
 </script>
+
