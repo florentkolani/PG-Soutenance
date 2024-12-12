@@ -78,6 +78,17 @@ exports.changePassword = async (req, res) => {
     }
 };
 
+// Fonction pour générer un mot de passe aléatoire
+function generateRandomPassword(length = 8) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let password = '';
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      password += characters.charAt(randomIndex);
+    }
+    return password;
+  }
+  
 
 // Enregistrement d'un nouvel utilisateur
 exports.register = async (req, res) => {
@@ -90,10 +101,13 @@ exports.register = async (req, res) => {
             return res.status(400).json({ message: 'Utilisateur déjà enregistré' });
         }
 
-         // Vérifier la longueur du mot de passe
-         if (password.length < 6) {
-            return res.status(400).json({ message: 'Le mot de passe doit contenir au moins 6 caractères.' });
-        }
+        // Générer un mot de passe aléatoire
+        const randomPassword = generateRandomPassword(8);
+
+        //  // Vérifier la longueur du mot de passe
+        //  if (password.length < 6) {
+        //     return res.status(400).json({ message: 'Le mot de passe doit contenir au moins 6 caractères.' });
+        // }
         
         // Créer un nouvel utilisateur
         const user = new User({
@@ -101,7 +115,7 @@ exports.register = async (req, res) => {
             email,
             pays,
             ville,
-            password,
+            password:randomPassword,
             contact,
             role: role || 'Client', 
         });
@@ -113,19 +127,30 @@ exports.register = async (req, res) => {
         const emailSubject = 'Bienvenue chez NOVA LEAD';
         const emailContent = `
         <html>
-          <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-            <p>Bonjour ${name},</p>
-            <p>Votre compte d'utilisateur a été créé avec succès chez NOVA LEAD.</p>
-            <p>Voici vos informations de connexion :</p>
-            <ul>
-              <li><strong>Email</strong>: ${email}</li>
-              <li><strong>Mot de passe</strong>: ${password}</li>
-            </ul>
-            <p>Veuillez vous connecter pour modifier votre mot de passe et accéder à votre tableau de bord.</p>
-            <p style="text-align: right; margin-top: 20px;">Cordialement,</p>
-            <p style="text-align: right;">L'équipe de support</p>
-          </body>
-        </html>
+  <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <p>Bonjour ${name},</p>
+    <p>Nous avons le plaisir de vous informer que votre compte utilisateur a été créé avec succès sur notre plateforme d'assistance en ligne de, <strong>NOVA LEAD</strong>.</p>
+    <p>Voici vos informations de connexion :</p>
+    <ul>
+      <li><strong>Email</strong> : ${email}</li>
+      <li><strong>Mot de passe</strong> : ${randomPassword}</li>
+    </ul>
+    <p>Nous vous recommandons de vous connecter dès maintenant pour personnaliser votre mot de passe et accéder à votre tableau de bord. Sur votre tableau de bord, vous pourrez :</p>
+    <ul>
+      <li>Créer et gérer vos tickets d'assistance.</li>
+      <li>Suivre l'état de vos demandes en temps réel.</li>
+      <li>Communiquer avec notre équipe d'assistance.</li>
+    </ul>
+    <p>Pour accéder à la plateforme, cliquez sur le lien ci-dessous :</p>
+    <p>
+      <a href="https://www.novalead-support.com/login" style="color: #3498db; text-decoration: none;">Accéder à votre compte</a>
+    </p>
+    <p>Si vous avez des questions ou si vous avez besoin d'aide, n'hésitez pas à nous contacter. Nous sommes là pour vous aider.</p>
+    <p style="text-align: right; margin-top: 20px;">Cordialement,</p>
+    <p style="text-align: right;">L'équipe de support NOVA LEAD</p>
+  </body>
+</html>
+
       `;
 
         await sendEmail(user.email, emailSubject, emailContent);

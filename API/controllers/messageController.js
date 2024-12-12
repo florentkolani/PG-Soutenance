@@ -1,8 +1,8 @@
 const Message = require('../models/messageModel');
 const Ticket = require('../models/ticketModel');
 const mongoose = require("mongoose");
-const { sendEmail } = require('../services/emailService'); // Import de votre fonction d'envoi d'e-mails
-const User = require('../models/userModel'); // Modèle pour récupérer les e-mails
+const { sendEmail } = require('../services/emailService'); 
+const User = require('../models/userModel');
 
 exports.sendMessage = async (req, res) => {
     try {
@@ -14,7 +14,7 @@ exports.sendMessage = async (req, res) => {
         }
 
         // Récupérer le ticket
-        const ticket = await Ticket.findById(ticketId).populate('userId'); // Assurez-vous que `clientId` est un champ dans le modèle Ticket et qu'il est référencé à User.
+        const ticket = await Ticket.findById(ticketId).populate('userId');
 
         if (!ticket) {
             return res.status(404).json({ message: 'Ticket non trouvé' });

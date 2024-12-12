@@ -60,6 +60,10 @@ export default {
     };
   },
   methods: {
+    togglePasswordVisibility() {
+      this.showPassword = !this.showPassword;
+    },
+    
     async login() {
   console.log('Tentative de connexion...');
   if (!this.email || !this.password) {

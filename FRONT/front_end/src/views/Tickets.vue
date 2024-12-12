@@ -58,6 +58,7 @@
             <th class="py-2 text-center">Urgence</th>
             <th class="py-2 text-center">Statut</th>
             <th class="py-2 text-center">Date de Création</th>
+            <th class="py-2 text-center">Note</th>
             <th class="py-2 text-center">Actions</th>
           </tr>
       </thead>
@@ -78,6 +79,27 @@
               <span v-else class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
             </td>
             <td class="border px-4 py-2 text-center">{{ new Date(ticket.createdAt).toLocaleDateString() }}</td>
+
+            <td class="border px-4 py-2 text-center">
+  <div class="flex justify-center space-x-1">
+    <template v-for="index in 4" :key="index"> 
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        :class="{
+          'text-gray-300': index > getStarCount(ticket.note), 
+          'text-yellow-400': index <= getStarCount(ticket.note)  
+        }"
+        class="h-5 w-5"
+        fill="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path d="M12 .587l3.668 7.568 8.332 1.151-6.083 5.911 1.437 8.324L12 18.897l-7.354 4.644 1.437-8.324-6.083-5.911 8.332-1.151z" />
+      </svg>
+    </template>
+  </div>
+</td>
+
+            
             <td class="border px-4 py-2 text-center">
   <div class="relative inline-block text-left">
     <!-- Bouton des trois points pour ouvrir le dropdown -->
@@ -169,7 +191,7 @@ import TicketModal from '@/components/layouts/TicketModal.vue';
 import RatingModal from '@/components/layouts/RatingModal.vue';
 import Pagination from '@/components/layouts/Pagination.vue';
 import Header from '@/components/layouts/Header.vue'; 
-import GoToDashboard from '../components/layouts/GoToDashboard.vue';
+import GoToDashboard from '@/components/layouts/GoToDashboard.vue';
 import axios from 'axios';
 
 export default {
@@ -188,6 +210,7 @@ export default {
       showRatingModal: false,
       isEdit: false,
       tickets: [],
+      notes: [],
       selectedStatus: '',
       ticketFilterOptions: [
         { value: 'ouvert', label: 'Ouvert' },
@@ -221,35 +244,74 @@ export default {
     this.fetchProducts();
     this.fetchTypesDeDemande();
     document.addEventListener('click', this.closeDropdownOnClickOutside);
-    this.interval = setInterval(() => {this.fetchTickets(); }, 1000); 
+    //this.interval = setInterval(() => {this.fetchTickets(); }, 1000);
+    
   },
   
   beforeDestroy() {
     document.removeEventListener('click', this.closeDropdownOnClickOutside);
   },
-
+  
   methods: {
+    getStarCount(notes) {
+    switch (notes) {
+      case 'Médiocre':
+        return 1;
+      case 'Passable':
+        return 2;
+      case 'Satisfait':
+        return 3;
+      case 'Très Satisfait':
+        return 4;
+      default:
+        return 0; 
+    }
+  },
+  
     redirectToDashboard() {
       this.$router.push('/dashboard'); // Redirection vers la route du dashboard
     },
 
-    fetchTickets() {
-      const token = localStorage.getItem('token');
-      axios
-        .get(`http://localhost:5000/api/tickets?page=${this.currentPage}&limit=${this.itemsPerPage}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then(response => {
-          if (response.data && Array.isArray(response.data.tickets)) {
-            this.tickets = response.data.tickets; 
-            this.totalItems = response.data.total; 
-            this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
-          } else {
-            console.error('Réponse invalide pour les tickets:', response.data);
-          }
-        })
-        .catch(error => console.error('Erreur lors de la récupération des tickets:', error));
-    },
+fetchTickets() {
+  const token = localStorage.getItem('token');
+  
+  // Récupérer les tickets et les notes en parallèle
+  Promise.all([
+    axios.get(`http://localhost:5000/api/tickets?page=${this.currentPage}&limit=${this.itemsPerPage}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+    axios.get('http://localhost:5000/api/ratings', {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+  ])
+    .then(([ticketsResponse, ratingsResponse]) => {
+      // Vérifier les données des tickets
+      if (ticketsResponse.data && Array.isArray(ticketsResponse.data.tickets)) {
+        this.tickets = ticketsResponse.data.tickets;
+        this.totalItems = ticketsResponse.data.total;
+        this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+
+        // Vérifier les données des notes
+        const notes = ratingsResponse.data;
+        console.log('Tickets récupérés:', this.tickets);
+        console.log('Notes récupérées:', notes);
+
+        // Associer les notes aux tickets
+        this.tickets = this.tickets.map(ticket => {
+          const note = notes.find(note => note.ticketId === ticket._id); // Associer la note correspondante
+          return {
+            ...ticket,
+            note: note ? note.note : null, // Ajouter la note ou `null` si aucune note trouvée
+          };
+        });
+      } else {
+        console.error('Réponse invalide pour les tickets:', ticketsResponse.data);
+      }
+    })
+    .catch(error => {
+      console.error('Erreur lors de la récupération des tickets ou des notes:', error);
+    });
+},
 
     onFilterChanged(statut) {
       this.selectedStatus = statut;

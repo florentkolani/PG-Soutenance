@@ -1,75 +1,83 @@
 <template>
-  <div class="bg-gray-100 min-h-screen p-4">
-    <h1 class="text-2xl font-bold mb-4 flex justify-center">Conversation</h1>
+  <div class="flex items-center justify-center bg-gray-100 h-screen">
+    <div class="w-full max-w-7xl bg-white p-4 rounded-lg shadow-lg">
+      <!-- Titre -->
+      <h1 class="text-2xl font-bold mb-4 flex justify-center">Conversation</h1>
 
-    <!-- Détails du ticket -->
-    <div v-if="ticket" class="bg-white p-4 rounded shadow mb-6 flex flex-wrap space-x-40">
-      <div class="flex items-center">
-        <p><strong>Client:</strong> {{ ticket.userId?.name || 'Inconnu' }}</p>
-      </div>
-      <div class="flex items-center">
-        <p><strong>Type de Demande:</strong> {{ ticket.typeDeDemandeId?.name || 'Inconnu' }}</p>
-      </div>
-      <div class="flex items-center">
-        <p><strong>Produit:</strong> {{ ticket.productId?.name || 'Inconnu' }}</p>
-      </div>
-      <div class="flex items-center">
-        <p><strong>Urgence:</strong> {{ ticket.urgence || 'Inconnu' }}</p>
-      </div>
-    </div>
-
-    <div v-if="messages.length" class="bg-green-50 p-4 rounded shadow mb-6 overflow-y-auto" style="max-height: 300px;">
-      <h2 class="text-lg font-semibold mb-4">Messages</h2>
-
-      <div v-for="(message, index) in messages" :key="message._id">
-
-        <div v-if="isNewDate(messages, index)" class="text-center my-2 text-sm font-semibold text-gray-500">
-          {{ formatDate(message.createdAt) }}
-        </div>
-
-        <!-- Affichage des messages en alternance gauche-droite, en fonction de l'utilisateur -->
-        <div 
-          :class="[
-            'mb-2', 
-            'p-4', 
-            'rounded', 
-            'max-w-xl', 
-            'break-words',
-            message.userId?._id === currentUserId ? 'bg-blue-100 ml-auto' : 'bg-green-100 mr-auto'
-          ]"
-        >
-          <p><strong>{{ message.userId?.name || 'Inconnu' }}</strong></p>
-          <p>{{ message.content }}</p>
-          <p class="text-xs text-gray-500 text-right">{{ formatDateWithTime(message.createdAt) }}</p>
+      <!-- Détails du ticket -->
+      <div v-if="ticket" class="bg-white p-4 rounded shadow mb-6">
+        <div class="flex flex-wrap justify-between">
+          <p><strong>Client:</strong> {{ ticket.userId?.name || 'Inconnu' }}</p>
+          <p><strong>Type de Demande:</strong> {{ ticket.typeDeDemandeId?.name || 'Inconnu' }}</p>
+          <p><strong>Produit:</strong> {{ ticket.productId?.name || 'Inconnu' }}</p>
+          <p><strong>Urgence:</strong> {{ ticket.urgence || 'Inconnu' }}</p>
         </div>
       </div>
-    </div>
 
-    <div v-else>
-      Aucun message pour ce ticket.
-    </div>
+      <!-- Section des messages -->
+      <div 
+        v-if="messages.length" 
+        class="bg-green-50 p-4 rounded shadow mb-6 overflow-y-auto"
+        style="max-height: calc(100vh - 250px);" 
+      >
+        <h2 class="text-lg font-semibold mb-4">Messages</h2>
 
-    <!-- Zone de saisie pour envoyer un message -->
-    <div class="bg-white p-4 rounded-lg shadow-lg">
-      <form @submit.prevent="sendMessage" class="flex justify-between items-center space-x-4">
-  <textarea
-    v-model="newMessage"
-    placeholder="Écrivez un message..."
-    class="w-full p-3 h-12 resize-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-200"
-    :disabled="isSending" 
-  ></textarea>
-  <button
-    type="submit"
-    class="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-    :disabled="isSending" 
-  >
-    {{ isSending ? "Envoi..." : "Envoyer" }} <!-- Changement de texte -->
-  </button>
-</form>
+        <div v-for="(message, index) in messages" :key="message._id">
+          <div v-if="isNewDate(messages, index)" class="text-center my-2 text-sm font-semibold text-gray-500">
+            {{ formatDate(message.createdAt) }}
+          </div>
+
+          <div 
+            :class="[ 
+              'mb-2 p-4 rounded max-w-xl break-words', 
+              message.userId?._id === currentUserId ? 'bg-blue-100 ml-auto' : 'bg-green-100 mr-auto'
+            ]"
+          >
+            <p><strong>{{ message.userId?.name || 'Inconnu' }}</strong></p>
+            <p>{{ message.content }}</p>
+            <p class="text-xs text-gray-500 text-right">{{ formatDateWithTime(message.createdAt) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div v-else>
+        Aucun message pour ce ticket.
+      </div>
+
+      <!-- Zone de saisie -->
+      <div class="bg-white p-4 rounded-xl shadow-lg mt-auto flex items-center">
+    <form 
+      @submit.prevent="sendMessage" 
+      class="flex-grow flex items-center space-x-3"
+    >
+      <!-- Zone de saisie -->
+      <textarea
+        v-model="newMessage"
+        placeholder="Envoyez un Message"
+        class="flex-grow p-3 rounded-xl bg-white text-black placeholder-gray-400 border-none focus:ring-2 focus:ring-blue-200 focus:outline-none resize-none transition duration-200 overflow-auto"
+        rows="1"
+        ref="textarea"
+        @input="adjustTextareaHeight"
+      ></textarea>
+
+      <!-- Bouton envoyer -->
+      <button
+        type="submit"
+        class="flex-shrink-0 bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+        :disabled="isSending"
+      >
+        <!-- Icône de flèche pour "Envoyer" -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke="none" class="h-5 w-5">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+        </svg>
+      </button>
+    </form>
+  </div>
 
     </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -84,7 +92,8 @@ export default {
       isAdminOrAgent: false,
       currentUserId: null,
       ticketCreatorId: null,
-      isSending: false 
+      isSending: false,
+      maxTextareaHeight: 120,  
     };
   },
   mounted() {
@@ -98,6 +107,13 @@ export default {
     }
   },
   methods: {
+
+    adjustTextareaHeight() {
+      const textarea = this.$refs.textarea;
+      textarea.style.height = "auto"; // Réinitialise la hauteur pour recalculer
+      const newHeight = Math.min(textarea.scrollHeight, this.maxTextareaHeight); // Limite à 3 lignes
+      textarea.style.height = `${newHeight}px`; // Définit la nouvelle hauteur
+    },
     formatDateWithTime(date) {
       const messageDate = new Date(date);
       const today = new Date();
@@ -115,8 +131,7 @@ export default {
       });
       return `${formattedDate} · ${formattedTime}`;
     },
-
-    fetchTicket() {
+fetchTicket() {
   const token = localStorage.getItem('token');
   axios.get(`http://localhost:5000/api/tickets/${this.ticketId}`, {
     headers: { Authorization: `Bearer ${token}` }
@@ -259,7 +274,6 @@ updateTicketStatus(ticketId, statusData) {
 </script>
 
 <style scoped>
-/* Appliquer une hauteur maximale à la section des messages pour le défilement */
 .overflow-y-auto {
   max-height: 300px;
   overflow-y: auto;

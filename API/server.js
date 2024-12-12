@@ -3,6 +3,7 @@ require('dotenv').config();
 const cors = require('cors');
 const connectDB = require('./config');
 
+
 const app = express();
 
 // Middleware pour activer CORS
@@ -22,6 +23,8 @@ const messageRoutes = require('./routes/messageRoutes');
 const ratingRoutes = require('./routes/ratingRoutes');
 const typeDeDemandeRoutes = require('./routes/typeDeDemandeRoutes');
 const userRoutes = require('./routes/userRoutes');
+const pdfRoutes = require("./routes/pdfRoutes");
+const path = require("path");
 
 // Utilisation des routes
 app.use('/api/auth', authRoutes);
@@ -32,6 +35,8 @@ app.use('/api/ratings', ratingRoutes);
 app.use('/api/types', typeDeDemandeRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/tickets', messageRoutes);
+app.use("/api/pdfs", pdfRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
 connectDB();

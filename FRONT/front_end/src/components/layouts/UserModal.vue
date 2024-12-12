@@ -49,7 +49,7 @@
                   :disabled="isLoading"
                 />
               </div>
-              <div>
+              <!-- <div>
                 <label for="password" class="block mb-2 text-sm font-medium text-gray-900">
                   Mot de Passe <span class="text-red-500">*</span> <br> <span class="text-red-500">Minimum 6 caractères</span>
                 </label>
@@ -62,7 +62,7 @@
                   required
                   :disabled="isLoading"
                 />
-              </div>
+              </div> -->
               <div>
                 <label for="contact" class="block mb-2 text-sm font-medium text-gray-900">
                   Contact <span class="text-red-500">*</span>
@@ -77,28 +77,30 @@
                   :disabled="isLoading"
                 />
               </div>
-
-              
-              <div>
-                <label for="pays" class="block mb-2 text-sm font-medium text-gray-900">
+              <!-- Sélecteur de pays avec label -->
+              <div class="mb-4">
+                <label for="pays" class="block text-sm font-medium text-gray-900 mb-2">
                   Pays <span class="text-red-500">*</span>
                 </label>
                 <select
-                  v-model="user.pays"
+                  v-model="selectedCountryCode"
                   id="pays"
                   class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
                   required
-                  @change="loadCities(user.pays)" 
+                  @change="updateCountryName($event.target.value); loadCities($event.target.value)"
                 >
-                  <option value="" disabled hidden class="text-gray-500 opacity-50">
+                  <option value="default" disabled hidden>
                     Veuillez sélectionner votre pays
                   </option>
                   <option v-for="country in countries" :key="country.code" :value="country.code">
                     {{ country.name }}
                   </option>
                 </select>
+              </div>
 
-                <label for="ville" class="block mb-2 text-sm font-medium text-gray-900 mt-4">
+              <!-- Sélecteur de villes avec label -->
+              <div class="mb-4">
+                <label for="ville" class="block text-sm font-medium text-gray-900 mb-2">
                   Ville <span class="text-red-500">*</span>
                 </label>
                 <select
@@ -106,8 +108,7 @@
                   id="ville"
                   class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
                   required
-                  :disabled="isLoadingCities" 
-                  @focus="startLoadingCities"  
+                  :disabled="isLoadingCities || !cities.length"
                 >
                   <option value="" disabled hidden class="text-gray-500 opacity-50">
                     Veuillez sélectionner votre ville
@@ -117,14 +118,13 @@
                   </option>
                 </select>
 
-                <!-- Affichage du spinner et du message de chargement uniquement si l'utilisateur clique -->
-                <div v-if="isLoadingCities && !cities.length" class="mt-2 flex justify-center items-center text-sm text-gray-500">
-                  <div class="w-6 h-6 border-4 border-green-400 border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Les villes se chargent, veuillez patienter...
+                <div v-if="isLoadingCities" class="mt-2 flex items-center space-x-2">
+                  <div class="w-5 h-5 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  <span class="text-sm text-gray-500">En cours de chargement, veuillez patienter.</span>
                 </div>
+
+
               </div>
-
-
               <div>
                 <label for="role" class="block mb-2 text-sm font-medium text-gray-900">
                   Role <span class="text-red-500">*</span>
@@ -183,18 +183,19 @@ export default {
       user: {
         name: '',
         email: '',
-        password: '',
+       // password: '',
         contact: '',
         pays: '',
         ville: '',
         role: 'Client',
       },
 
-      countries: [], 
+      countries: [],
       cities: [],
       isLoadingCities: false,
+      selectedCountryCode: "default",
 
-      isLoading: false, 
+      isLoading: false,
       showDialog: false,
       dialogMessage: '',
       dialogType: '',
@@ -215,49 +216,49 @@ export default {
       this.countries = [];
     }
   },
+
   methods: {
-      // Chargement des villes lors du changement de pays
-  async loadCities(countryCode) {
-    if (!countryCode) return;
+    // Chargement des villes lors du changement de pays
+    async loadCities(countryCode) {
+      if (!countryCode) return;
 
-     this.isLoadingCities = true;
-    this.cities = []; // Réinitialiser la liste des villes
-
-    try {
-      const response = await fetch(
-        `http://api.geonames.org/searchJSON?country=${countryCode}&featureClass=P&maxRows=1000&username=florentinoperez`
-      );
-
-      if (!response.ok) {
-        console.error("Erreur dans la réponse de l'API :", response.status, response.statusText);
-        throw new Error(`API GeoNames erreur : ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      this.cities = data.geonames.map((city) => city.name);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des villes :", error);
-      this.cities = [];
-    } finally {
-      this.isLoadingCities = false;
-    }
-  },
-
-  // Fonction appelée lors du focus pour démarrer le chargement
-  startLoadingCities() {
-    if (!this.cities.length && !this.isLoading) {
-      this.isLoading = true;
-    }
-  },
-
-  // Fonction appelée lors du focus pour démarrer le chargement
-  startLoadingCities() {
-    if (!this.cities.length && !this.isLoadingCities) {
       this.isLoadingCities = true;
-    }
-  },
+      this.cities = []; // Réinitialiser la liste des villes
 
-//enregistrement d'un user
+      try {
+        const response = await fetch(
+          `http://api.geonames.org/searchJSON?country=${countryCode}&featureClass=P&maxRows=1000&username=florentinoperez`
+        );
+
+        if (!response.ok) {
+          console.error("Erreur dans la réponse de l'API :", response.status, response.statusText);
+          throw new Error(`API GeoNames erreur : ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        this.cities = data.geonames.map((city) => city.name);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des villes :", error);
+        this.cities = [];
+      } finally {
+        this.isLoadingCities = false;
+      }
+    },
+
+    // Mise à jour du pays sélectionné avec son nom complet
+    updateCountryName(countryCode) {
+      const country = this.countries.find((c) => c.code === countryCode);
+      this.user.pays = country ? country.name : '';
+    },
+
+    // Fonction appelée lors du focus pour démarrer le chargement
+    startLoadingCities() {
+      if (!this.cities.length && !this.isLoading) {
+        this.isLoading = true;
+      }
+    },
+
+    // Enregistrement d'un utilisateur
     async registerUser() {
       this.isLoading = true;
       try {
@@ -288,10 +289,12 @@ export default {
         this.resetForm();
       }
     },
+
     closeDialog() {
       this.showDialog = false;
       this.$emit('close'); // Ferme le modal
     },
+
     resetForm() {
       this.user = {
         name: '',
@@ -303,6 +306,6 @@ export default {
         role: 'Client',
       };
     },
-  }
+  },
 };
 </script>

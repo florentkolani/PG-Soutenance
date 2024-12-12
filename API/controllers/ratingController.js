@@ -24,6 +24,18 @@ exports.getRatingByTicket = async (req, res) => {
     }
 };
 
+//obténir tout les notes des tickets
+
+exports.getAllRatings = async (req, res) => {
+    try {
+        const ratings = await Rating.find(); // Récupère toutes les notes
+        res.status(200).json(ratings);
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors de la récupération des notes', error });
+    }
+};
+
+
 // vérifie si le ticket est déjà noté ou pas 
 exports.ratingExists = async (req, res) => {
     try {
