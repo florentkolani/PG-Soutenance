@@ -17,8 +17,8 @@
             </select>
           </div>
           <div class="mb-4">
-            <label class="block text-gray-700">Description:</label>
-            <textarea v-model="rating.description" class="border rounded p-2 w-full"></textarea>
+            <label class="block text-gray-700">Commentaire:</label>
+            <textarea v-model="rating.commentaire" class="border rounded p-2 w-full"></textarea>
           </div>
           <div class="flex justify-center">
             <button type="submit" class="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800" :disabled="alreadyRated">
@@ -57,7 +57,7 @@ export default {
     return {
       rating: {
         note: '',
-        description: '',
+        commentaire: '',
       },
       showAlert: false,
       alertMessage: '',
@@ -77,7 +77,7 @@ export default {
     close() {
       this.$emit('close');
       this.rating.note = '';
-      this.rating.description = '';
+      this.rating.commentaire = '';
     },
     showSuccess(message) {
       this.alertType = 'success';
