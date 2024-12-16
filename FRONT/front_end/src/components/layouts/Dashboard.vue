@@ -1,29 +1,53 @@
 <template>
   <div class="flex h-screen">
+
     <!-- Sidebar -->
-    <aside class="bg-gray-200 w-64 p-4 border-r">
+    <aside
+    :class="[
+    'bg-gray-200 w-64 p-4 border-r fixed md:relative h-screen z-20 transition-transform duration-300',
+    sidebarVisible ? 'translate-x-0' : '-translate-x-full',
+    'md:translate-x-0'
+  ]"
+>
+
       <div class="flex items-center mb-2">
         <img src="@/assets/logo.png" alt="Logo" class="h-8 w-8 rounded-full" style="display: block;" />
         <span class="ml-3 text-xl font-bold">NOVA Lead</span>
       </div>
+      <!-- Bouton de fermeture sur petit écran -->
+      <button @click="toggleSidebar" class="md:hidden text-gray-700 absolute top-2 right-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+<nav class="space-y-4">
+  
+  <ul class="space-y-4 list-none p-0 m-0">
+    <li v-if="role === 'Admin'">
+      <AdminModules />
+    </li>
+    <li v-if="role === 'Client'">
+      <ClientModules />
+    </li>
+    <li v-if="role === 'AgentSupport'">
+      <AgentSupportModules />
+    </li>
+  </ul>
+</nav>
 
-      <nav class="space-y-4">
-        <li v-if="role === 'Admin'">
-          <AdminModules />
-        </li>
-        <li v-if="role === 'Client'">
-          <ClientModules />
-        </li>
-        <li v-if="role === 'AgentSupport'">
-          <AgentSupportModules />
-        </li>
-      </nav>
     </aside>
 
     <!-- Main content -->
     <div class="flex-1 flex flex-col">
+
       <!-- la Navbar -->
       <header class="bg-gray-100 p-2 border-b flex justify-between items-center">
+        <button @click="toggleSidebar" class="md:hidden p-2 text-gray-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        
         <div class="flex items-center space-x-4">
           <!-- Placeholder for any content you might want to add on the left -->
         </div>
@@ -113,7 +137,8 @@ export default {
   name: 'Dashboard',
   data() {
   return {
-    role: null,
+    role: 'Admin',
+    sidebarVisible: false,
     userInfo: null,
     ticketData: {
       total: 35,
@@ -122,6 +147,7 @@ export default {
       resolved: 20
     },
     showDropdown: false,
+   
 
   };
 },
@@ -153,6 +179,11 @@ export default {
     }
   },
   methods: {
+    toggleSidebar() {
+      this.sidebarVisible = !this.sidebarVisible;
+      console.log("État de sidebarVisible :", this.sidebarVisible);
+
+    },
     logout() {
       localStorage.removeItem('token');
       this.$router.push('/login');
