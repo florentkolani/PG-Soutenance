@@ -63,20 +63,7 @@
                   :disabled="isLoading"
                 />
               </div> -->
-              <div>
-                <label for="contact" class="block mb-2 text-sm font-medium text-gray-900">
-                  Contact <span class="text-red-500">*</span>
-                </label>
-                <input
-                  v-model="user.contact"
-                  type="text"
-                  id="contact"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
-                  placeholder="Entrez votre contact"
-                  required
-                  :disabled="isLoading"
-                />
-              </div>
+              
               <!-- Sélecteur de pays avec label -->
               <div class="mb-4">
                 <label for="pays" class="block text-sm font-medium text-gray-900 mb-2">
@@ -125,6 +112,33 @@
 
 
               </div>
+
+              <div>
+  <label for="contact" class="block mb-2 text-sm font-medium text-gray-900">
+    Contact <span class="text-red-500">*</span>
+  </label>
+  <div class="flex">
+    <!-- Input pour l'indicatif, en lecture seule -->
+    <input
+      type="text"
+      :value="selectedCountryDialCode"
+      class="bg-gray-50 border border-gray-300 text-gray-900 rounded-l-lg block w-1/4 p-2.5"
+      disabled
+    />
+    <!-- Input pour le contact -->
+    <input
+      v-model="user.contact"
+      type="text"
+      id="contact"
+      class="bg-gray-50 border border-gray-300 text-gray-900 rounded-r-lg block w-3/4 p-2.5"
+      placeholder="Entrez votre contact"
+      required
+      :disabled="isLoading"
+    />
+  </div>
+</div>
+
+
               <div>
                 <label for="role" class="block mb-2 text-sm font-medium text-gray-900">
                   Role <span class="text-red-500">*</span>
@@ -194,6 +208,7 @@ export default {
       cities: [],
       isLoadingCities: false,
       selectedCountryCode: "default",
+      selectedCountryDialCode: "",
 
       isLoading: false,
       showDialog: false,
@@ -210,6 +225,7 @@ export default {
       this.countries = data.map((country) => ({
         name: country.name.common,
         code: country.cca2,
+        dialCode: country.idd.root + (country.idd.suffixes ? country.idd.suffixes[0] : ""),
       }));
     } catch (error) {
       console.error("Erreur lors du chargement des pays :", error);
@@ -248,7 +264,13 @@ export default {
     // Mise à jour du pays sélectionné avec son nom complet
     updateCountryName(countryCode) {
       const country = this.countries.find((c) => c.code === countryCode);
-      this.user.pays = country ? country.name : '';
+      if (country) {
+        this.user.pays = country.name;
+        this.selectedCountryDialCode = country.dialCode || ''; // Préremplit l'indicatif
+      } else {
+        this.user.pays = '';
+        this.selectedCountryDialCode = '';
+      }
     },
 
     // Fonction appelée lors du focus pour démarrer le chargement
@@ -258,37 +280,56 @@ export default {
       }
     },
 
-    // Enregistrement d'un utilisateur
-    async registerUser() {
-      this.isLoading = true;
-      try {
-        const response = await fetch('http://localhost:5000/api/auth/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(this.user),
-        });
+   // Enregistrement d'un utilisateur
+async registerUser() {
+  this.isLoading = true;
 
-        if (response.ok) {
-          this.dialogType = 'success';
-          this.dialogMessage = 'Utilisateur enregistré avec succès';
-          this.showDialog = true; // Affiche le popup
-        } else {
-          const errorData = await response.json();
-          this.dialogType = 'error';
-          this.dialogMessage = errorData.message || "Erreur d'enregistrement de l'utilisateur";
-          this.showDialog = true; // Affiche le popup
-        }
-      } catch (error) {
-        this.dialogType = 'error';
-        this.dialogMessage = "Une erreur est survenue lors de l'enregistrement.";
-        this.showDialog = true; // Affiche le popup
-      } finally {
-        this.isLoading = false;
-        this.resetForm();
-      }
-    },
+  // Récupère l'indicatif et le contact
+  const indicatif = this.selectedCountryDialCode || ''; // Utilise la valeur de l'indicatif
+  const contact = this.user.contact || '';  // Le contact saisi par l'utilisateur
+
+  // Vérifie si l'indicatif et le contact sont renseignés
+  if (!indicatif || !contact) {
+    this.dialogType = 'error';
+    this.dialogMessage = "Veuillez renseigner l'indicatif et le numéro de contact.";
+    this.showDialog = true;
+    this.isLoading = false;
+    return;
+  }
+
+  // Concaténer l'indicatif et le numéro de téléphone
+  const fullContact = `${indicatif}${contact}`;
+  const userPayload = { ...this.user, contact: fullContact };
+
+  try {
+    const response = await fetch('http://localhost:5000/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userPayload),
+    });
+
+    if (response.ok) {
+      this.dialogType = 'success';
+      this.dialogMessage = 'Utilisateur enregistré avec succès';
+      this.showDialog = true;
+    } else {
+      const errorData = await response.json();
+      this.dialogType = 'error';
+      this.dialogMessage = errorData.message || "Erreur d'enregistrement de l'utilisateur";
+      this.showDialog = true;
+    }
+  } catch (error) {
+    this.dialogType = 'error';
+    this.dialogMessage = "Une erreur est survenue lors de l'enregistrement.";
+    this.showDialog = true;
+  } finally {
+    this.isLoading = false;
+    this.resetForm();
+  }
+}
+,
 
     closeDialog() {
       this.showDialog = false;
@@ -305,6 +346,7 @@ export default {
         ville: '',
         role: 'Client',
       };
+      this.selectedCountryDialCode = '';
     },
   },
 };

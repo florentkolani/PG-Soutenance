@@ -136,19 +136,22 @@
       Messages
     </button>
 
-    <!-- Affichage des boutons "Modifier" et "Noter" uniquement pour les Clients -->
-    <button v-if="userRole === 'Client'" @click="openTicketModal(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11V4m-7 7h14m-7 7v-3m-2-5h7m-3 0h4" />
-      </svg>
-      Modifier
-    </button>
-    <button v-if="userRole === 'Client'" @click="openRatingModal(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m0 0l-3 3m3-3l-3-3" />
-      </svg>
-      Clôturer
-    </button>
+   <!-- Affichage du bouton "Modifier" uniquement pour les Clients et si le ticket n'est pas clôturé -->
+<button v-if="userRole === 'Client' && ticket.statut !== 'cloturé'" @click="openTicketModal(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11V4m-7 7h14m-7 7v-3m-2-5h7m-3 0h4" />
+  </svg>
+  Modifier
+</button>
+
+<!-- Affichage du bouton "Clôturer" uniquement pour les Clients et si le ticket n'est pas clôturé -->
+<button v-if="userRole === 'Client' && ticket.statut !== 'cloturé'" @click="openRatingModal(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m0 0l-3 3m3-3l-3-3" />
+  </svg>
+  Clôturer
+</button>
+
   </div>
   </div>
 </td>
