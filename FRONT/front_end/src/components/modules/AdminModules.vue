@@ -4,35 +4,53 @@
       <ul class="pt-4 mt-11 space-y-2 border-t border-gray-200 dark:border-gray-700">
           <li>
               <router-link to="/Utilisateurs" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                  <svg aria-hidden="true" class="flex-shrink-0 w-6 h-6 text-gray-400 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 3a3 3 0 00-3 3v1a1 1 0 000 2v4a1 1 0 000 2v4h6v-4a1 1 0 100-2v-4a1 1 0 000-2V6a3 3 0 00-3-3z" clip-rule="evenodd"></path></svg>
+                <svg aria-hidden="true" class="flex-shrink-0 w-6 h-6 text-gray-400 dark:text-gray-400" 
+                    fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="10" cy="6" r="4"></circle>
+                    <path d="M4 16c0-2.5 2-4.5 6-4.5s6 2 6 4.5v1H4v-1z"></path>
+                </svg>
                   <span class="ml-3">Utilisateurs</span>
               </router-link>
           </li>
           <li>
-              <router-link to="/Tickets" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"><svg aria-hidden="true" class="flex-shrink-0 w-6 h-6 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" d="M4 2a1 1 0 00-1 1v2.528a3 3 0 010 5.944V14a1 1 0 001 1h12a1 1 0 001-1v-2.528a3 3 0 010-5.944V3a1 1 0 00-1-1H4zm1 5a1 1 0 011 1v4a1 1 0 11-2 0V8a1 1 0 011-1zm10 0a1 1 0 011 1v4a1 1 0 11-2 0V8a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+              <router-link to="/Tickets" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                <svg aria-hidden="true" class="flex-shrink-0 w-6 h-6 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M4 2a1 1 0 00-1 1v2.528a3 3 0 010 5.944V14a1 1 0 001 1h12a1 1 0 001-1v-2.528a3 3 0 010-5.944V3a1 1 0 00-1-1H4zm1 5a1 1 0 011 1v4a1 1 0 11-2 0V8a1 1 0 011-1zm10 0a1 1 0 011 1v4a1 1 0 11-2 0V8a1 1 0 011-1z" clip-rule="evenodd"/>
+                </svg>
                   <span class="ml-3">Tickets</span>
               </router-link>
           </li>
           <li>
               <router-link to="/produits" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                  <svg aria-hidden="true" class="flex-shrink-0 w-6 h-6 text-gray-400 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"></path></svg>
+                <svg aria-hidden="true" class="flex-shrink-0 w-6 h-6 text-gray-400 dark:text-gray-400" 
+                    fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.93 6.58a1 1 0 01.4-1.36l6-3a1 1 0 01.94 0l6 3a1 1 0 01.4 1.36l-1.5 3a1 1 0 01-.9.58H5.33a1 1 0 01-.9-.58l-1.5-3z" />
+                    <path d="M4 9a1 1 0 00-1 1v6a1 1 0 001 1h12a1 1 0 001-1v-6a1 1 0 00-1-1H4z" />
+                    <path d="M3 9.5h14v1H3v-1z" />
+                </svg>
+
                   <span class="ml-3">Produits</span>
               </router-link>
           </li>
           
           <li>
               <router-link to="/TypeDeDemande" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                  <svg aria-hidden="true" class="flex-shrink-0 w-6 h-6 text-gray-400 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M6 8a2 2 0 114 0h1.5a1.5 1.5 0 110 3H9a2 2 0 010-4H6z"></path></svg>
+                <svg aria-hidden="true" class="flex-shrink-0 w-6 h-6 text-gray-400 dark:text-gray-400" 
+                    fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 3a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H4a1 1 0 01-1-1v-4zm10-10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V3zm0 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                </svg>
                   <span class="ml-3">TypeDemande</span>
               </router-link>
           </li>
           <li>
                 <router-link to="/Archives" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                     <!-- Icône d'archive -->
-                    <svg aria-hidden="true" class="flex-shrink-0 w-6 h-6 text-gray-400 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 6h14a1 1 0 011 1v9a1 1 0 01-1 1H3a1 1 0 01-1-1V7a1 1 0 011-1zM2 5a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V5z"></path>
-                    </svg>
+                    <svg aria-hidden="true" class="flex-shrink-0 w-6 h-6 text-gray-400 dark:text-gray-400" 
+     fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+  <path d="M2 4a2 2 0 012-2h4l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V4z" />
+  <path d="M10 7a1 1 0 011 1v3.586l1.293-1.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 011.414-1.414L9 11.586V8a1 1 0 011-1z" />
+</svg>
+
                     <span class="ml-3">Archives</span>
                 </router-link>
             </li>
