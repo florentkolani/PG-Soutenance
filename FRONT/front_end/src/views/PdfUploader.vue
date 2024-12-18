@@ -15,7 +15,7 @@
 
       <!-- Formulaire de téléchargement : Afficher uniquement pour Admin et Agent -->
       <form 
-        v-if="isAdmin || isAgent" 
+        v-if="isAdmin || isAgentSupport" 
         @submit.prevent="uploadPdf" 
         class="bg-white shadow rounded-lg p-6 mb-8"
       >
@@ -137,8 +137,8 @@ export default {
     isAdmin() {
       return this.userRole === "Admin";
     },
-    isAgent() {
-      return this.userRole === "Agent";
+    isAgentSupport() {
+      return this.userRole === "AgentSupport";
     },
     isClient() {
       return this.userRole === "Client";
