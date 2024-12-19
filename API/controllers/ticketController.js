@@ -63,15 +63,17 @@ exports.createTicket = async (req, res) => {
                 return res.status(400).json({ message: `Le champ ${field} est requis.` });
             }
         }
+
         // Si un fichier est reçu, vous pouvez l'ajouter à l'objet ticket
         const ticketData = {
             ...req.body,
             file: req.file ? req.file.path : null // Enregistrez le chemin du fichier
         };
 
-        // Créer le ticket
-        const ticket = new Ticket(req.body);
+        // Créer le ticket avec les données reçues
+        const ticket = new Ticket(ticketData); // Utiliser ticketData ici
         await ticket.save();
+
         // Envoyer un email aux admins et agents support
         await envoyerEmail(ticket);
 
@@ -80,6 +82,7 @@ exports.createTicket = async (req, res) => {
         res.status(400).json({ message: 'Erreur lors de la création du ticket', error: error.message });
     }
 };
+
 // Mettre à jour le statut du ticket
 exports.updateTicketStatus = async (req, res) => {
     console.log('Requête reçue pour mettre à jour le statut:', req.body, 'Ticket ID:', req.params.ticketId);
