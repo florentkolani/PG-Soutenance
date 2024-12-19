@@ -2,10 +2,12 @@
   <div class="flex h-screen">
  <!-- Sidebar -->
   <aside
+    :aria-expanded="sidebarVisible"
     :class="[
     'bg-gray-300 w-64 p-4 border-r fixed md:relative h-screen z-20 transition-transform duration-300',
     sidebarVisible ? 'translate-x-0' : '-translate-x-full',
     'md:translate-x-0'
+    
     ]"
     >
 
@@ -20,20 +22,19 @@
         </svg>
       </button>
       <nav class="space-y-4">
-    <ul class="space-y-4 list-none p-0 m-0">
-      <!-- Parcourir tous les modules et afficher ceux qui sont autorisés selon le rôle de l'utilisateur -->
-      <li v-for="module in AllModule" :key="module.name">
-        <!-- Vérifier si le rôle de l'utilisateur correspond aux rôles du module -->
-        <router-link
-          v-if="module.role.includes(role) || !module.role.length"
-          :to="module.route"
-          class="block px-4 py-2 rounded-md text-black hover:bg-white bg-gray-300"
-        >
-          {{ module.name }}
-        </router-link>
-      </li>
-    </ul>
-  </nav>
+        <ul class="space-y-4 list-none p-0 m-0">
+          <!-- Utiliser filteredModules pour parcourir uniquement les modules autorisés -->
+          <li v-for="module in filteredModules" :key="module.name">
+            <router-link
+              :to="module.route"
+              class="block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+            >
+              {{ module.name }}
+            </router-link>
+          </li>
+        </ul>
+      </nav>
+
 </aside>
 <!-- Main content -->
  <div class="flex-1 flex flex-col">
@@ -63,7 +64,7 @@
           </div>
 <!-- Admin Image with Dropdown -->
           <div class="relative pr-5">
-            <span class="text-lg font-semibold text-gray-900 text-center block">Logout</span>
+            <span class="text-lg font-semibold text-gray-900 text-center block">Déconnexion</span>
             <div
               class="h-10 w-10 rounded-full bg-red-500 flex items-center justify-center cursor-pointer mx-auto"
               @click="logout"
@@ -179,6 +180,14 @@ export default {
   };
 },
 
+computed: {
+  filteredModules() {
+    return this.AllModule.filter(module => 
+      module.role.length === 0 || module.role.includes(this.role)
+    );
+  }
+}
+,
 
   async created() {
     this.role = getUserRole();

@@ -105,7 +105,7 @@
               </span>
             </p>
             <a
-              :href="pdf.url"
+              :href="`http://localhost:5000/api/pdfs/download/${pdf.url.split('/').pop()}`"
               download
               class="inline-block mt-4 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
             >
@@ -146,17 +146,16 @@ export default {
   },
   methods: {
     decodeToken() {
-  const token = localStorage.getItem("token"); 
-  if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      this.userRole = payload.role;
-    } catch (error) {
-      console.error("Erreur lors du décodage du token :", error);
-    }
-  }
-},
-
+      const token = localStorage.getItem("token"); 
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          this.userRole = payload.role;
+        } catch (error) {
+          console.error("Erreur lors du décodage du token :", error);
+        }
+      }
+    },
     onFileChange(event) {
       this.pdfFile = event.target.files[0];
     },
