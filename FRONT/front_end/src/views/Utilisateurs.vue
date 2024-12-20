@@ -3,7 +3,7 @@
     
     <Header 
       title="NOVA LEAD" 
-      primaryActionText="Nouveau Utilisateur" 
+      primaryActionText="Nouvel Utilisateur" 
       @primaryAction="showModal = true" 
       @filterChanged="onFilterChanged"
        @goToDashboard="redirectToDashboard"

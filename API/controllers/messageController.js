@@ -45,8 +45,8 @@ exports.sendMessage = async (req, res) => {
         const recipients = isClient ? supportEmails : [clientEmail];
 
         const subject = isClient
-            ? `Nouveau message du client pour le ticket #${ticketId}`
-            : `Nouvelle réponse d'un agent pour le ticket #${ticketId}`;
+            ? `Nouveau message d'un client concernant le ticket #${ticketId}`
+            : `Nouvelle réponse à votre ticket #${ticketId}`;
 
         const htmlContent = `
             <p>Un nouveau message a été ajouté au ticket <strong>#${ticketId}</strong> :</p>

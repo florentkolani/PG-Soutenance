@@ -18,7 +18,7 @@
           </div>
           <div class="mb-4">
             <label class="block text-gray-700">Commentaire:</label>
-            <textarea v-model="rating.commentaire" class="border rounded p-2 w-full"></textarea>
+            <textarea v-model="rating.commentaire" required class="border rounded p-2 w-full"></textarea>
           </div>
           <div class="flex justify-center">
             <button type="submit" class="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800" :disabled="alreadyRated">
@@ -45,6 +45,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 export default {
@@ -95,4 +96,5 @@ export default {
 
 <style scoped>
 /* Ajoutez des styles si nécessaire */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
 </style>
