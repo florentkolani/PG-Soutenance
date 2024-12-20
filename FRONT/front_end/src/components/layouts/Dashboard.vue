@@ -146,6 +146,11 @@ export default {
           role: ['Admin', 'AgentSupport']
         },
         {
+          name: 'GestionsPays',
+          route: '/GestionsPays',
+          role: ['Admin', 'AgentSupport']
+        },
+        {
           name: 'Tickets',
           route: '/Tickets',
           role: [] 

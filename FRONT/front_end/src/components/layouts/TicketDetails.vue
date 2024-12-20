@@ -55,7 +55,7 @@
         v-model="newMessage"
         placeholder="Envoyez un Message"
         class="flex-grow p-3 rounded-xl bg-white text-black placeholder-gray-400 border-none focus:ring-2 focus:ring-blue-200 focus:outline-none resize-none transition duration-200 overflow-auto"
-        rows="1"
+        rows="4"
         ref="textarea"
         @input="adjustTextareaHeight"
       ></textarea>
@@ -115,22 +115,39 @@ export default {
       textarea.style.height = `${newHeight}px`; // Définit la nouvelle hauteur
     },
     formatDateWithTime(date) {
-      const messageDate = new Date(date);
-      const today = new Date();
-      const isToday = messageDate.toDateString() === today.toDateString();
-      const formattedDate = isToday
+    const messageDate = new Date(date);
+    const today = new Date();
+
+    // Vérification pour "Aujourd'hui"
+    const isToday = messageDate.toDateString() === today.toDateString();
+
+    // Vérification pour "Hier"
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+    const isYesterday = messageDate.toDateString() === yesterday.toDateString();
+
+    // Formater la date en fonction des cas
+    const formattedDate = isToday
         ? "Aujourd'hui"
+        : isYesterday
+        ? "Hier"
         : messageDate.toLocaleDateString('fr-FR', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
+            weekday: 'long', // Affiche le jour de la semaine (ex. : lundi)
+            day: 'numeric',  // Affiche le jour du mois (ex. : 20)
+            month: 'long',   // Nom complet du mois (ex. : décembre)
+            year: 'numeric'  // Année (ex. : 2024)
           });
-      const formattedTime = messageDate.toLocaleTimeString('fr-FR', {
+
+    // Formater l'heure
+    const formattedTime = messageDate.toLocaleTimeString('fr-FR', {
         hour: '2-digit',
         minute: '2-digit'
-      });
-      return `${formattedDate} · ${formattedTime}`;
-    },
+    });
+
+    // Retourner le résultat final
+    return `${formattedDate} · ${formattedTime}`;
+}
+,
 fetchTicket() {
   const token = localStorage.getItem('token');
   axios.get(`http://localhost:5000/api/tickets/${this.ticketId}`, {
