@@ -137,8 +137,6 @@
     />
   </div>
 </div>
-
-
               <div>
                 <label for="role" class="block mb-2 text-sm font-medium text-gray-900">
                   Role <span class="text-red-500">*</span>

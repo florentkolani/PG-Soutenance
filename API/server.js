@@ -25,6 +25,8 @@ const typeDeDemandeRoutes = require('./routes/typeDeDemandeRoutes');
 const userRoutes = require('./routes/userRoutes');
 const pdfRoutes = require("./routes/pdfRoutes");
 const path = require("path");
+const countryRoutes = require('./routes/countryRoutes');
+const cityRoutes = require('./routes/cityRoutes');
 
 // Utilisation des routes
 app.use('/api/auth', authRoutes);
@@ -37,7 +39,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/tickets', messageRoutes);
 app.use("/api/pdfs", pdfRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
+app.use('/api', countryRoutes);
+app.use('/api', cityRoutes);
 
 connectDB();
 
