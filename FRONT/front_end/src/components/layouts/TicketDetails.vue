@@ -81,6 +81,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URL } from '@/services/config';
 
 export default {
   props: ['ticketId'],
@@ -150,7 +151,7 @@ export default {
 ,
 fetchTicket() {
   const token = localStorage.getItem('token');
-  axios.get(`http://localhost:5000/api/tickets/${this.ticketId}`, {
+  axios.get(`${API_URL}/tickets/${this.ticketId}`, {
     headers: { Authorization: `Bearer ${token}` }
   })
   .then(response => {
@@ -184,7 +185,7 @@ fetchTicket() {
 
     fetchMessages() {
       const token = localStorage.getItem('token');
-      axios.get(`http://localhost:5000/api/tickets/${this.ticketId}/messages`, {
+      axios.get(`${API_URL}/tickets/${this.ticketId}/messages`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(response => {
@@ -214,7 +215,7 @@ fetchTicket() {
   this.isSending = true; // Début de l'état de chargement
 
   axios.post(
-    `http://localhost:5000/api/tickets/${this.ticketId}/messages`,
+    `${API_URL}/tickets/${this.ticketId}/messages`,
     { content: messageContent },
     { headers: { Authorization: `Bearer ${token}` } }
   )
@@ -238,7 +239,7 @@ fetchTicket() {
 updateTicketStatus(ticketId, statusData) {
     const token = localStorage.getItem('token');
     console.log('Mise à jour du statut pour le ticket ID:', ticketId, 'avec les données:', statusData);
-    return axios.put(`http://localhost:5000/api/tickets/${ticketId}/statut`, statusData, {
+    return axios.put(`${API_URL}/tickets/${ticketId}/statut`, statusData, {
         headers: { Authorization: `Bearer ${token}` },
     })
     .then(response => {

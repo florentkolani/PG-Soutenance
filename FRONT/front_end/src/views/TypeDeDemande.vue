@@ -148,6 +148,7 @@ import TypeModal from '@/components/layouts/TypeDeDemandeModal.vue';
 import Pagination from '@/components/layouts/Pagination.vue';
 import Header from '@/components/layouts/Header.vue'; 
 import GoToDashboard from '@/components/layouts/GoToDashboard.vue';
+import { API_URL } from '@/services/config';
 
 
 export default {
@@ -205,7 +206,7 @@ export default {
   if (!token) return;
 
   try {
-    const response = await fetch(`http://localhost:5000/api/types?page=${this.currentPage}&limit=${this.itemsPerPage}`, {
+    const response = await fetch(`${API_URL}/types?page=${this.currentPage}&limit=${this.itemsPerPage}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -230,7 +231,7 @@ async archiveType() {
   if (!token) return;
 
   try {
-    const response = await fetch(`http://localhost:5000/api/types/${this.confirmArchiveId}/archive`, {
+    const response = await fetch(`${API_URL}/types/${this.confirmArchiveId}/archive`, {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -286,7 +287,7 @@ async archiveType() {
       if (!token) return;
 
       try {
-        const response = await fetch(`http://localhost:5000/api/types/${this.editTypeData._id}`, {
+        const response = await fetch(`${API_URL}/types/${this.editTypeData._id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -314,7 +315,7 @@ async archiveType() {
       if (!token) return;
 
       try {
-        const response = await fetch(`http://localhost:5000/api/types/${this.confirmArchiveId}`, {
+        const response = await fetch(`${API_URL}/types/${this.confirmArchiveId}`, {
           method: 'DELETE',
           headers: {
             Authorization: `Bearer ${token}`,

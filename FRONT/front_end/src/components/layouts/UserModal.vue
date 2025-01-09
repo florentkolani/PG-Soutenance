@@ -189,6 +189,7 @@
 </template>
 
 <script>
+import { API_URL } from '@/services/config';
 export default {
   data() {
     return {
@@ -300,7 +301,7 @@ async registerUser() {
   const userPayload = { ...this.user, contact: fullContact };
 
   try {
-    const response = await fetch('http://localhost:5000/api/auth/register', {
+    const response = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

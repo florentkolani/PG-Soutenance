@@ -196,6 +196,7 @@ import Pagination from '@/components/layouts/Pagination.vue';
 import Header from '@/components/layouts/Header.vue'; 
 import GoToDashboard from '@/components/layouts/GoToDashboard.vue';
 import axios from 'axios';
+import { API_URL } from '@/services/config';
 
 export default {
   components: {
@@ -280,10 +281,10 @@ fetchTickets() {
   
   // Récupérer les tickets et les notes en parallèle
   Promise.all([
-    axios.get(`http://localhost:5000/api/tickets?page=${this.currentPage}&limit=${this.itemsPerPage}`, {
+    axios.get(`${API_URL}/tickets?page=${this.currentPage}&limit=${this.itemsPerPage}`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
-    axios.get('http://localhost:5000/api/ratings', {
+    axios.get(`${API_URL}/ratings`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
   ])
@@ -331,7 +332,7 @@ fetchTickets() {
     fetchProducts() {
     const token = localStorage.getItem('token');
     axios
-      .get('http://localhost:5000/api/products', {
+      .get(`${API_URL}/products`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(response => {
@@ -342,7 +343,7 @@ fetchTickets() {
   fetchTypesDeDemande() {
     const token = localStorage.getItem('token');
     axios
-      .get('http://localhost:5000/api/types', {
+      .get(`${API_URL}/types`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(response => {
@@ -376,7 +377,7 @@ fetchTickets() {
     createTicket(ticketData) {
       const token = localStorage.getItem('token');
       axios
-        .post('http://localhost:5000/api/tickets', ticketData, {
+        .post(`${API_URL}/tickets`, ticketData, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then(() => {
@@ -389,7 +390,7 @@ fetchTickets() {
     updateTicket(ticketData) {
       const token = localStorage.getItem('token');
       axios
-        .put(`http://localhost:5000/api/tickets/${ticketData._id}`, ticketData, {
+        .put(`${API_URL}/tickets/${ticketData._id}`, ticketData, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then(() => {
@@ -402,7 +403,7 @@ fetchTickets() {
       const token = localStorage.getItem('token');
       this.selectedTicketId = ticket._id;
       axios
-        .get(`http://localhost:5000/api/ratings/ticket/${this.selectedTicketId}`, {
+        .get(`${API_URL}/ratings/ticket/${this.selectedTicketId}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then(response => {
@@ -438,7 +439,7 @@ fetchTickets() {
     },
     submitRating(ratingData) {
     const token = localStorage.getItem('token');
-    axios.post('http://localhost:5000/api/ratings', ratingData, {
+    axios.post(`${API_URL}/ratings`, ratingData, {
         headers: { Authorization: `Bearer ${token}` },
     })
     .then(response => {
@@ -471,7 +472,7 @@ updateTicketInState(ticketId, updatedTicket) {
 
 closeTicket(ticketId) {
     const token = localStorage.getItem('token');
-    return axios.put(`http://localhost:5000/api/tickets/${ticketId}/close`, {}, {
+    return axios.put(`${API_URL}/tickets/${ticketId}/close`, {}, {
         headers: { Authorization: `Bearer ${token}` },
     })
     .then(response => {

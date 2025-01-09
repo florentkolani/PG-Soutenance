@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { API_URL } from '@/services/config';
 
 
 export async function loginUser(credentials) {
-  const response = await axios.post('http://localhost:5000/api/auth/login', credentials);
+  const response = await axios.post(`${API_URL}/auth/login`, credentials);
   return response.data;
 }
 
@@ -30,7 +31,7 @@ export function getUserInfo() {
     const decoded = jwt_decode(token);
     const userId = decoded._id;
 
-    return axios.get(`http://localhost:5000/api/users/${userId}`).then(response => {
+    return axios.get(`${API_URL}/users/${userId}`).then(response => {
       return response.data;
     }).catch(error => {
       console.error('Erreur lors de la récupération des informations utilisateur:', error);

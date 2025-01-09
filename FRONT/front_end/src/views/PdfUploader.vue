@@ -122,6 +122,7 @@
 <script>
 import Header from "@/components/layouts/Header.vue";
 import axios from "axios";
+import { API_URL } from '@/services/config';
 
 export default {
   components: { Header },
@@ -173,7 +174,7 @@ export default {
       formData.append("comment", this.comment);
 
       try {
-        const response = await axios.post("http://localhost:5000/api/pdfs", formData, {
+        const response = await axios.post(`${API_URL}/pdfs`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -188,7 +189,7 @@ export default {
     },
     async fetchPdfList() {
       try {
-        const response = await axios.get("http://localhost:5000/api/pdfs");
+        const response = await axios.get(`${API_URL}/pdfs`);
         this.pdfList = response.data.map((pdf) => ({ ...pdf, expanded: false }));
       } catch (error) {
         console.error("Erreur lors de la récupération des PDF :", error);

@@ -53,6 +53,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URL } from '@/services/config';
 
 export default {
   data() {
@@ -81,7 +82,7 @@ export default {
         const token = localStorage.getItem('token');
         const config = { headers: { Authorization: `Bearer ${token}` } };
 
-        await axios.post('http://localhost:5000/api/auth/changePassword', { newPassword: this.newPassword }, config);
+        await axios.post(`${API_URL}/auth/changePassword`, { newPassword: this.newPassword }, config);
 
         // Déconnexion automatique après modification
         localStorage.removeItem('token');

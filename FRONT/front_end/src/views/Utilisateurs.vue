@@ -218,6 +218,7 @@ import UserModal from '@/components/layouts/UserModal.vue';
 import Pagination from '@/components/layouts/Pagination.vue'; 
 import Header from '@/components/layouts/Header.vue';
 import GoToDashboard from '@/components/layouts/GoToDashboard.vue';
+import { API_URL } from '@/services/config';
 
 export default {
   name: 'Utilisateurs',
@@ -289,7 +290,7 @@ export default {
       const token = this.checkAuthorization();
       if (!token) return;
 
-      axios.get('http://localhost:5000/api/users/all', {
+      axios.get(`${API_URL}/users/all`, {
         headers: {
           Authorization: `Bearer ${token}`
         },
@@ -342,7 +343,7 @@ export default {
       const token = this.checkAuthorization();
       if (!token) return;
 //Mise à jour de l'utilisateur
-      axios.put(`http://localhost:5000/api/users/${this.editUserData._id}`, this.editUserData, {
+      axios.put(`${API_URL}/users/${this.editUserData._id}`, this.editUserData, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -375,7 +376,7 @@ export default {
       const token = this.checkAuthorization();
       if (!token) return;
 // archivation de l'utilisateur 
-      axios.put(`http://localhost:5000/api/users/${userId}/archive`, {}, {
+      axios.put(`${API_URL}/users/${userId}/archive`, {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }

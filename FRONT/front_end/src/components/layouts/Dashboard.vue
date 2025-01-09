@@ -123,6 +123,7 @@
 import { getUserRole, getToken } from '@/services/authService';
 import AllModule from '@/components/modules/AllModule.vue';
 import TicketChart from '@/views/TicketChart.vue';
+import { API_URL } from '@/services/config';
 export default {
   name: 'Dashboard',
   data() {
@@ -248,7 +249,7 @@ async function fetchUserInfo(userId) {
     throw new Error("Token d'authentification manquant");
   }
 
-  const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
+  const response = await fetch(`${API_URL}/users/${userId}`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`, // Ajoute le token dans les en-têtes

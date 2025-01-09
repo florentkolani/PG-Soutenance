@@ -71,6 +71,7 @@
   import Pagination from '@/components/layouts/Pagination.vue'; 
   import Header from '@/components/layouts/Header.vue';
 import GoToDashboard from '@/components/layouts/GoToDashboard.vue';
+import { API_URL } from '@/services/config';
   
   export default {
     name: 'ArchivedUsers',
@@ -128,7 +129,7 @@ import GoToDashboard from '@/components/layouts/GoToDashboard.vue';
         const token = this.checkAuthorization();
         if (!token) return;
   
-        axios.get('http://localhost:5000/api/users/archived', {
+        axios.get(`${API_URL}/users/archived`, {
           headers: {
             Authorization: `Bearer ${token}`
           },

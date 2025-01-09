@@ -141,6 +141,7 @@ import axios from 'axios';
 import Header from "@/components/layouts/Header.vue";
 import CountryModal from '@/components/layouts/CountryModal.vue';
 import Pagination from '@/components/layouts/Pagination.vue';
+import { API_URL } from '@/services/config';
 
 export default {
   components: {
@@ -175,7 +176,7 @@ export default {
   methods: {
     async fetchCountries() {
       try {
-        const response = await axios.get('http://localhost:5000/api/countries', {
+        const response = await axios.get(`${API_URL}/countries`, {
           params: {
             page: this.currentPage,
             limit: this.itemsPerPage
@@ -209,7 +210,7 @@ export default {
     confirmArchive() {
       const country = this.countries.find(c => c._id === this.countryToArchive);
       if (country && !country.isArchived) {
-        axios.put(`http://localhost:5000/api/countries/${this.countryToArchive}`, { isArchived: true })
+        axios.put(`${API_URL}/countries/${this.countryToArchive}`, { isArchived: true })
           .then(() => {
             this.fetchCountries();
             this.showArchiveConfirmation = false;
@@ -235,7 +236,7 @@ export default {
     },
     async saveCountry(country) {
       try {
-        await axios.post('http://localhost:5000/api/countries', country);
+        await axios.post(`${API_URL}/countries`, country);
         this.fetchCountries();
         this.closeCountryModal();
       } catch (error) {
@@ -256,7 +257,7 @@ export default {
     },
     async updateCountry() {
       try {
-        await axios.put(`http://localhost:5000/api/countries/${this.editCountryData._id}`, this.editCountryData);
+        await axios.put(`${API_URL}/countries/${this.editCountryData._id}`, this.editCountryData);
         this.fetchCountries();
         this.closeEditModal();
       } catch (error) {

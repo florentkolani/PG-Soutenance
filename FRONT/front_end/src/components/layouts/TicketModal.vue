@@ -111,6 +111,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URL } from '@/services/config';
 
 export default {
   props: {
@@ -178,7 +179,7 @@ export default {
   }
 
   // Chargement des produits
-  axios.get('http://localhost:5000/api/products', 
+  axios.get(`${API_URL}/products`, 
   { headers: { Authorization: `Bearer ${token}` } })
     .then(response => { 
       if (!Array.isArray(response.data)) {  // Vérification directe de response.data
@@ -191,7 +192,7 @@ export default {
     .catch(error => console.error("Erreur lors du chargement des produits :", error));
 
   // Chargement des types de demandes
-  axios.get('http://localhost:5000/api/types', 
+  axios.get(`${API_URL}/types`, 
   { headers: { Authorization: `Bearer ${token}` } })
     .then(response => {
       this.typeDeDemandes = response.data.types || [];
@@ -220,7 +221,7 @@ export default {
         return;
       }
 
-      const apiEndpoint = this.isEdit ? `http://localhost:5000/api/tickets/${this.ticket._id}` : 'http://localhost:5000/api/tickets';
+      const apiEndpoint = this.isEdit ? `${API_URL}/tickets/${this.ticket._id}` : `${API_URL}/tickets`;
       const method = this.isEdit ? 'put' : 'post';
 
       const data = this.file ? new FormData() : { 
