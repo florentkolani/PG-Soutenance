@@ -44,6 +44,7 @@
 </template>
 
 <script>
+import { API_URL } from '@/services/config';
 export default {
   props: ['showModal'],
   data() {
@@ -62,7 +63,7 @@ export default {
       try {
         const token = localStorage.getItem('token');
 
-        const response = await fetch('http://localhost:5000/api/types', {
+        const response = await fetch(`${API_URL}/types`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

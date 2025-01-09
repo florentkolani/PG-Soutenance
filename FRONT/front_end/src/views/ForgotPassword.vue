@@ -39,6 +39,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URL } from '@/services/config';
 
 export default {
   name: 'ForgotPassword',
@@ -50,7 +51,7 @@ export default {
   methods: {
     async requestReset() {
       try {
-        const response = await axios.post('http://localhost:5000/api/auth/resetPasswordRequest', { email: this.email });
+        const response = await axios.post(`${API_URL}/auth/resetPasswordRequest`, { email: this.email });
         console.log('Réponse:', response.data);
         alert('Lien de réinitialisation envoyé, vérifiez votre email.');
       } catch (error) {

@@ -48,6 +48,7 @@
 <script>
 import { loginUser } from '@/services/authService';
 import axios from 'axios';
+import { API_URL } from '@/services/config';
 
 export default {
   name: 'LoginView',
@@ -74,7 +75,7 @@ export default {
 
   try {
     const credentials = { email: this.email, password: this.password };
-    const response = await axios.post('http://localhost:5000/api/auth/login', credentials);
+    const response = await axios.post(`${API_URL}/auth/login`, credentials);
 
     // Afficher la réponse pour vérifier sa structure
     console.log('Réponse de la connexion:', response);

@@ -152,7 +152,7 @@ import ProductModal from '@/components/layouts/ProductModal.vue';
 import Pagination from '@/components/layouts/Pagination.vue';
 import Header from "@/components/layouts/Header.vue";
 import GoToDashboard from '@/components/layouts/GoToDashboard.vue';
-
+import { API_URL } from '@/services/config';
 export default {
   name: 'Produits',
   components: {
@@ -216,7 +216,7 @@ export default {
     const token = this.checkAuthorization();
     if (!token) return;
 
-    const response = await fetch('http://localhost:5000/api/products', {
+    const response = await fetch(`${API_URL}/products`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
@@ -258,7 +258,7 @@ export default {
       if (!token) return;
 
       try {
-        const response = await fetch(`http://localhost:5000/api/products/${this.editProductData._id}`, {
+        const response = await fetch(`${API_URL}/products/${this.editProductData._id}`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -294,7 +294,7 @@ export default {
   if (!token) return;
 
   try {
-    const response = await fetch(`http://localhost:5000/api/products/${this.confirmArchiveId}/archive`, {
+    const response = await fetch(`${API_URL}/products/${this.confirmArchiveId}/archive`, {
       method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${token}`,
