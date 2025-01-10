@@ -1,11 +1,14 @@
 <template>
   <div v-if="showModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
-    <div class="bg-white rounded-lg p-6 w-2/3 shadow-md relative">
-      <h2 class="text-xl font-bold mb-4 text-center">Nouveau Pays</h2>
+    <div class="bg-white rounded-lg p-6 w-1/3 shadow-md relative">
+           <div class="flex justify-between items-center pb-4 mb-4 border-b">
+              <h3 class="text-lg font-semibold text-gray-900">Ajouter une pays</h3>
+              <button @click="$emit('close')" class="text-red-600 hover:text-red-800 text-2xl">&times;</button>
+            </div>
       <form @submit.prevent="save">
         <!-- Nom du pays -->
         <div class="mb-4">
-          <label for="country-name" class="block text-sm font-medium text-gray-700">Nom :</label>
+          <label for="country-name" class="block text-sm font-medium text-gray-700">Pays:</label>
           <input 
             id="country-name" 
             v-model="country.name" 
@@ -17,7 +20,7 @@
         </div>
         <!-- Code du pays -->
         <div class="mb-4">
-          <label for="country-code" class="block text-sm font-medium text-gray-700">Code :</label>
+          <label for="country-code" class="block text-sm font-medium text-gray-700">Code pays:</label>
           <input 
             id="country-code" 
             v-model="country.code" 

@@ -19,9 +19,51 @@
         @submit.prevent="uploadPdf" 
         class="bg-white shadow rounded-lg p-6 mb-8"
       >
-        <div class="flex gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Input pour le titre -->
+          <div class="mb-4">
+            <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+              Titre <span class="text-red-500">*</span></label>
+            <input
+              type="text"
+              id="title"
+              v-model="title"
+              class="block w-full border border-gray-300 rounded-lg p-2"
+              placeholder="Titre du document"
+            />
+          </div>
+          <!-- Type de Demande Select -->
+          <div class="mb-4">
+            <label for="typeDeDemande" class="block text-sm font-medium text-gray-700 mb-2">
+              Type de Demande <span class="text-red-500">*</span>
+            </label>
+            <select
+              v-model="selectedTypeDeDemande"
+              id="typeDeDemande"
+              required
+              class="block w-full border border-gray-300 rounded-lg p-2"
+            >
+              <option value="">Sélectionner un type de demande</option>
+              <option v-for="type in typeDeDemandes" :key="type._id" :value="type._id">{{ type.name }}</option>
+            </select>
+          </div>
+          <!-- Product Select -->
+          <div class="mb-4">
+            <label for="product" class="block text-sm font-medium text-gray-700 mb-2">
+              Produit <span class="text-red-500">*</span>
+            </label>
+            <select
+              v-model="selectedProduct"
+              id="product"
+              required
+              class="block w-full border border-gray-300 rounded-lg p-2"
+            >
+              <option value="">Sélectionner un produit</option>
+              <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}</option>
+            </select>
+          </div>
           <!-- Input pour le fichier -->
-          <div class="w-1/5 mb-4">
+          <div class="mb-4">
             <label for="pdfFile" class="block text-sm font-medium text-gray-700 mb-2">Ajouter un Document</label>
             <div
               class="relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 cursor-pointer"
@@ -66,14 +108,13 @@
               </template>
             </div>
           </div>
-
           <!-- Zone de commentaire -->
-          <div class="w-4/5 mb-4">
+          <div class="col-span-2 mb-4">
             <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Ajouter Commentaire :</label>
             <textarea
               id="comment"
               v-model="comment"
-              class="block w-full border border-gray-300 rounded-lg p-10 focus:ring-blue-500 focus:border-blue-500"
+              class="block w-full border border-gray-300 rounded-lg p-2"
               placeholder="Ajoutez un commentaire au fichier PDF"
             ></textarea>
           </div>
@@ -82,7 +123,7 @@
         <button
           type="submit"
           class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-300"
-          :disabled="!pdfFile || !comment"
+          :disabled="!pdfFile || !comment || !title || !selectedTypeDeDemande || !selectedProduct"
         >
           Publier
         </button>
@@ -93,7 +134,7 @@
         <h2 class="text-lg font-semibold mb-4">Documents PDF :</h2>
         <div v-if="pdfList.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div v-for="(pdf, index) in pdfList" :key="index" class="bg-white shadow rounded-lg p-4">
-            <p class="font-semibold text-gray-800 truncate">{{ pdf.name }}</p>
+            <p class="font-semibold text-gray-800 truncate">{{ pdf.title }}</p>
             <p class="text-gray-600 text-sm mt-2">
               <span v-if="!pdf.expanded && pdf.comment.length > 100">
                 {{ pdf.comment.substring(0, 100) }}...
@@ -104,13 +145,28 @@
                 <button v-if="pdf.comment.length > 100" @click="toggleComment(index)" class="text-blue-500 hover:underline">Réduire</button>
               </span>
             </p>
-            <a
-              :href="`http://localhost:5000/api/pdfs/download/${pdf.url.split('/').pop()}`"
-              download
-              class="inline-block mt-4 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
-            >
-              Télécharger
-            </a>
+            <div class="flex justify-between items-center mt-4">
+              <div>
+                <p class="text-gray-500 text-sm">Créé le: {{ new Date(pdf.createdAt).toLocaleString() }}</p>
+                <p class="text-gray-500 text-sm">Mis à jour le: {{ new Date(pdf.updatedAt).toLocaleString() }}</p>
+              </div>
+              <div>
+                <a
+                  :href="`http://localhost:5000/api/pdfs/download/${pdf.url.split('/').pop()}`"
+                  download
+                  class="inline-block bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 mr-2"
+                >
+                  Télécharger
+                </a>
+                <button
+                  v-if="isAdmin || isAgentSupport"
+                  @click="editPdf(pdf)"
+                  class="inline-block bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600"
+                >
+                  Modifier
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         <p v-else class="text-gray-500">Aucun document publié pour l'instant.</p>
@@ -128,10 +184,15 @@ export default {
   components: { Header },
   data() {
     return {
+      products: [],
+      typeDeDemandes: [],
+      selectedProduct: '',
+      selectedTypeDeDemande: '',
       pdfFile: null,
       comment: "",
+      title: "",
       pdfList: [],
-      userRole: "", 
+      userRole: "",
     };
   },
   computed: {
@@ -167,11 +228,14 @@ export default {
       }
     },
     async uploadPdf() {
-      if (!this.pdfFile || !this.comment) return;
+      if (!this.pdfFile || !this.comment || !this.title || !this.selectedTypeDeDemande || !this.selectedProduct) return;
 
       const formData = new FormData();
       formData.append("pdf", this.pdfFile);
       formData.append("comment", this.comment);
+      formData.append("title", this.title);
+      formData.append("typededemande", this.selectedTypeDeDemande);
+      formData.append("produit", this.selectedProduct);
 
       try {
         const response = await axios.post(`${API_URL}/pdfs`, formData, {
@@ -183,6 +247,9 @@ export default {
         this.pdfList.push({ ...response.data, expanded: false });
         this.removeFile();
         this.comment = "";
+        this.title = "";
+        this.selectedTypeDeDemande = "";
+        this.selectedProduct = "";
       } catch (error) {
         console.error("Erreur lors de la publication :", error);
       }
@@ -195,19 +262,52 @@ export default {
         console.error("Erreur lors de la récupération des PDF :", error);
       }
     },
+    async fetchProduits() {
+      const token = localStorage.getItem("token");
+      try {
+        const response = await axios.get(`${API_URL}/products`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!Array.isArray(response.data)) {
+          console.error("Données produits invalides :", response.data);
+          this.products = [];
+        } else {
+          this.products = response.data;
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des produits :", error);
+      }
+    },
+    async fetchTypesDeDemande() {
+      const token = localStorage.getItem("token");
+      try {
+        const response = await axios.get(`${API_URL}/types`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        this.typeDeDemandes = response.data.types || [];
+      } catch (error) {
+        console.error("Erreur lors du chargement des types de demandes :", error);
+      }
+    },
     toggleComment(index) {
       this.pdfList[index].expanded = !this.pdfList[index].expanded;
+    },
+    openFilterOptions() {
+      alert("Options de filtrage ouvertes !");
+    },
+    redirectToDashboard() {
+      this.$router.push("/dashboard");
+    },
+    editPdf(pdf) {
+      // Logic to edit the PDF
+      alert(`Modifier le PDF: ${pdf.title}`);
     },
   },
   async created() {
     this.decodeToken();
     await this.fetchPdfList();
-  },
-  openFilterOptions() {
-    alert("Options de filtrage ouvertes !");
-  },
-  redirectToDashboard() {
-    this.$router.push("/dashboard");
+    await this.fetchTypesDeDemande();
+    await this.fetchProduits();
   },
 };
 </script>

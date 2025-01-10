@@ -1,7 +1,8 @@
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-
+const Country = require('../models/Country');
+const City = require('../models/City');
 
 // Générer un token JWT
 const generateToken = (id) => {
@@ -202,4 +203,5 @@ exports.getArchivedUsers = async (req, res) => {
       res.status(500).json({ message: 'Erreur serveur.' });
     }
   };
-  
+
+ 
