@@ -49,21 +49,6 @@
                   :disabled="isLoading"
                 />
               </div>
-              <!-- <div>
-                <label for="password" class="block mb-2 text-sm font-medium text-gray-900">
-                  Mot de Passe <span class="text-red-500">*</span> <br> <span class="text-red-500">Minimum 6 caractères</span>
-                </label>
-                <input
-                  v-model="user.password"
-                  type="password"
-                  id="password"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
-                  placeholder="Entrez votre mot de passe "
-                  required
-                  :disabled="isLoading"
-                />
-              </div> -->
-              
               <!-- Sélecteur de pays avec label -->
               <div class="mb-4">
                 <label for="pays" class="block text-sm font-medium text-gray-900 mb-2">
@@ -189,26 +174,25 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { API_URL } from '@/services/config';
+
 export default {
   data() {
     return {
       user: {
         name: '',
         email: '',
-       // password: '',
         contact: '',
         pays: '',
         ville: '',
         role: 'Client',
       },
-
       countries: [],
       cities: [],
       isLoadingCities: false,
       selectedCountryCode: "default",
       selectedCountryDialCode: "",
-
       isLoading: false,
       showDialog: false,
       dialogMessage: '',
@@ -217,14 +201,13 @@ export default {
   },
 
   async created() {
-    // Chargement des pays
+    // Fetch countries from the database
     try {
-      const response = await fetch('https://restcountries.com/v3.1/all');
-      const data = await response.json();
-      this.countries = data.map((country) => ({
-        name: country.name.common,
-        code: country.cca2,
-        dialCode: country.idd.root + (country.idd.suffixes ? country.idd.suffixes[0] : ""),
+      const response = await axios.get(`${API_URL}/countries`);
+      this.countries = response.data.countries.map((country) => ({
+        name: country.name,
+        code: country._id,
+        dialCode: country.dialCode,
       }));
     } catch (error) {
       console.error("Erreur lors du chargement des pays :", error);
@@ -233,120 +216,97 @@ export default {
   },
 
   methods: {
-    // Chargement des villes lors du changement de pays
-    async loadCities(countryCode) {
-      if (!countryCode) return;
+    async loadCities(countryId) {
+    console.log("Country ID:", countryId); // Vérification de l'ID envoyé
+    if (!countryId) return;
 
-      this.isLoadingCities = true;
-      this.cities = []; // Réinitialiser la liste des villes
+    this.isLoadingCities = true;
+    this.cities = [];
 
-      try {
-        const response = await fetch(
-          `http://api.geonames.org/searchJSON?country=${countryCode}&featureClass=P&maxRows=1000&username=florentinoperez`
-        );
-
-        if (!response.ok) {
-          console.error("Erreur dans la réponse de l'API :", response.status, response.statusText);
-          throw new Error(`API GeoNames erreur : ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        this.cities = data.geonames.map((city) => city.name);
-      } catch (error) {
+    try {
+        const response = await axios.get(`${API_URL}/cities?country = ${countryId}`,);
+        this.cities = response.data.cities.map((city) => city.name);
+        console.log("Cities loaded:", this.cities); // Vérification des villes chargées
+    } catch (error) {
         console.error("Erreur lors de la récupération des villes :", error);
         this.cities = [];
-      } finally {
+    } finally {
         this.isLoadingCities = false;
-      }
-    },
-
-    // Mise à jour du pays sélectionné avec son nom complet
-    updateCountryName(countryCode) {
-      const country = this.countries.find((c) => c.code === countryCode);
-      if (country) {
-        this.user.pays = country.name;
-        this.selectedCountryDialCode = country.dialCode || ''; // Préremplit l'indicatif
-      } else {
-        this.user.pays = '';
-        this.selectedCountryDialCode = '';
-      }
-    },
-
-    // Fonction appelée lors du focus pour démarrer le chargement
-    startLoadingCities() {
-      if (!this.cities.length && !this.isLoading) {
-        this.isLoading = true;
-      }
-    },
-
-   // Enregistrement d'un utilisateur
-async registerUser() {
-  this.isLoading = true;
-
-  // Récupère l'indicatif et le contact
-  const indicatif = this.selectedCountryDialCode || ''; // Utilise la valeur de l'indicatif
-  const contact = this.user.contact || '';  // Le contact saisi par l'utilisateur
-
-  // Vérifie si l'indicatif et le contact sont renseignés
-  if (!indicatif || !contact) {
-    this.dialogType = 'error';
-    this.dialogMessage = "Veuillez renseigner l'indicatif et le numéro de contact.";
-    this.showDialog = true;
-    this.isLoading = false;
-    return;
-  }
-
-  // Concaténer l'indicatif et le numéro de téléphone
-  const fullContact = `${indicatif}${contact}`;
-  const userPayload = { ...this.user, contact: fullContact };
-
-  try {
-    const response = await fetch(`${API_URL}/auth/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(userPayload),
-    });
-
-    if (response.ok) {
-      this.dialogType = 'success';
-      this.dialogMessage = 'Utilisateur enregistré avec succès';
-      this.showDialog = true;
-    } else {
-      const errorData = await response.json();
-      this.dialogType = 'error';
-      this.dialogMessage = errorData.message || "Erreur d'enregistrement de l'utilisateur";
-      this.showDialog = true;
     }
-  } catch (error) {
-    this.dialogType = 'error';
-    this.dialogMessage = "Une erreur est survenue lors de l'enregistrement.";
-    this.showDialog = true;
-  } finally {
-    this.isLoading = false;
-    this.resetForm();
-  }
 }
 ,
 
+    // Mettre à jour le nom du pays sélectionné et son code d'appel
+    updateCountryName(countryId) {
+        const country = this.countries.find((c) => c._id === countryId);
+        if (country) {
+            this.user.pays = country.name;
+            this.selectedCountryDialCode = country.dialCode || ''; // Pré-remplir le code pays
+        } else {
+            this.user.pays = '';
+            this.selectedCountryDialCode = '';
+        }
+    },
+
+    // Enregistrer un nouvel utilisateur
+    async registerUser() {
+        this.isLoading = true;
+
+        const indicatif = this.selectedCountryDialCode || ''; // Utiliser le code pays sélectionné
+        const contact = this.user.contact || ''; // Contact saisi par l'utilisateur
+
+        // Vérification du code et du contact
+        if (!indicatif || !contact) {
+            this.dialogType = 'error';
+            this.dialogMessage = "Veuillez renseigner l'indicatif et le numéro de contact.";
+            this.showDialog = true;
+            this.isLoading = false;
+            return;
+        }
+
+        // Concaténer le code et le numéro
+        const fullContact = `${indicatif}${contact}`;
+        const userPayload = { ...this.user, contact: fullContact };
+
+        try {
+            const response = await axios.post(`${API_URL}/auth/register`, userPayload);
+
+            if (response.status === 201) {
+                this.dialogType = 'success';
+                this.dialogMessage = 'Utilisateur enregistré avec succès';
+                this.showDialog = true;
+            } else {
+                this.dialogType = 'error';
+                this.dialogMessage = response.data.message || "Erreur d'enregistrement de l'utilisateur";
+                this.showDialog = true;
+            }
+        } catch (error) {
+            this.dialogType = 'error';
+            this.dialogMessage = "Une erreur est survenue lors de l'enregistrement.";
+            this.showDialog = true;
+        } finally {
+            this.isLoading = false;
+            this.resetForm();
+        }
+    },
+
     closeDialog() {
-      this.showDialog = false;
-      this.$emit('close'); // Ferme le modal
+        this.showDialog = false;
+        this.$emit('close');
     },
 
     resetForm() {
-      this.user = {
-        name: '',
-        email: '',
-        password: '',
-        contact: '',
-        pays: '',
-        ville: '',
-        role: 'Client',
-      };
-      this.selectedCountryDialCode = '';
+        this.user = {
+            name: '',
+            email: '',
+            contact: '',
+            pays: '',
+            ville: '',
+            role: 'Client',
+        };
+        this.selectedCountryDialCode = '';
     },
-  },
+}
+,
 };
 </script>

@@ -10,6 +10,7 @@ import ChangePassword from '@/views/ChangePassword.vue'
 import ForgotPassword from '../views/ForgotPassword.vue';
 import PdfUploader from '../views/PdfUploader.vue';
 import GestionsPays from '../views/GestionsPays.vue';
+import GestionsVille from '../views/GestionsVille.vue';
 const routes = [
   { path: '/login', component: LoginView },
   { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true } },
@@ -25,6 +26,7 @@ const routes = [
   { path: '/PdfUploader',    name: 'PdfUploader',component: PdfUploader},
   { path: '/ForgotPassword',    name: 'ForgotPassword',component: ForgotPassword},
   { path: '/GestionsPays',    name: 'GestionsPays',component: GestionsPays},
+  { path: '/GestionsVille',    name: 'GestionsVille',component: GestionsVille},
 ];
 
 const router = createRouter({

@@ -7,12 +7,12 @@ exports.uploadPdf = async (req, res) => {
   console.log("Requête reçue :", req.file, req.body);
 
   try {
-    const { comment } = req.body;
+    const { comment, title, typededemande, produit } = req.body;
     const pdfFile = req.file;
 
     // Vérification des données requises
-    if (!pdfFile || !comment) {
-      return res.status(400).json({ message: "Fichier PDF et commentaire requis" });
+    if (!pdfFile || !comment || !title || !typededemande || !produit) {
+      return res.status(400).json({ message: "Tous les champs sont requis" });
     }
 
     // Validation du type de fichier
@@ -28,6 +28,9 @@ exports.uploadPdf = async (req, res) => {
       name: pdfFile.originalname,
       url: pdfUrl,
       comment,
+      title,
+      typededemande,
+      produit,
     });
 
     await newPdf.save();
@@ -47,7 +50,7 @@ exports.uploadPdf = async (req, res) => {
 // Contrôleur pour récupérer tous les PDFs
 exports.getAllPdfs = async (req, res) => {
   try {
-    const pdfs = await Pdf.find();
+    const pdfs = await Pdf.find().populate('typededemande').populate('produit');
     res.status(200).json(pdfs);
   } catch (error) {
     console.error("Erreur lors de la récupération des PDFs :", error);
@@ -74,5 +77,27 @@ exports.downloadPdf = async (req, res) => {
   } catch (error) {
     console.error("Erreur lors du téléchargement du PDF :", error);
     res.status(500).json({ message: "Erreur interne lors du téléchargement du fichier", error });
+  }
+};
+
+// Contrôleur pour récupérer les types de demande
+exports.getTypesDeDemande = async (req, res) => {
+  try {
+    const typesDeDemande = await Pdf.distinct("typededemande");
+    res.status(200).json(typesDeDemande);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des types de demande :", error);
+    res.status(500).json({ message: "Erreur lors de la récupération des types de demande", error });
+  }
+};
+
+// Contrôleur pour récupérer les produits
+exports.getProduits = async (req, res) => {
+  try {
+    const produits = await Pdf.distinct("produit");
+    res.status(200).json(produits);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des produits :", error);
+    res.status(500).json({ message: "Erreur lors de la récupération des produits", error });
   }
 };
