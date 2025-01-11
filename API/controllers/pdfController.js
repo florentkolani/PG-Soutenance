@@ -80,6 +80,51 @@ exports.downloadPdf = async (req, res) => {
   }
 };
 
+// Contrôleur pour mettre à jour un PDF
+exports.updatePdf = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { comment, title, typededemande, produit } = req.body;
+    const pdfFile = req.file;
+
+    const updateData = {
+      comment,
+      title,
+      typededemande,
+      produit,
+    };
+
+    if (pdfFile) {
+      // Validation du type de fichier
+      if (pdfFile.mimetype !== "application/pdf") {
+        fs.unlinkSync(pdfFile.path); // Suppression du fichier non valide
+        return res.status(400).json({ message: "Seuls les fichiers PDF sont autorisés" });
+      }
+
+      const pdfUrl = `/uploads/${pdfFile.filename}`; // Chemin du fichier dans le serveur
+      updateData.url = pdfUrl;
+      updateData.name = pdfFile.originalname;
+    }
+
+    const updatedPdf = await Pdf.findByIdAndUpdate(id, updateData, { new: true });
+
+    if (!updatedPdf) {
+      return res.status(404).json({ message: "PDF non trouvé" });
+    }
+
+    res.status(200).json(updatedPdf);
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du PDF :", error);
+
+    // Suppression du fichier en cas d'erreur
+    if (req.file && req.file.path) {
+      fs.unlinkSync(req.file.path);
+    }
+
+    res.status(500).json({ message: "Erreur lors de la mise à jour du PDF", error });
+  }
+};
+
 // Contrôleur pour récupérer les types de demande
 exports.getTypesDeDemande = async (req, res) => {
   try {
