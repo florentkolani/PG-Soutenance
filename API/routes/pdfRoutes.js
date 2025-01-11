@@ -2,7 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const { uploadPdf, getAllPdfs, downloadPdf, getTypesDeDemande, getProduits } = require("../controllers/pdfController");
+const { uploadPdf, getAllPdfs, downloadPdf, getTypesDeDemande, getProduits, updatePdf } = require("../controllers/pdfController");
 
 const router = express.Router();
 
@@ -41,5 +41,6 @@ router.get("/", getAllPdfs);
 router.get("/download/:filename", downloadPdf);
 router.get("/typesDeDemande", getTypesDeDemande);
 router.get("/produits", getProduits);
+router.put("/:id", upload.single("pdf"), updatePdf);
 
 module.exports = router;

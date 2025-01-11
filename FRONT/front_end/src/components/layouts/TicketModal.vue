@@ -149,9 +149,10 @@ export default {
     ticket: {
       immediate: true,
       handler(ticket) {
+        this.loadProductsAndTypes(); // Ensure products and types are loaded first
         if (ticket) {
-          this.selectedProduct = ticket.productId || '';
-          this.selectedTypeDeDemande = ticket.typeDeDemandeId || '';
+          this.selectedProduct = ticket.product ? ticket.product._id : '';
+          this.selectedTypeDeDemande = ticket.typeDeDemande ? ticket.typeDeDemande._id : '';
           this.urgence = ticket.urgence;
           this.description = ticket.description;
         } else {

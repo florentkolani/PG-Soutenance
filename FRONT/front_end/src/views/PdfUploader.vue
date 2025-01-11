@@ -16,7 +16,7 @@
       <!-- Formulaire de téléchargement : Afficher uniquement pour Admin et Agent -->
       <form 
         v-if="isAdmin || isAgentSupport" 
-        @submit.prevent="uploadPdf" 
+        @submit.prevent="isEditing ? updatePdf() : uploadPdf()" 
         class="bg-white shadow rounded-lg p-6 mb-8"
       >
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -123,9 +123,9 @@
         <button
           type="submit"
           class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-300"
-          :disabled="!pdfFile || !comment || !title || !selectedTypeDeDemande || !selectedProduct"
+          :disabled="!comment || !title || !selectedTypeDeDemande || !selectedProduct"
         >
-          Publier
+          {{ isEditing ? 'Mettre à jour' : 'Publier' }}
         </button>
       </form>
 
@@ -193,6 +193,8 @@ export default {
       title: "",
       pdfList: [],
       userRole: "",
+      isEditing: false,
+      editingPdfId: null,
     };
   },
   computed: {
@@ -245,15 +247,42 @@ export default {
         });
 
         this.pdfList.push({ ...response.data, expanded: false });
-        this.removeFile();
-        this.comment = "";
-        this.title = "";
-        this.selectedTypeDeDemande = "";
-        this.selectedProduct = "";
+        this.resetForm();
       } catch (error) {
         console.error("Erreur lors de la publication :", error);
       }
     },
+    async updatePdf() {
+  if (!this.comment || !this.title || !this.selectedTypeDeDemande || !this.selectedProduct) return;
+
+  const formData = new FormData();
+  if (this.pdfFile) {
+    formData.append("pdf", this.pdfFile);
+  }
+  formData.append("comment", this.comment);
+  formData.append("title", this.title);
+  formData.append("typededemande", this.selectedTypeDeDemande);
+  formData.append("produit", this.selectedProduct);
+
+  try {
+    const response = await axios.put(`${API_URL}/pdfs/${this.editingPdfId}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    // Trouver l'index du PDF mis à jour
+    const index = this.pdfList.findIndex(pdf => pdf._id === this.editingPdfId);
+    if (index !== -1) {
+      // Mettre à jour directement l'élément dans la liste
+      this.pdfList[index] = { ...response.data, expanded: false };
+    }
+    this.resetForm();
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour :", error);
+  }
+}
+,
     async fetchPdfList() {
       try {
         const response = await axios.get(`${API_URL}/pdfs`);
@@ -299,8 +328,25 @@ export default {
       this.$router.push("/dashboard");
     },
     editPdf(pdf) {
-      // Logic to edit the PDF
-      alert(`Modifier le PDF: ${pdf.title}`);
+      this.isEditing = true;
+      this.editingPdfId = pdf._id;
+      this.title = pdf.title;
+      this.comment = pdf.comment;
+      this.selectedTypeDeDemande = pdf.typededemande._id;
+      this.selectedProduct = pdf.produit._id;
+      this.pdfFile = null;
+    },
+    resetForm() {
+      this.isEditing = false;
+      this.editingPdfId = null;
+      this.title = "";
+      this.comment = "";
+      this.selectedTypeDeDemande = "";
+      this.selectedProduct = "";
+      this.pdfFile = null;
+      if (this.$refs.fileInput) {
+        this.$refs.fileInput.value = "";
+      }
     },
   },
   async created() {
