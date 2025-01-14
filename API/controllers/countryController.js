@@ -1,38 +1,37 @@
 const Country = require('../models/Country');
+const mongoose = require('mongoose');
 
 exports.createCountry = async (req, res) => {
     try {
         const { name, code } = req.body;
         const country = new Country({ name, code });
         await country.save();
-        res.status(201).json(country);
+        res.status(201).json({ message: 'Pays créé avec succès', country });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({ message: 'Erreur lors de la création du pays', error: error.message });
     }
 };
 
 exports.getCountries = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const skip = (page - 1) * limit;
-
-        const countries = await Country.find().skip(skip).limit(limit);
-        const totalItems = await Country.countDocuments();
-
-        res.status(200).json({ countries, totalItems });
+        const { page = 1, limit = 10 } = req.query;
+        const countries = await Country.find({ isarchived: false }) // Exclude archived countries
+            .skip((page - 1) * limit)
+            .limit(parseInt(limit));
+        const totalItems = await Country.countDocuments({ isarchived: false }); // Exclude archived countries
+        res.status(200).json({ message: 'Pays récupérés avec succès', countries, totalItems });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({ message: 'Erreur lors de la récupération des pays', error: error.message });
     }
 };
 
 exports.getCountryById = async (req, res) => {
     try {
         const country = await Country.findById(req.params.id);
-        if (!country) return res.status(404).json({ error: 'Country not found' });
-        res.status(200).json(country);
+        if (!country) return res.status(404).json({ message: 'Pays non trouvé' });
+        res.status(200).json({ message: 'Pays récupéré avec succès', country });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({ message: 'Erreur lors de la récupération du pays', error: error.message });
     }
 };
 
@@ -44,19 +43,28 @@ exports.updateCountry = async (req, res) => {
             { name, code },
             { new: true }
         );
-        if (!country) return res.status(404).json({ error: 'Country not found' });
-        res.status(200).json(country);
+        if (!country) return res.status(404).json({ message: 'Pays non trouvé' });
+        res.status(200).json({ message: 'Pays mis à jour avec succès', country });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({ message: 'Erreur lors de la mise à jour du pays', error: error.message });
     }
 };
 
-exports.deleteCountry = async (req, res) => {
+exports.archiveCountry = async (req, res) => {
     try {
-        const country = await Country.findByIdAndDelete(req.params.id);
-        if (!country) return res.status(404).json({ error: 'Country not found' });
-        res.status(200).json({ message: 'Country deleted' });
+        const countryId = req.params.id;
+        if (!mongoose.Types.ObjectId.isValid(countryId)) {
+            return res.status(400).json({ message: "ID du pays invalide." });
+        }
+        const country = await Country.findById(countryId);
+        if (!country) {
+            return res.status(404).json({ message: "Pays non trouvé." });
+        }
+        country.isarchived = true;
+        await country.save();
+        res.status(200).json({ message: "Pays archivé avec succès", country });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        console.error("Erreur lors de l'archivage du pays :", error);
+        res.status(500).json({ message: "Erreur interne du serveur", error: error.message });
     }
 };

@@ -6,8 +6,8 @@ router.post('/cities', cityController.createCity);
 router.get('/cities', cityController.getCities);
 router.get('/cities/:id', cityController.getCityById);
 router.put('/cities/:id', cityController.updateCity);
-router.delete('/cities/:id', cityController.deleteCity);
+router.put('/cities/:id/archive', cityController.archiveCity);
 // Route pour récupérer les villes par ID de pays
-router.get('/cities/:countryId/', cityController.getCitiesByCountryId);
+router.get('/cities', cityController.getCitiesByCountryId);
 
 module.exports = router;

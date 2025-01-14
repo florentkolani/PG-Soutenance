@@ -9,6 +9,22 @@
       @goToDashboard="redirectToDashboard"
     />
 
+    <!-- Success and Error Messages -->
+    <div v-if="successMessage" class="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50">
+      <div class="bg-white rounded-lg p-12 shadow-md text-center">
+        <h2 class="text-xl font-bold text-green-600 mb-4 text-center">Succès</h2>
+        <p>{{ successMessage }}</p>
+        <button @click="closeSuccessMessage" class="bg-green-500 text-white px-4 py-2  mt-4 rounded-md">Fermer</button>
+      </div>
+    </div>
+    <div v-if="errorMessage" class="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50">
+      <div class="bg-white rounded-lg p-6 shadow-md text-center">
+        <h2 class="text-xl font-bold text-red-600 mb-4 text-center">Erreur</h2>
+        <p>{{ errorMessage }}</p>
+        <button @click="closeErrorMessage" class="bg-red-500 text-white px-4 py-2 mt-4 rounded-md">Fermer</button>
+      </div>
+    </div>
+
     <!-- List of cities -->
     <main class="container mx-auto px-4 py-4">
       <h1 class="text-2xl font-bold text-gray-800">Liste des villes</h1>
@@ -161,16 +177,13 @@ export default {
       currentPage: 1,
       itemsPerPage: 10,
       totalItems: 0,
+      successMessage: '',
+      errorMessage: '',
     };
   },
   computed: {
     paginatedCities() {
-      if (!Array.isArray(this.cities)) {
-        return []; 
-      }
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-      return this.cities.slice(start, end);
+      return this.cities;
     }
   },
   methods: {
@@ -186,14 +199,7 @@ export default {
         this.totalItems = response.data.totalItems || 0;
       } catch (error) {
         console.error('Erreur lors de la récupération des villes:', error);
-      }
-    },
-    async fetchCountries() {
-      try {
-        const response = await axios.get(`${API_URL}/countries`);
-        this.countries = response.data.countries || [];
-      } catch (error) {
-        console.error('Erreur lors de la récupération des pays:', error);
+        this.errorMessage = 'Erreur lors de la récupération des villes';
       }
     },
     handlePageChange(newPage) {
@@ -215,24 +221,18 @@ export default {
       this.showArchiveConfirmation = false;
       this.cityToArchive = null;
     },
-    confirmArchive() {
-      const city = this.cities.find(c => c._id === this.cityToArchive);
-      if (city && !city.isArchived) {
-        axios.put(`${API_URL}/cities/${this.cityToArchive}`, { isArchived: true })
-          .then(() => {
-            this.fetchCities();
-            this.showArchiveConfirmation = false;
-            this.cityToArchive = null;
-          })
-          .catch(error => {
-            console.error('Erreur lors de l\'archivage de la ville:', error);
-            this.showArchiveConfirmation = false;
-            this.cityToArchive = null;
-          });
-      } else {
-        console.warn('La ville est déjà archivée ou introuvable.');
+    async confirmArchive() {
+      try {
+        await axios.put(`${API_URL}/cities/${this.cityToArchive}/archive`);
+        this.fetchCities();
         this.showArchiveConfirmation = false;
         this.cityToArchive = null;
+        this.successMessage = 'Ville archivée avec succès';
+      } catch (error) {
+        console.error('Erreur lors de l\'archivage de la ville:', error);
+        this.showArchiveConfirmation = false;
+        this.cityToArchive = null;
+        this.errorMessage = 'Erreur lors de l\'archivage de la ville';
       }
     },
     closeCityModal() {
@@ -248,11 +248,14 @@ export default {
         if (response.status === 201) {
           this.fetchCities();
           this.closeCityModal();
+          this.successMessage = 'Ville enregistrée avec succès';
         } else {
           console.error('Erreur lors de l\'enregistrement de la ville:', response.data);
+          this.errorMessage = 'Erreur lors de l\'enregistrement de la ville';
         }
       } catch (error) {
         console.error('Erreur lors de l\'enregistrement de la ville:', error);
+        this.errorMessage = 'Erreur lors de l\'enregistrement de la ville';
       }
     },
     openFilterOptions() {
@@ -272,9 +275,25 @@ export default {
         await axios.put(`${API_URL}/cities/${this.editCityData._id}`, this.editCityData);
         this.fetchCities();
         this.closeEditModal();
+        this.successMessage = 'Ville mise à jour avec succès';
       } catch (error) {
         console.error('Erreur lors de la mise à jour de la ville:', error);
+        this.errorMessage = 'Erreur lors de la mise à jour de la ville';
       }
+    },
+    async fetchCountries() {
+      try {
+        const response = await axios.get(`${API_URL}/countries`);
+        this.countries = response.data.countries || [];
+      } catch (error) {
+        console.error('Erreur lors de la récupération des pays:', error);
+      }
+    },
+    closeSuccessMessage() {
+      this.successMessage = '';
+    },
+    closeErrorMessage() {
+      this.errorMessage = '';
     },
   },
   created() {

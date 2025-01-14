@@ -6,6 +6,6 @@ router.post('/countries', countryController.createCountry);
 router.get('/countries', countryController.getCountries);
 router.get('/countries/:id', countryController.getCountryById);
 router.put('/countries/:id', countryController.updateCountry);
-router.delete('/countries/:id', countryController.deleteCountry);
+router.put('/countries/:id/archive', countryController.archiveCountry);
 
 module.exports = router;

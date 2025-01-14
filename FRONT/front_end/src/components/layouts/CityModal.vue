@@ -23,12 +23,29 @@
                   Le pays <span class="text-red-500">*</span>
                 </label>
                 <select v-model="city.countryId" id="countryId" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5" required>
-                  <option v-for="country in countries" :key="country._id" :value="country._id">{{ country.name }}</option>
+                  <option value="" disabled selected>Sélectionnez un pays</option>
+                  <option v-for="country in sortedCountries" :key="country._id" :value="country._id">{{ country.name }}</option>
                 </select>
               </div>
               <button type="submit" class="text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5">Ajouter</button>
             </form>
           </div>
+        </div>
+      </div>
+
+      <!-- Success and Error Messages -->
+      <div v-if="successMessage" class="fixed inset-0 flex items-center justify-center bg-green-100 bg-opacity-75">
+        <div class="bg-white rounded-lg p-6 shadow-md">
+          <h2 class="text-xl font-bold text-gray-300 mb-4 text-center">Succès</h2>
+          <p>{{ successMessage }}</p>
+          <button @click="closeSuccessMessage" class="bg-green-500 text-white px-8 py-2 mt-4 rounded-md">Fermer</button>
+        </div>
+      </div>
+      <div v-if="errorMessage" class="fixed inset-0 flex items-center justify-center bg-red-100 bg-opacity-75">
+        <div class="bg-white rounded-lg p-6 shadow-md">
+          <h2 class="text-xl font-bold text-red-600 mb-4 text-center">Erreur</h2>
+          <p>{{ errorMessage }}</p>
+          <button @click="closeErrorMessage" class="bg-red-500 text-white px-8 py-2 mt-4 rounded-md">Fermer</button>
         </div>
       </div>
     </div>
@@ -40,8 +57,15 @@
     props: ['showModal', 'city'],
     data() {
       return {
-        countries: []
+        countries: [],
+        successMessage: '',
+        errorMessage: '',
       };
+    },
+    computed: {
+      sortedCountries() {
+        return this.countries.sort((a, b) => a.name.localeCompare(b.name));
+      }
     },
     methods: {
       async addCity() {
@@ -55,22 +79,23 @@
             },
             body: JSON.stringify({
               name: this.city.name,
-              country: this.city.countryId
+              country: this.city.countryId,
+              isarchived: false
             }),
           });
   
           if (response.ok) {
-            alert('City added successfully');
+            this.successMessage = 'Ville ajoutée avec succès';
             this.resetForm();
             this.$emit('close');
           } else {
             const errorData = await response.json();
             console.error('Failed to add city:', errorData);
-            alert('Failed to add city');
+            this.errorMessage = 'Failed to add city';
           }
         } catch (error) {
           console.error('Error adding city:', error);
-          alert('An error occurred');
+          this.errorMessage = 'An error occurred';
         }
       },
       async fetchCountries() {
@@ -87,6 +112,12 @@
           name: '',
           countryId: '',
         });
+      },
+      closeSuccessMessage() {
+        this.successMessage = '';
+      },
+      closeErrorMessage() {
+        this.errorMessage = '';
       },
     },
     created() {

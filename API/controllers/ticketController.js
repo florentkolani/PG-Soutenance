@@ -2,6 +2,7 @@ const Ticket = require('../models/ticketModel');
 const User = require('../models/userModel');
 const type = require('../models/typeDeDemandeModel');
 const nodemailer = require("nodemailer");
+const {sendEmail} = require('../services/emailService');
 
 //Configuration de Nodemailer
 require('dotenv').config();
@@ -114,21 +115,41 @@ exports.updateTicket = async (req, res) => {
 };
 
 
-// Fermer un ticket
+// Fermer un ticket et envoyer un email
 exports.closeTicket = async (req, res) => {
     const ticketId = req.params.ticketId;
-    Ticket.findByIdAndUpdate(ticketId, { statut: 'cloturé' }, { new: true })
-        .then(updatedTicket => {
-            if (!updatedTicket) {
-                return res.status(404).send('Ticket not found');
-            }
-            console.log('Ticket closed successfully:', updatedTicket);
-            res.status(200).json(updatedTicket);
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Erreur lors de la clôture du ticket');
-        });
+
+    try {
+        // Fermer le ticket en mettant à jour son statut
+        const updatedTicket = await Ticket.findByIdAndUpdate(ticketId, { statut: 'cloturé' }, { new: true });
+        
+        if (!updatedTicket) {
+            return res.status(404).send('Ticket non trouvé');
+        }
+
+        // Récupérer l'utilisateur associé au ticket
+        const user = await User.findById(updatedTicket.userId);
+        if (!user) {
+            return res.status(404).send('Utilisateur non trouvé');
+        }
+
+        // Préparer et envoyer l'email
+        const emailSubject = 'Votre ticket a été clôturé';
+        const emailHtml = `
+            <p>Bonjour ${user.name},</p>
+            <p>Nous vous informons que votre ticket (ID: ${updatedTicket._id}) a été clôturé avec succès.</p>
+            <p>Si vous avez d'autres questions, n'hésitez pas à nous contacter.</p>
+        `;
+
+        await sendEmail(user.email, emailSubject, emailHtml);
+
+        console.log('Ticket closed successfully and email sent:', updatedTicket);
+        res.status(200).json(updatedTicket);
+
+    } catch (err) {
+        console.error('Erreur lors de la clôture du ticket ou de l\'envoi de l\'email:', err);
+        res.status(500).send('Erreur interne du serveur');
+    }
 };
 
 // Obtenir tous les tickets avec pagination
