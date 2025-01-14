@@ -1,10 +1,10 @@
 <template>
   <div v-if="showModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
     <div class="bg-white rounded-lg p-6 w-1/3 shadow-md relative">
-           <div class="flex justify-between items-center pb-4 mb-4 border-b">
-              <h3 class="text-lg font-semibold text-gray-900">Ajouter une pays</h3>
-              <button @click="$emit('close')" class="text-red-600 hover:text-red-800 text-2xl">&times;</button>
-            </div>
+      <div class="flex justify-between items-center pb-4 mb-4 border-b">
+        <h3 class="text-lg font-semibold text-gray-900">Ajouter une pays</h3>
+        <button @click="$emit('close')" class="text-red-600 hover:text-red-800 text-2xl">&times;</button>
+      </div>
       <form @submit.prevent="save">
         <!-- Nom du pays -->
         <div class="mb-4">
@@ -45,6 +45,21 @@
       </form>
     </div>
   </div>
+  <!-- Success and Error Dialogs -->
+  <div v-if="successMessage" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
+    <div class="bg-white rounded-lg p-6 w-1/3 shadow-md relative text-center">
+      <h3 class="text-lg font-semibold text-green-700 text-center">Succès!</h3>
+      <p>{{ successMessage }}</p>
+      <button @click="successMessage = ''" class="bg-green-500 text-white px-4 py-2 mt-4 rounded-md">Fermer</button>
+    </div>
+  </div>
+  <div v-if="errorMessage" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
+    <div class="bg-white rounded-lg p-6 w-1/3 shadow-md relative">
+      <h3 class="text-lg font-semibold text-red-700">Erreur!</h3>
+      <p>{{ errorMessage }}</p>
+      <button @click="errorMessage = ''" class="bg-red-500 text-white px-4 py-2 mt-4 rounded-md">Fermer</button>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -59,13 +74,20 @@ export default {
       default: () => ({ name: '', code: '' })
     }
   },
+  data() {
+    return {
+      successMessage: '',
+      errorMessage: '',
+    };
+  },
   methods: {
     save() {
       if (this.country.name && this.country.code) {
         this.$emit('save', this.country);
         this.$emit('close');  // Fermer le modal après la sauvegarde
+        this.successMessage = 'Pays enregistré avec succès.';
       } else {
-        alert('Veuillez remplir tous les champs.');
+        this.errorMessage = 'Veuillez remplir tous les champs.';
       }
     }
   }

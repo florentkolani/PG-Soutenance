@@ -99,29 +99,29 @@
               </div>
 
               <div>
-  <label for="contact" class="block mb-2 text-sm font-medium text-gray-900">
-    Contact <span class="text-red-500">*</span>
-  </label>
-  <div class="flex">
-    <!-- Input pour l'indicatif, en lecture seule -->
-    <input
-      type="text"
-      :value="selectedCountryDialCode"
-      class="bg-gray-50 border border-gray-300 text-gray-900 rounded-l-lg block w-1/4 p-2.5"
-      disabled
-    />
-    <!-- Input pour le contact -->
-    <input
-      v-model="user.contact"
-      type="text"
-      id="contact"
-      class="bg-gray-50 border border-gray-300 text-gray-900 rounded-r-lg block w-3/4 p-2.5"
-      placeholder="Entrez votre contact"
-      required
-      :disabled="isLoading"
-    />
-  </div>
-</div>
+                <label for="contact" class="block mb-2 text-sm font-medium text-gray-900">
+                  Contact <span class="text-red-500">*</span>
+                </label>
+                <div class="flex">
+                  <!-- Input pour l'indicatif, en lecture seule -->
+                  <input
+                    type="text"
+                    :value="selectedCountryDialCode"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 rounded-l-lg block w-1/4 p-2.5"
+                    disabled
+                  />
+                  <!-- Input pour le contact -->
+                  <input
+                    v-model="user.contact"
+                    type="text"
+                    id="contact"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 rounded-r-lg block w-3/4 p-2.5"
+                    placeholder="Entrez votre contact"
+                    required
+                    :disabled="isLoading"
+                  />
+                </div>
+              </div>
               <div>
                 <label for="role" class="block mb-2 text-sm font-medium text-gray-900">
                   Role <span class="text-red-500">*</span>
@@ -199,16 +199,19 @@ export default {
       dialogType: '',
     };
   },
+  
 
   async created() {
     // Fetch countries from the database
     try {
       const response = await axios.get(`${API_URL}/countries`);
-      this.countries = response.data.countries.map((country) => ({
-        name: country.name,
-        code: country._id,
-        dialCode: country.dialCode,
-      }));
+      this.countries = response.data.countries
+        .map((country) => ({
+          name: country.name,
+          code: country.code,
+          dialCode: country.code,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name)); // Sort countries alphabetically
     } catch (error) {
       console.error("Erreur lors du chargement des pays :", error);
       this.countries = [];
@@ -224,8 +227,10 @@ export default {
     this.cities = [];
 
     try {
-        const response = await axios.get(`${API_URL}/cities?country = ${countryId}`,);
-        this.cities = response.data.cities.map((city) => city.name);
+        const response = await axios.get(`${API_URL}/cities?country=${countryId}`);
+        this.cities = response.data.cities
+          .map((city) => city.name)
+          .sort((a, b) => a.localeCompare(b)); // Sort cities alphabetically
         console.log("Cities loaded:", this.cities); // Vérification des villes chargées
     } catch (error) {
         console.error("Erreur lors de la récupération des villes :", error);
@@ -238,7 +243,7 @@ export default {
 
     // Mettre à jour le nom du pays sélectionné et son code d'appel
     updateCountryName(countryId) {
-        const country = this.countries.find((c) => c._id === countryId);
+        const country = this.countries.find((c) => c.code === countryId);
         if (country) {
             this.user.pays = country.name;
             this.selectedCountryDialCode = country.dialCode || ''; // Pré-remplir le code pays

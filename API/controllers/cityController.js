@@ -15,11 +15,11 @@ exports.createCity = async (req, res) => {
 exports.getCities = async (req, res) => {
     try {
         const { page = 1, limit = 10 } = req.query;
-        const cities = await City.find()
+        const cities = await City.find({ isarchived: false })
             .populate('country')
             .skip((page - 1) * limit)
             .limit(parseInt(limit));
-        const totalItems = await City.countDocuments();
+        const totalItems = await City.countDocuments({ isarchived: false });
         res.status(200).json({ cities, totalItems });
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -51,13 +51,29 @@ exports.updateCity = async (req, res) => {
     }
 };
 
-exports.deleteCity = async (req, res) => {
+exports.archiveCity = async (req, res) => {
     try {
-        const city = await City.findByIdAndDelete(req.params.id);
-        if (!city) return res.status(404).json({ error: 'City not found' });
-        res.status(200).json({ message: 'City deleted' });
+        const cityId = req.params.id;
+
+        // Vérifiez si l'ID est valide
+        if (!mongoose.Types.ObjectId.isValid(cityId)) {
+            return res.status(400).json({ message: "ID de la ville invalide." });
+        }
+
+        // Vérifiez si la ville existe
+        const city = await City.findById(cityId);
+        if (!city) {
+            return res.status(404).json({ message: "Ville non trouvée." });
+        }
+
+        // Archivez la ville
+        city.isarchived = true;
+        await city.save();
+
+        res.status(200).json({ message: "Ville archivée avec succès", city });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        console.error("Erreur lors de l'archivage de la ville :", error);
+        res.status(500).json({ message: "Erreur interne du serveur", error: error.message });
     }
 };
 

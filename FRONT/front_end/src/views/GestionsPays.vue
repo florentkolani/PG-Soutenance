@@ -119,19 +119,35 @@
       </div>
     </div>
     <div v-if="showArchiveConfirmation" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-  <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
-    <h2 class="text-xl font-bold mb-4 text-center text-gray-800">Confirmer l'archivage</h2>
-    <p class="text-center mb-6">Êtes-vous sûr de vouloir archiver ce pays ?</p>
-    <div class="flex justify-center space-x-4">
-      <button @click="confirmArchive" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md shadow-md transition-all">
-        Oui, archiver
-      </button>
-      <button @click="cancelArchive" class="bg-gray-500 hover:bg-gray-300 text-black px-6 py-2 rounded-md shadow-md transition-all">
-        Annuler
-      </button>
+      <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+        <h2 class="text-xl font-bold mb-4 text-center text-gray-800">Confirmer l'archivage</h2>
+        <p class="text-center mb-6">Êtes-vous sûr de vouloir archiver ce pays ?</p>
+        <div class="flex justify-center space-x-4">
+          <button @click="confirmArchive" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md shadow-md transition-all">
+            Oui, archiver
+          </button>
+          <button @click="cancelArchive" class="bg-gray-500 hover:bg-gray-300 text-black px-6 py-2 rounded-md shadow-md transition-all">
+            Annuler
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+
+    <!-- Success and Error Dialogs -->
+    <div v-if="successMessage" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
+      <div class="bg-white rounded-lg p-6 w-1/3 shadow-md relative text-center">
+        <h3 class="text-lg font-semibold text-green-700">Succès!</h3>
+        <p>{{ successMessage }}</p>
+        <button @click="successMessage = ''" class="bg-green-500 text-white px-4 py-2 mt-4 rounded-md">Fermer</button>
+      </div>
+    </div>
+    <div v-if="errorMessage" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
+      <div class="bg-white rounded-lg p-6 w-1/3 shadow-md relative">
+        <h3 class="text-lg font-semibold text-red-700">Erreur!</h3>
+        <p>{{ errorMessage }}</p>
+        <button @click="errorMessage = ''" class="bg-red-500 text-white px-4 py-2 mt-4 rounded-md">Fermer</button>
+      </div>
+    </div>
 
   </div>
 </template>
@@ -161,16 +177,13 @@ export default {
       currentPage: 1,
       itemsPerPage: 10,
       totalItems: 0,
+      successMessage: '',
+      errorMessage: '',
     };
   },
   computed: {
     paginatedCountries() {
-      if (!Array.isArray(this.countries)) {
-        return []; 
-      }
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-      return this.countries.slice(start, end);
+      return this.countries;
     }
   },
   methods: {
@@ -182,8 +195,12 @@ export default {
             limit: this.itemsPerPage
           }
         });
-        this.countries = response.data.countries.filter(country => !country.isArchived) || [];
+        this.countries = response.data.countries || [];
         this.totalItems = response.data.totalItems || 0;
+        if (this.countries.length === 0 && this.currentPage > 1) {
+          this.currentPage--;
+          this.fetchCountries();
+        }
       } catch (error) {
         console.error('Erreur lors de la récupération des pays:', error);
       }
@@ -207,22 +224,16 @@ export default {
       this.showArchiveConfirmation = false;
       this.countryToArchive = null;
     },
-    confirmArchive() {
-      const country = this.countries.find(c => c._id === this.countryToArchive);
-      if (country && !country.isArchived) {
-        axios.put(`${API_URL}/countries/${this.countryToArchive}`, { isArchived: true })
-          .then(() => {
-            this.fetchCountries();
-            this.showArchiveConfirmation = false;
-            this.countryToArchive = null;
-          })
-          .catch(error => {
-            console.error('Erreur lors de l\'archivage du pays:', error);
-            this.showArchiveConfirmation = false;
-            this.countryToArchive = null;
-          });
-      } else {
-        console.warn('Le pays est déjà archivé ou introuvable.');
+    async confirmArchive() {
+      try {
+        await axios.put(`${API_URL}/countries/${this.countryToArchive}/archive`);
+        this.fetchCountries();
+        this.showArchiveConfirmation = false;
+        this.countryToArchive = null;
+        this.successMessage = 'Pays archivé avec succès.';
+      } catch (error) {
+        console.error('Erreur lors de l\'archivage du pays:', error);
+        this.errorMessage = 'Erreur lors de l\'archivage du pays.';
         this.showArchiveConfirmation = false;
         this.countryToArchive = null;
       }
@@ -239,8 +250,10 @@ export default {
         await axios.post(`${API_URL}/countries`, country);
         this.fetchCountries();
         this.closeCountryModal();
+        this.successMessage = 'Pays enregistré avec succès.';
       } catch (error) {
         console.error('Erreur lors de l\'enregistrement du pays:', error);
+        this.errorMessage = 'Erreur lors de l\'enregistrement du pays.';
       }
     },
     openFilterOptions() {
@@ -260,8 +273,10 @@ export default {
         await axios.put(`${API_URL}/countries/${this.editCountryData._id}`, this.editCountryData);
         this.fetchCountries();
         this.closeEditModal();
+        this.successMessage = 'Pays mis à jour avec succès.';
       } catch (error) {
         console.error('Erreur lors de la mise à jour du pays:', error);
+        this.errorMessage = 'Erreur lors de la mise à jour du pays.';
       }
     },
   },
