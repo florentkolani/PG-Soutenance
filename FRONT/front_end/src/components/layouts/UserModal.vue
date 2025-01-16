@@ -5,6 +5,7 @@
       v-if="!showDialog"
       tabindex="-1"
       class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
+      @click.self="closeDropdowns"
     >
       <div class="relative p-4 w-full max-w-2xl bg-white rounded-lg shadow">
         <div class="relative p-4">
@@ -49,53 +50,61 @@
                   :disabled="isLoading"
                 />
               </div>
-              <!-- Sélecteur de pays avec label -->
-              <div class="mb-4">
+              <!-- Sélecteur de pays avec recherche -->
+              <div class="mb-4 relative">
                 <label for="pays" class="block text-sm font-medium text-gray-900 mb-2">
                   Pays <span class="text-red-500">*</span>
                 </label>
-                <select
-                  v-model="selectedCountryCode"
-                  id="pays"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
+                <input
+                  type="text"
+                  v-model="countrySearch"
+                  placeholder="Rechercher ou sélectionner un pays"
+                  class="bg-white border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5 mb-2"
+                  @input="filterCountries"
+                  @focus="showCountryDropdown = true"
                   required
-                  @change="updateCountryName($event.target.value); loadCities($event.target.value)"
-                >
-                  <option value="default" disabled hidden>
-                    Veuillez sélectionner votre pays
-                  </option>
-                  <option v-for="country in countries" :key="country.code" :value="country.code">
+                />
+                <ul v-if="showCountryDropdown && filteredCountries.length" class="absolute z-10 bg-white border border-gray-300 rounded-lg w-full mt-1 max-h-60 overflow-auto">
+                  <li
+                    v-for="country in filteredCountries"
+                    :key="country.code"
+                    @click="selectCountry(country)"
+                    class="p-2 cursor-pointer hover:bg-gray-200"
+                  >
                     {{ country.name }}
-                  </option>
-                </select>
+                  </li>
+                </ul>
               </div>
 
-              <!-- Sélecteur de villes avec label -->
-              <div class="mb-4">
+              <!-- Sélecteur de villes avec recherche -->
+              <div class="mb-4 relative">
                 <label for="ville" class="block text-sm font-medium text-gray-900 mb-2">
                   Ville <span class="text-red-500">*</span>
                 </label>
-                <select
-                  v-model="user.ville"
-                  id="ville"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
-                  required
+                <input
+                  type="text"
+                  v-model="citySearch"
+                  placeholder="Rechercher ou sélectionner une ville"
+                  class="bg-white border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5 mb-2"
+                  @input="filterCities"
+                  @focus="showCityDropdown = true"
                   :disabled="isLoadingCities || !cities.length"
-                >
-                  <option value="" disabled hidden class="text-gray-500 opacity-50">
-                    Veuillez sélectionner votre ville
-                  </option>
-                  <option v-for="city in cities" :key="city" :value="city">
+                  required
+                />
+                <ul v-if="showCityDropdown && filteredCities.length" class="absolute z-10 bg-white border border-gray-300 rounded-lg w-full mt-1 max-h-60 overflow-auto">
+                  <li
+                    v-for="city in filteredCities"
+                    :key="city"
+                    @click="selectCity(city)"
+                    class="p-2 cursor-pointer hover:bg-gray-200"
+                  >
                     {{ city }}
-                  </option>
-                </select>
-
+                  </li>
+                </ul>
                 <div v-if="isLoadingCities" class="mt-2 flex items-center space-x-2">
                   <div class="w-5 h-5 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                   <span class="text-sm text-gray-500">En cours de chargement, veuillez patienter.</span>
                 </div>
-
-
               </div>
 
               <div>
@@ -197,10 +206,24 @@ export default {
       showDialog: false,
       dialogMessage: '',
       dialogType: '',
+      countrySearch: '',
+      citySearch: '',
+      showCountryDropdown: false,
+      showCityDropdown: false,
     };
   },
-  
-
+  computed: {
+    filteredCountries() {
+      return this.countries.filter(country =>
+        country.name.toLowerCase().includes(this.countrySearch.toLowerCase())
+      );
+    },
+    filteredCities() {
+      return this.cities.filter(city =>
+        city.toLowerCase().includes(this.citySearch.toLowerCase())
+      );
+    },
+  },
   async created() {
     // Fetch countries from the database
     try {
@@ -220,98 +243,133 @@ export default {
 
   methods: {
     async loadCities(countryId) {
-    console.log("Country ID:", countryId); // Vérification de l'ID envoyé
-    if (!countryId) return;
+      console.log("Country ID:", countryId); // Vérification de l'ID envoyé
+      if (!countryId) return;
 
-    this.isLoadingCities = true;
-    this.cities = [];
+      this.isLoadingCities = true;
+      this.cities = [];
 
-    try {
+      try {
         const response = await axios.get(`${API_URL}/cities?country=${countryId}`);
         this.cities = response.data.cities
           .map((city) => city.name)
           .sort((a, b) => a.localeCompare(b)); // Sort cities alphabetically
         console.log("Cities loaded:", this.cities); // Vérification des villes chargées
-    } catch (error) {
+      } catch (error) {
         console.error("Erreur lors de la récupération des villes :", error);
         this.cities = [];
-    } finally {
+      } finally {
         this.isLoadingCities = false;
-    }
-}
-,
+      }
+    },
+
+    filterCountries() {
+      const country = this.countries.find(c => c.name.toLowerCase() === this.countrySearch.toLowerCase());
+      if (country) {
+        this.selectedCountryCode = country.code;
+        this.updateCountryName(country.code);
+        this.loadCities(country.code);
+      }
+    },
+
+    filterCities() {
+      const city = this.cities.find(c => c.toLowerCase() === this.citySearch.toLowerCase());
+      if (city) {
+        this.user.ville = city;
+      }
+    },
 
     // Mettre à jour le nom du pays sélectionné et son code d'appel
     updateCountryName(countryId) {
-        const country = this.countries.find((c) => c.code === countryId);
-        if (country) {
-            this.user.pays = country.name;
-            this.selectedCountryDialCode = country.dialCode || ''; // Pré-remplir le code pays
-        } else {
-            this.user.pays = '';
-            this.selectedCountryDialCode = '';
-        }
+      const country = this.countries.find((c) => c.code === countryId);
+      if (country) {
+        this.user.pays = country.name;
+        this.selectedCountryDialCode = country.dialCode || ''; // Pré-remplir le code pays
+      } else {
+        this.user.pays = '';
+        this.selectedCountryDialCode = '';
+      }
     },
 
     // Enregistrer un nouvel utilisateur
     async registerUser() {
-        this.isLoading = true;
+      this.isLoading = true;
 
-        const indicatif = this.selectedCountryDialCode || ''; // Utiliser le code pays sélectionné
-        const contact = this.user.contact || ''; // Contact saisi par l'utilisateur
+      const indicatif = this.selectedCountryDialCode || ''; // Utiliser le code pays sélectionné
+      const contact = this.user.contact || ''; // Contact saisi par l'utilisateur
 
-        // Vérification du code et du contact
-        if (!indicatif || !contact) {
-            this.dialogType = 'error';
-            this.dialogMessage = "Veuillez renseigner l'indicatif et le numéro de contact.";
-            this.showDialog = true;
-            this.isLoading = false;
-            return;
+      // Vérification du code et du contact
+      if (!indicatif || !contact) {
+        this.dialogType = 'error';
+        this.dialogMessage = "Veuillez renseigner l'indicatif et le numéro de contact.";
+        this.showDialog = true;
+        this.isLoading = false;
+        return;
+      }
+
+      // Concaténer le code et le numéro
+      const fullContact = `${indicatif}${contact}`;
+      const userPayload = { ...this.user, contact: fullContact };
+
+      try {
+        const response = await axios.post(`${API_URL}/auth/register`, userPayload);
+
+        if (response.status === 201) {
+          this.dialogType = 'success';
+          this.dialogMessage = 'Utilisateur enregistré avec succès';
+          this.showDialog = true;
+        } else {
+          this.dialogType = 'error';
+          this.dialogMessage = response.data.message || "Erreur d'enregistrement de l'utilisateur";
+          this.showDialog = true;
         }
-
-        // Concaténer le code et le numéro
-        const fullContact = `${indicatif}${contact}`;
-        const userPayload = { ...this.user, contact: fullContact };
-
-        try {
-            const response = await axios.post(`${API_URL}/auth/register`, userPayload);
-
-            if (response.status === 201) {
-                this.dialogType = 'success';
-                this.dialogMessage = 'Utilisateur enregistré avec succès';
-                this.showDialog = true;
-            } else {
-                this.dialogType = 'error';
-                this.dialogMessage = response.data.message || "Erreur d'enregistrement de l'utilisateur";
-                this.showDialog = true;
-            }
-        } catch (error) {
-            this.dialogType = 'error';
-            this.dialogMessage = "Une erreur est survenue lors de l'enregistrement.";
-            this.showDialog = true;
-        } finally {
-            this.isLoading = false;
-            this.resetForm();
-        }
+      } catch (error) {
+        this.dialogType = 'error';
+        this.dialogMessage = "Une erreur est survenue lors de l'enregistrement.";
+        this.showDialog = true;
+      } finally {
+        this.isLoading = false;
+        this.resetForm();
+      }
     },
 
     closeDialog() {
-        this.showDialog = false;
-        this.$emit('close');
+      this.showDialog = false;
+      this.$emit('close');
     },
 
     resetForm() {
-        this.user = {
-            name: '',
-            email: '',
-            contact: '',
-            pays: '',
-            ville: '',
-            role: 'Client',
-        };
-        this.selectedCountryDialCode = '';
+      this.user = {
+        name: '',
+        email: '',
+        contact: '',
+        pays: '',
+        ville: '',
+        role: 'Client',
+      };
+      this.selectedCountryDialCode = '';
+      this.countrySearch = '';
+      this.citySearch = '';
+      this.showCountryDropdown = false;
+      this.showCityDropdown = false;
     },
-}
-,
+
+    selectCountry(country) {
+      this.countrySearch = country.name;
+      this.selectedCountryCode = country.code;
+      this.updateCountryName(country.code);
+      this.loadCities(country.code);
+      this.showCountryDropdown = false;
+    },
+    selectCity(city) {
+      this.citySearch = city;
+      this.user.ville = city;
+      this.showCityDropdown = false;
+    },
+    closeDropdowns() {
+      this.showCountryDropdown = false;
+      this.showCityDropdown = false;
+    },
+  },
 };
 </script>
