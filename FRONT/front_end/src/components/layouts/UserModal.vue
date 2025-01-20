@@ -227,7 +227,7 @@ export default {
   async created() {
     // Fetch countries from the database
     try {
-      const response = await axios.get(`${API_URL}/countries`);
+      const response = await axios.get(`${API_URL}/countries?limit=0`);
       this.countries = response.data.countries
         .map((country) => ({
           name: country.name,
@@ -244,13 +244,13 @@ export default {
   methods: {
     async loadCities(countryId) {
       console.log("Country ID:", countryId); // Vérification de l'ID envoyé
-      if (!countryId) return;
 
       this.isLoadingCities = true;
       this.cities = [];
 
       try {
-        const response = await axios.get(`${API_URL}/cities?country=${countryId}`);
+        const url = countryId ? `${API_URL}/cities?country=${countryId}&limit=0` : `${API_URL}/cities?limit=0`;
+        const response = await axios.get(url);
         this.cities = response.data.cities
           .map((city) => city.name)
           .sort((a, b) => a.localeCompare(b)); // Sort cities alphabetically

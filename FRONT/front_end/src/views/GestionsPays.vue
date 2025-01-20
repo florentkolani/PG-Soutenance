@@ -165,6 +165,7 @@ export default {
     CountryModal,
     Pagination
   },
+  emits: ['close', 'save'],
   data() {
     return {
       countries: [],
@@ -250,7 +251,6 @@ export default {
         await axios.post(`${API_URL}/countries`, country);
         this.fetchCountries();
         this.closeCountryModal();
-        this.successMessage = 'Pays enregistré avec succès.';
       } catch (error) {
         console.error('Erreur lors de l\'enregistrement du pays:', error);
         this.errorMessage = 'Erreur lors de l\'enregistrement du pays.';
