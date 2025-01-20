@@ -1,7 +1,10 @@
 <template>
     <div>
       <!-- Add City Modal -->
-      <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+      <div v-if="showModal" 
+      class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
+      @click.self="closeDropdowns"
+      >
         <div class="relative p-4 w-full max-w-2xl bg-white rounded-lg shadow">
           <div class="relative p-4">
             <!-- Modal header -->
@@ -18,14 +21,30 @@
                 </label>
                 <input v-model="city.name" type="text" id="cityName" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5" placeholder="Entez le nom de la ville" required />
               </div>
-              <div class="mb-4">
-                <label for="countryId" class="block mb-2 text-sm font-medium text-gray-900">
-                  Le pays <span class="text-red-500">*</span>
+              <!-- Sélecteur de pays avec recherche -->
+              <div class="mb-4 relative">
+                <label for="pays" class="block text-sm font-medium text-gray-900 mb-2">
+                  Pays <span class="text-red-500">*</span>
                 </label>
-                <select v-model="city.countryId" id="countryId" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5" required>
-                  <option value="" disabled selected>Sélectionnez un pays</option>
-                  <option v-for="country in sortedCountries" :key="country._id" :value="country._id">{{ country.name }}</option>
-                </select>
+                <input
+                  type="text"
+                  v-model="countrySearch"
+                  placeholder="Rechercher ou sélectionner un pays"
+                  class="bg-white border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5 mb-2"
+                  @input="filterCountries"
+                  @focus="showCountryDropdown = true"
+                  required
+                />
+                <ul v-if="showCountryDropdown && filteredCountries.length" class="absolute z-10 bg-white border border-gray-300 rounded-lg w-full mt-1 max-h-60 overflow-auto">
+                  <li
+                    v-for="country in filteredCountries"
+                    :key="country._id"
+                    @click="selectCountry(country)"
+                    class="p-2 cursor-pointer hover:bg-gray-200"
+                  >
+                    {{ country.name }}
+                  </li>
+                </ul>
               </div>
               <button type="submit" class="text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5">Ajouter</button>
             </form>
@@ -33,16 +52,16 @@
         </div>
       </div>
 
-      <!-- Success and Error Messages -->
-      <div v-if="successMessage" class="fixed inset-0 flex items-center justify-center bg-green-100 bg-opacity-75">
-        <div class="bg-white rounded-lg p-6 shadow-md">
-          <h2 class="text-xl font-bold text-gray-300 mb-4 text-center">Succès</h2>
+      <!-- Success and Dialogue Messages -->
+      <div v-if="successMessage" class="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-75">
+        <div class="bg-white rounded-lg p-6 w-1/3 shadow-md relative text-center">
+          <h2 class="text-xl font-bold text-gray-900 mb-4 text-center">Succès</h2>
           <p>{{ successMessage }}</p>
           <button @click="closeSuccessMessage" class="bg-green-500 text-white px-8 py-2 mt-4 rounded-md">Fermer</button>
         </div>
       </div>
-      <div v-if="errorMessage" class="fixed inset-0 flex items-center justify-center bg-red-100 bg-opacity-75">
-        <div class="bg-white rounded-lg p-6 shadow-md">
+      <div v-if="errorMessage" class="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-75">
+        <div class="bg-white rounded-lg p-6 w-1/3 shadow-md relative text-center">
           <h2 class="text-xl font-bold text-red-600 mb-4 text-center">Erreur</h2>
           <p>{{ errorMessage }}</p>
           <button @click="closeErrorMessage" class="bg-red-500 text-white px-8 py-2 mt-4 rounded-md">Fermer</button>
@@ -58,6 +77,8 @@
     data() {
       return {
         countries: [],
+        countrySearch: '',
+        showCountryDropdown: false,
         successMessage: '',
         errorMessage: '',
       };
@@ -65,6 +86,11 @@
     computed: {
       sortedCountries() {
         return this.countries.sort((a, b) => a.name.localeCompare(b.name));
+      },
+      filteredCountries() {
+        return this.sortedCountries.filter(country =>
+          country.name.toLowerCase().includes(this.countrySearch.toLowerCase())
+        );
       }
     },
     methods: {
@@ -100,18 +126,27 @@
       },
       async fetchCountries() {
         try {
-          const response = await fetch(`${API_URL}/countries`);
+          const response = await fetch(`${API_URL}/countries?limit=0`); // Fetch all countries
           const data = await response.json();
           this.countries = data.countries || [];
         } catch (error) {
           console.error('Error fetching countries:', error);
         }
       },
+      filterCountries() {
+        this.showCountryDropdown = true;
+      },
+      selectCountry(country) {
+        this.city.countryId = country._id;
+        this.countrySearch = country.name;
+        this.showCountryDropdown = false;
+      },
       resetForm() {
         this.$emit('update:city', {
           name: '',
           countryId: '',
         });
+        this.countrySearch = '';
       },
       closeSuccessMessage() {
         this.successMessage = '';
@@ -119,6 +154,9 @@
       closeErrorMessage() {
         this.errorMessage = '';
       },
+      closeDropdowns() {
+        this.showCountryDropdown = false;
+      }
     },
     created() {
       this.fetchCountries();

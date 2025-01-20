@@ -54,7 +54,7 @@
     </div>
   </div>
   <div v-if="errorMessage" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
-    <div class="bg-white rounded-lg p-6 w-1/3 shadow-md relative">
+    <div class="bg-white rounded-lg p-6 w-1/3 shadow-md relative text-center">
       <h3 class="text-lg font-semibold text-red-700">Erreur!</h3>
       <p>{{ errorMessage }}</p>
       <button @click="errorMessage = ''" class="bg-red-500 text-white px-4 py-2 mt-4 rounded-md">Fermer</button>
@@ -74,6 +74,7 @@ export default {
       default: () => ({ name: '', code: '' })
     }
   },
+  emits: ['close', 'save'],
   data() {
     return {
       successMessage: '',
@@ -84,8 +85,9 @@ export default {
     save() {
       if (this.country.name && this.country.code) {
         this.$emit('save', this.country);
-        this.$emit('close');  // Fermer le modal après la sauvegarde
         this.successMessage = 'Pays enregistré avec succès.';
+        this.$emit('close');  // Fermer le modal après la sauvegarde
+       
       } else {
         this.errorMessage = 'Veuillez remplir tous les champs.';
       }

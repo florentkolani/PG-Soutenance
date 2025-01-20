@@ -9,16 +9,16 @@
       @goToDashboard="redirectToDashboard"
     />
 
-    <!-- Success and Error Messages -->
+    <!-- Success and Dialogue Messages -->
     <div v-if="successMessage" class="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50">
-      <div class="bg-white rounded-lg p-12 shadow-md text-center">
+      <div class="bg-white rounded-lg p-6 w-1/3 shadow-md relative text-center">
         <h2 class="text-xl font-bold text-green-600 mb-4 text-center">Succès</h2>
         <p>{{ successMessage }}</p>
         <button @click="closeSuccessMessage" class="bg-green-500 text-white px-4 py-2  mt-4 rounded-md">Fermer</button>
       </div>
     </div>
     <div v-if="errorMessage" class="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50">
-      <div class="bg-white rounded-lg p-6 shadow-md text-center">
+      <div class="bg-white rounded-lg p-6 w-1/3 shadow-md relative text-center">
         <h2 class="text-xl font-bold text-red-600 mb-4 text-center">Erreur</h2>
         <p>{{ errorMessage }}</p>
         <button @click="closeErrorMessage" class="bg-red-500 text-white px-4 py-2 mt-4 rounded-md">Fermer</button>
@@ -40,7 +40,7 @@
         <tbody class="text-gray-600 text-sm font-light">
           <tr v-for="city in paginatedCities" :key="city._id" class="border-b border-gray-200 hover:bg-gray-100">
             <td class="border px-4 py-2">{{ city.name }}</td>
-            <td class="border px-4 py-2">{{ city.country.name }}</td>
+            <td class="border px-4 py-2">{{ city.country ? city.country.name : 'N/A' }}</td>
             <td class="px-4 py-2 text-center">
               <button @click="editCity(city)" class="bg-blue-500 text-white px-2 py-1 rounded mr-2 hover:bg-blue-600">Modifier</button>
               <button @click="viewCityDetails(city)" class="bg-green-500 text-white px-2 py-1 rounded mr-2 hover:bg-green-600">Détails</button>

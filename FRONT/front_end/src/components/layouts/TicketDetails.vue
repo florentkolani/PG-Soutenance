@@ -36,11 +36,6 @@
             <p><strong>{{ message.userId?.name || 'Inconnu' }}</strong></p>
             <p>{{ message.content }}</p>
             <p class="text-xs text-gray-500 text-right">{{ formatDateWithTime(message.createdAt) }}</p>
-            <div v-if="message.files && message.files.length">
-              <div v-for="file in message.files" :key="file.name" class="mt-2">
-                <a :href="file.url" target="_blank" class="text-blue-500 hover:underline">{{ file.name }}</a>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -64,19 +59,6 @@
         ref="textarea"
         @input="adjustTextareaHeight"
       ></textarea>
-
-      <!-- Bouton pour joindre des fichiers -->
-      <input type="file" id="file-input" multiple @change="handleFileUpload" class="hidden">
-      <button
-        type="button"
-        class="flex-shrink-0 bg-gray-500 text-gray-500 p-3 rounded-full hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-200"
-        @click="triggerFileInput"
-      >
-        <!-- Icône de trombone pour "Joindre" -->
-        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke="none" class="h-5 w-5">
-          <path d="M21.44 11.05l-9.19 9.19c-2.34 2.34-6.14 2.34-8.48 0s-2.34-6.14 0-8.48l9.19-9.19c1.56-1.56 4.09-1.56 5.66 0s1.56 4.09 0 5.66l-9.19 9.19c-.78.78-2.05.78-2.83 0s-.78-2.05 0-2.83l8.48-8.48c.39-.39 1.02-.39 1.41 0s.39 1.02 0 1.41l-8.48 8.48c-.2.2-.51.2-.71 0s-.2-.51 0-.71l9.19-9.19c.78-.78.78-2.05 0-2.83s-2.05-.78-2.83 0l-9.19 9.19c-1.17 1.17-1.17 3.07 0 4.24s3.07 1.17 4.24 0l9.19-9.19c1.56-1.56 1.56-4.09 0-5.66s-4.09-1.56-5.66 0l-9.19 9.19c-2.34 2.34-2.34 6.14 0 8.48s6.14 2.34 8.48 0l9.19-9.19c.39-.39 1.02-.39 1.41 0s.39 1.02 0 1.41z"/>
-        </svg>
-      </button>
 
       <!-- Bouton envoyer -->
       <button
@@ -113,7 +95,6 @@ export default {
       ticketCreatorId: null,
       isSending: false,
       maxTextareaHeight: 120,  
-      attachedFiles: [],
     };
   },
   mounted() {
@@ -216,70 +197,46 @@ fetchTicket() {
     },
 
     sendMessage() {
-      if (!this.newMessage.trim() && this.attachedFiles.length === 0) return;
+  if (!this.newMessage.trim()) return;
 
-      const token = localStorage.getItem('token');
-      const formData = new FormData();
-      formData.append('content', this.newMessage);
-      this.attachedFiles.forEach(file => {
-        formData.append('files', file);
-      });
+  const token = localStorage.getItem('token');
+  const messageContent = this.newMessage;
+  const tempMessageId = `temp-${Date.now()}`;
 
-      console.log('Sending message with content:', this.newMessage);
-      console.log('Sending message with files:', this.attachedFiles);
+  const tempMessage = {
+    _id: tempMessageId,
+    content: messageContent,
+    createdAt: new Date().toISOString(),
+    userId: { _id: this.currentUserId, name: 'Vous' },
+  };
 
-      const tempMessageId = `temp-${Date.now()}`;
-      const tempMessage = {
-        _id: tempMessageId,
-        content: this.newMessage,
-        createdAt: new Date().toISOString(),
-        userId: { _id: this.currentUserId, name: 'Vous' },
-        files: this.attachedFiles.map(file => ({
-          name: file.name,
-          url: URL.createObjectURL(file),
-        })),
-      };
+  this.messages.push(tempMessage);
+  this.newMessage = '';
+  this.isSending = true; // Début de l'état de chargement
 
-      this.messages.push(tempMessage);
-      this.newMessage = '';
-      this.attachedFiles = [];
-      this.isSending = true;
-
-      axios.post(
-        `${API_URL}/tickets/${this.ticketId}/messages`,
-        formData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-        .then(response => {
-          const index = this.messages.findIndex(msg => msg._id === tempMessageId);
-          if (index !== -1) {
-            this.messages.splice(index, 1, response.data);
-          }
-          this.isSending = false;
-          console.log('Message sent successfully:', response.data);
-        })
-        .catch(error => {
-          console.error("Erreur lors de l'envoi du message :", error);
-          const index = this.messages.findIndex(msg => msg._id === tempMessageId);
-          if (index !== -1) {
-            this.messages.splice(index, 1);
-          }
-          this.isSending = false;
-        });
-    },
-
-    triggerFileInput() {
-      document.getElementById('file-input').click();
-    },
-    handleFileUpload(event) {
-      const files = event.target.files;
-      for (let i = 0; i < files.length; i++) {
-        this.attachedFiles.push(files[i]);
+  axios.post(
+    `${API_URL}/tickets/${this.ticketId}/messages`,
+    { content: messageContent },
+    { headers: { Authorization: `Bearer ${token}` } }
+  )
+    .then(response => {
+      const index = this.messages.findIndex(msg => msg._id === tempMessageId);
+      if (index !== -1) {
+        this.messages.splice(index, 1, response.data);
       }
-      console.log('Files attached:', this.attachedFiles);
-    },
+      this.isSending = false; // Fin de l'état de chargement
+    })
+    .catch(error => {
+      console.error("Erreur lors de l'envoi du message :", error);
+      const index = this.messages.findIndex(msg => msg._id === tempMessageId);
+      if (index !== -1) {
+        this.messages.splice(index, 1);
+      }
+      this.isSending = false; // Fin de l'état de chargement
+    });
+},
 
-    updateTicketStatus(ticketId, statusData) {
+updateTicketStatus(ticketId, statusData) {
     const token = localStorage.getItem('token');
     console.log('Mise à jour du statut pour le ticket ID:', ticketId, 'avec les données:', statusData);
     return axios.put(`${API_URL}/tickets/${ticketId}/statut`, statusData, {
