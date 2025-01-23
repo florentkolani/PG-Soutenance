@@ -85,9 +85,7 @@ export default {
     save() {
       if (this.country.name && this.country.code) {
         this.$emit('save', this.country);
-        this.successMessage = 'Pays enregistré avec succès.';
         this.$emit('close');  // Fermer le modal après la sauvegarde
-       
       } else {
         this.errorMessage = 'Veuillez remplir tous les champs.';
       }

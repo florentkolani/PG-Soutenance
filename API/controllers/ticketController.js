@@ -55,31 +55,38 @@ async function envoyerEmail(ticket) {
 // Créer un ticket
 exports.createTicket = async (req, res) => {
     console.log("Données reçues :", req.body);
-    console.log("Fichier reçu :", req.file);
+
+    if (req.file) {
+        console.log("Fichier reçu :", req.file);
+        console.log("Taille du fichier :", req.file.size);
+    }
+
     try {
-        // Vérifier que les champs requis sont présents
-        const requiredFields = ['userId', 'urgence', 'status']; 
+        // Vérification des champs obligatoires
+        const requiredFields = ['userId', 'urgence', 'status'];
         for (const field of requiredFields) {
             if (!req.body[field]) {
                 return res.status(400).json({ message: `Le champ ${field} est requis.` });
             }
         }
 
-        // Si un fichier est reçu, vous pouvez l'ajouter à l'objet ticket
+        // Création des données du ticket
         const ticketData = {
             ...req.body,
-            file: req.file ? req.file.path : null // Enregistrez le chemin du fichier
+            file: req.file ? req.file.filename : null
         };
 
-        // Créer le ticket avec les données reçues
-        const ticket = new Ticket(ticketData); // Utiliser ticketData ici
+        // Enregistrement dans la base de données
+        const ticket = new Ticket(ticketData);
         await ticket.save();
 
-        // Envoyer un email aux admins et agents support
+        // Envoi de l'email
         await envoyerEmail(ticket);
 
+        // Réponse de succès
         res.status(201).json(ticket);
     } catch (error) {
+        console.error("Erreur lors de la création du ticket :", error.message);
         res.status(400).json({ message: 'Erreur lors de la création du ticket', error: error.message });
     }
 };

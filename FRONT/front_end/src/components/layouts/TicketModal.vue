@@ -225,23 +225,15 @@ export default {
       const apiEndpoint = this.isEdit ? `${API_URL}/tickets/${this.ticket._id}` : `${API_URL}/tickets`;
       const method = this.isEdit ? 'put' : 'post';
 
-      const data = this.file ? new FormData() : { 
-        productId: this.selectedProduct,
-        typeDeDemandeId: this.selectedTypeDeDemande,
-        urgence: this.urgence,
-        description: this.description,
-        status: this.status,
-        userId: userId
-      };
-      
+      const data = new FormData();
+      data.append('productId', this.selectedProduct);
+      data.append('typeDeDemandeId', this.selectedTypeDeDemande);
+      data.append('urgence', this.urgence);
+      data.append('description', this.description);
+      data.append('status', this.status);
+      data.append('userId', userId);
       if (this.file) {
         data.append('file', this.file);
-        data.append('productId', this.selectedProduct);
-        data.append('typeDeDemandeId', this.selectedTypeDeDemande);
-        data.append('urgence', this.urgence);
-        data.append('description', this.description);
-        data.append('status', this.status);
-        data.append('userId', userId);
       }
 
       // Activation de l'indicateur de chargement
@@ -252,7 +244,7 @@ export default {
         url: apiEndpoint,
         data,
         headers: {
-          'Content-Type': this.file ? 'multipart/form-data' : 'application/json',
+          'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`,
         },
       })

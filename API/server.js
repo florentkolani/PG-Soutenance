@@ -38,7 +38,23 @@ app.use('/api/types', typeDeDemandeRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/tickets', messageRoutes);
 app.use("/api/pdfs", pdfRoutes);
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Gestion des fichiers statiques et des en-têtes pour les téléchargements
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+    setHeaders: (res, filePath) => {
+        const ext = path.extname(filePath).toLowerCase();
+        const mimeTypes = {
+            '.pdf': 'application/pdf',
+            '.jpg': 'image/jpeg',
+            '.jpeg': 'image/jpeg',
+            '.png': 'image/png',
+            '.doc': 'application/msword',
+            '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        };
+        res.setHeader('Content-Type', mimeTypes[ext] || 'application/octet-stream');
+    }
+}));
+
+
 app.use('/api', countryRoutes);
 app.use('/api', cityRoutes);
 
