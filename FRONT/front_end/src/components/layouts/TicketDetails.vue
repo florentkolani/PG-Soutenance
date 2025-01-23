@@ -15,30 +15,44 @@
       </div>
 
       <!-- Section des messages -->
-      <div 
-        v-if="messages.length" 
-        class="bg-green-50 p-4 rounded shadow mb-6 overflow-y-auto"
-        style="max-height: calc(100vh - 250px);" 
-      >
-        <h2 class="text-lg font-semibold mb-4">Messages</h2>
+<div 
+  v-if="messages.length" 
+  class="bg-green-50 p-4 rounded shadow mb-6 overflow-y-auto"
+  style="max-height: calc(100vh - 250px);" 
+>
+  <h2 class="text-lg font-semibold mb-4">Messages</h2>
 
-        <div v-for="(message, index) in messages" :key="message._id">
-          <div v-if="isNewDate(messages, index)" class="text-center my-2 text-sm font-semibold text-gray-500">
-            {{ formatDate(message.createdAt) }}
-          </div>
+  <div v-for="(message, index) in messages" :key="message._id">
+    <div v-if="isNewDate(messages, index)" class="text-center my-2 text-sm font-semibold text-gray-500">
+      {{ formatDate(message.createdAt) }}
+    </div>
 
-          <div 
-            :class="[ 
-              'mb-2 p-4 rounded max-w-xl break-words', 
-              message.userId?._id === currentUserId ? 'bg-blue-100 ml-auto' : 'bg-green-100 mr-auto'
-            ]"
-          >
-            <p><strong>{{ message.userId?.name || 'Inconnu' }}</strong></p>
-            <p>{{ message.content }}</p>
-            <p class="text-xs text-gray-500 text-right">{{ formatDateWithTime(message.createdAt) }}</p>
-          </div>
-        </div>
-      </div>
+    <div 
+      :class="[ 
+        'mb-2 p-4 rounded max-w-xl break-words', 
+        message.userId?._id === currentUserId ? 'bg-blue-100 ml-auto' : 'bg-green-100 mr-auto'
+      ]"
+    >
+      <p><strong>{{ message.userId?.name || 'Inconnu' }}</strong></p>
+      <p>{{ message.content }}</p>
+      <p class="text-xs text-gray-500 text-right">{{ formatDateWithTime(message.createdAt) }}</p>
+
+      <!-- Lien de téléchargement du fichier joint pour le message de description -->
+<div v-if="message.isDescription && ticket.file" class="mt-2">
+  <a 
+    :href="`/uploads/${ticket.file}`" 
+    :download="ticket.file" 
+    class="text-blue-500 hover:underline"
+    @click.prevent="downloadFile"
+  >
+    Télécharger le fichier
+  </a>
+  <p v-if="fileDownloadError" class="text-red-500">{{ fileDownloadError }}</p>
+</div>
+
+    </div>
+  </div>
+</div>
 
       <div v-else>
         Aucun message pour ce ticket.
@@ -95,6 +109,7 @@ export default {
       ticketCreatorId: null,
       isSending: false,
       maxTextareaHeight: 120,  
+      fileDownloadError: null,
     };
   },
   mounted() {
@@ -249,10 +264,7 @@ updateTicketStatus(ticketId, statusData) {
     .catch(error => {
         console.error('Erreur lors de la mise à jour du statut du ticket:', error);
     });
-}
-
-,
-
+},
     isNewDate(messages, index) {
       if (index === 0) return true;
       const currentDate = new Date(messages[index].createdAt).toDateString();
@@ -286,6 +298,28 @@ updateTicketStatus(ticketId, statusData) {
         // Ajouter le nouveau message à la liste des messages
         this.messages.push(message);
       }
+    },
+    handleFileDownloadError() {
+      this.fileDownloadError = "Erreur lors du téléchargement du fichier.";
+    },
+    async downloadFile() {
+        try {
+            const response = await fetch(`/uploads/${this.ticket.file}`);
+            if (!response.ok) {
+                throw new Error('Erreur lors du téléchargement du fichier.');
+            }
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', this.ticket.file);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            this.fileDownloadError = 'Impossible de télécharger le fichier.';
+            console.error(error);
+        }
     }
   }
 };
