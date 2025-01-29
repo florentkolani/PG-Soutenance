@@ -30,17 +30,26 @@ async function envoyerEmail(ticket) {
             subject: `Nouveau ticket créé par ${user.name}`, // Utiliser le nom de l'utilisateur
             html: `
                 <html>
-                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-                    <h3>Nouveau ticket créé par ${user.name}</h3>
-                    <p><strong>Détails du ticket :</strong></p>
-                    <ul>
-                        <li><strong>Urgence :</strong> ${ticket.urgence}</li>
-                        <li><strong>Statut :</strong> ${ticket.statut}</li>
-                        <li><strong>Description :</strong> ${ticket.description}</li>
-                    </ul>
-                    <p>Merci de prendre en charge ce ticket.</p>
-                    <p style="text-align: right; margin-top: 20px;">Cordialement,<br>${user.name}</p>
-                </body>
+                    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                        <h3 style="color: #007BFF;">Création d'un nouveau ticket par ${user.name}</h3>
+                        <p>Bonjour,</p>
+                        <p>Un nouveau ticket a été créé. Voici les détails :</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li><strong>🔴 Urgence :</strong> ${ticket.urgence}</li>
+                            <li><strong>📋 Statut :</strong> ${ticket.statut}</li>
+                            <li><strong>📝 Description :</strong> ${ticket.description}</li>
+                        </ul>
+                        <p>Nous vous invitons à prendre en charge ce ticket dans les meilleurs délais.</p>
+                        <p>Vous pouvez consulter les informations du ticket et y répondre en cliquant sur le lien ci-dessous :</p>
+                        <p>
+                            <a href="http://localhost:5173/login" 
+                            style="color: #3498db; text-decoration: none; font-weight: bold;">
+                                ➡️ Accéder à votre compte
+                            </a>
+                        </p>
+                        <p style="margin-top: 20px;">Merci pour votre collaboration.</p>
+                        <p style="text-align: right; margin-top: 30px;">Cordialement,<br><em>${user.name}</em></p>
+                    </body>
                 </html>
             `,
         };
@@ -140,13 +149,31 @@ exports.closeTicket = async (req, res) => {
             return res.status(404).send('Utilisateur non trouvé');
         }
 
-        // Préparer et envoyer l'email
-        const emailSubject = 'Votre ticket a été clôturé';
-        const emailHtml = `
+       // Préparer et envoyer l'email
+const emailSubject = 'Votre ticket a été clôturé';
+
+const emailHtml = `
+    <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <h3 style="color: #007BFF;">Ticket clôturé avec succès</h3>
             <p>Bonjour ${user.name},</p>
-            <p>Nous vous informons que votre ticket (ID: ${updatedTicket._id}) a été clôturé avec succès.</p>
-            <p>Si vous avez d'autres questions, n'hésitez pas à nous contacter.</p>
-        `;
+            <p>Nous vous informons que votre ticket <strong>(ID: ${updatedTicket._id})</strong> a été clôturé avec succès.</p>
+            <p>Nous espérons que votre problème a été résolu à votre entière satisfaction.</p>
+            <p>Si vous avez d'autres questions ou si vous souhaitez rouvrir ce ticket, n'hésitez pas à nous contacter via la plateforme.</p>
+            <p>
+                <a href="http://localhost:5173/login" 
+                   style="color: #3498db; text-decoration: none; font-weight: bold;">
+                    ➡️ Accéder à votre compte
+                </a>
+            </p>
+            <p style="margin-top: 20px;">Merci de votre confiance.</p>
+            <p style="text-align: right; margin-top: 30px;">
+                Cordialement,<br>
+                <em>L'équipe de support</em>
+            </p>
+        </body>
+    </html>
+`;
 
         await sendEmail(user.email, emailSubject, emailHtml);
 
