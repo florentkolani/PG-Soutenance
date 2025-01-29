@@ -127,30 +127,29 @@ exports.register = async (req, res) => {
         const emailSubject = 'Bienvenue chez NOVA LEAD';
         const emailContent = `
         <html>
-  <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-    <p>Bonjour ${name},</p>
-    <p>Nous avons le plaisir de vous informer que votre compte utilisateur a été créé avec succès sur notre plateforme d'assistance en ligne de, <strong>NOVA LEAD</strong>.</p>
-    <p>Voici vos informations de connexion :</p>
-    <ul>
-      <li><strong>Email</strong> : ${email}</li>
-      <li><strong>Mot de passe</strong> : ${randomPassword}</li>
-    </ul>
-    <p>Nous vous recommandons de vous connecter dès maintenant pour personnaliser votre mot de passe et accéder à votre tableau de bord. Sur votre tableau de bord, vous pourrez :</p>
-    <ul>
-      <li>Créer et gérer vos tickets d'assistance.</li>
-      <li>Suivre l'état de vos demandes en temps réel.</li>
-      <li>Communiquer avec notre équipe d'assistance.</li>
-    </ul>
-    <p>Pour accéder à la plateforme, cliquez sur le lien ci-dessous :</p>
-    <p>
-      <a href="https://www.novalead-support.com/login" style="color: #3498db; text-decoration: none;">Accéder à votre compte</a>
-    </p>
-    <p>Si vous avez des questions ou si vous avez besoin d'aide, n'hésitez pas à nous contacter. Nous sommes là pour vous aider.</p>
-    <p style="text-align: right; margin-top: 20px;">Cordialement,</p>
-    <p style="text-align: right;">L'équipe de support NOVA LEAD</p>
-  </body>
-</html>
-
+            <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                <p>Bonjour ${name},</p>
+                <p>Nous avons le plaisir de vous informer que votre compte utilisateur a été créé avec succès sur notre plateforme d'assistance en ligne de, <strong>NOVA LEAD</strong>.</p>
+                <p>Voici vos informations de connexion :</p>
+                <ul>
+                <li><strong>Email</strong> : ${email}</li>
+                <li><strong>Mot de passe</strong> : ${randomPassword}</li>
+                </ul>
+                <p>Nous vous recommandons de vous connecter dès maintenant pour personnaliser votre mot de passe et accéder à votre tableau de bord. Sur votre tableau de bord, vous pourrez :</p>
+                <ul>
+                <li>Créer et gérer vos tickets d'assistance.</li>
+                <li>Suivre l'état de vos demandes en temps réel.</li>
+                <li>Communiquer avec notre équipe d'assistance.</li>
+                </ul>
+                <p>Pour accéder à la plateforme, cliquez sur le lien ci-dessous :</p>
+                <p>
+                <a href="http://localhost:5173/login" style="color: #3498db; text-decoration: none;">Accéder à votre compte</a>
+                </p>
+                <p>Si vous avez des questions ou si vous avez besoin d'aide, n'hésitez pas à nous contacter. Nous sommes là pour vous aider.</p>
+                <p style="text-align: right; margin-top: 20px;">Cordialement,</p>
+                <p style="text-align: right;">L'équipe de support NOVA LEAD</p>
+            </body>
+            </html>
       `;
 
         await sendEmail(user.email, emailSubject, emailContent);

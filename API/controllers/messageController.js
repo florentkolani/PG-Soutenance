@@ -44,16 +44,36 @@ exports.sendMessage = async (req, res) => {
 
         const recipients = isClient ? supportEmails : [clientEmail];
 
-        const subject = isClient
-            ? `Nouveau message d'un client concernant le ticket #${ticketId}`
-            : `Nouvelle réponse à votre ticket #${ticketId}`;
+const subject = isClient
+    ? `Nouveau message d'un client concernant le ticket #${ticketId}`
+    : `Nouvelle réponse à votre ticket #${ticketId}`;
 
-        const htmlContent = `
-            <p>Un nouveau message a été ajouté au ticket <strong>#${ticketId}</strong> :</p>
-            <p><strong>Auteur :</strong> ${req.user.name || req.user.role}</p>
-            <p><strong>Message :</strong> ${req.body.content}</p>
-            <p>Connectez-vous à la plateforme pour plus de détails.</p>
-        `;
+const htmlContent = `
+    <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <h3 style="color: #007BFF;">Mise à jour du ticket <strong>#${ticketId}</strong></h3>
+            <p>Bonjour,</p>
+            <p>Un nouveau message a été ajouté au ticket <strong>#${ticketId}</strong>. Voici les détails :</p>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                <li><strong>Auteur :</strong> ${req.user.name || req.user.role}</li>
+                <li><strong>Message :</strong> ${req.body.content}</li>
+            </ul>
+            <p>Pour consulter toutes les informations liées à ce ticket, cliquez sur le lien ci-dessous :</p>
+            <p>
+                <a href="http://localhost:5173/login" 
+                   style="color: #3498db; text-decoration: none; font-weight: bold;">
+                    ➡️ Accéder à la plateforme
+                </a>
+            </p>
+            <p style="margin-top: 20px;">Merci pour votre réactivité.</p>
+            <p style="text-align: right; margin-top: 30px;">
+                Cordialement,<br>
+                <em>L'équipe de support</em>
+            </p>
+        </body>
+    </html>
+`;
+
 
         // Envoyer l'e-mail via la fonction sendEmail
         await sendEmail(recipients, subject, htmlContent);
