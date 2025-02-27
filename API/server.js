@@ -39,7 +39,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/tickets', messageRoutes);
 app.use("/api/pdfs", pdfRoutes);
 // Gestion des fichiers statiques et des en-têtes pour les téléchargements
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+app.use('/API/uploads', express.static(path.join(__dirname, 'uploads'), {
     setHeaders: (res, filePath) => {
         const ext = path.extname(filePath).toLowerCase();
         const mimeTypes = {
