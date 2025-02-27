@@ -304,18 +304,23 @@ updateTicketStatus(ticketId, statusData) {
     },
     async downloadFile() {
         try {
-            const response = await fetch(`/uploads/${this.ticket.file}`);
-            if (!response.ok) {
-                throw new Error('Erreur lors du téléchargement du fichier.');
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`${API_URL}/uploads/${this.ticket.file}`, {
+                responseType: 'blob',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (response.status === 200) {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', this.ticket.file);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.URL.revokeObjectURL(url); // Clean up the URL object
+            } else {
+                throw new Error('File not found');
             }
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', this.ticket.file);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
         } catch (error) {
             this.fileDownloadError = 'Impossible de télécharger le fichier.';
             console.error(error);
