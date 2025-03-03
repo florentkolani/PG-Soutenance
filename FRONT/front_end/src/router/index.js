@@ -11,6 +11,8 @@ import ForgotPassword from '../views/ForgotPassword.vue';
 import PdfUploader from '../views/PdfUploader.vue';
 import GestionsPays from '../views/GestionsPays.vue';
 import GestionsVille from '../views/GestionsVille.vue';
+import Apropos from '@/views/Apropos.vue';
+
 const routes = [
   { path: '/login', component: LoginView },
   { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true } },
@@ -18,15 +20,16 @@ const routes = [
   { path: '/:catchAll(.*)', redirect: '/login' },
   { path: '/Produits', component: Produits },
   { path: '/utilisateurs', component: Utilisateurs },
-    { path: '/tickets',    name: 'Tickets',component: Tickets },
+  { path: '/tickets', name: 'Tickets', component: Tickets },
   { path: '/TypeDeDemande', component: TypesDeDemandes },
-  {path: '/ticket/:ticketId',name: 'TicketDetails',component: TicketDetails,props: true},
-  {path: '/Archives', name: 'Archives', component: () => import('@/views/Archives.vue'), meta: { requiresAuth: true } },
-  { path: '/ChangePassword',    name: 'ChangePassword',component: ChangePassword },
-  { path: '/PdfUploader',    name: 'PdfUploader',component: PdfUploader},
-  { path: '/ForgotPassword',    name: 'ForgotPassword',component: ForgotPassword},
-  { path: '/GestionsPays',    name: 'GestionsPays',component: GestionsPays},
-  { path: '/GestionsVille',    name: 'GestionsVille',component: GestionsVille},
+  { path: '/ticket/:ticketId', name: 'TicketDetails', component: TicketDetails, props: true },
+  { path: '/Archives', name: 'Archives', component: () => import('@/views/Archives.vue'), meta: { requiresAuth: true } },
+  { path: '/ChangePassword', name: 'ChangePassword', component: ChangePassword },
+  { path: '/PdfUploader', name: 'PdfUploader', component: PdfUploader },
+  { path: '/ForgotPassword', name: 'ForgotPassword', component: ForgotPassword },
+  { path: '/GestionsPays', name: 'GestionsPays', component: GestionsPays },
+  { path: '/GestionsVille', name: 'GestionsVille', component: GestionsVille },
+  { path: '/Apropos', name: 'Apropos', component: Apropos },
 ];
 
 const router = createRouter({

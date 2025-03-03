@@ -25,8 +25,8 @@ async function envoyerEmail(ticket) {
         }
 
         const mailOptions = {
-            from: process.env.EMAIL_NOVA_LEAD, // email du client
-            to: user.email, // Email des admins et agents support
+            from: user.email, // email du client
+            to: process.env.EMAIL_NOVA_LEAD , // Email des admins et agents support
             subject: `Nouveau ticket créé par ${user.name}`, // Utiliser le nom de l'utilisateur
             html: `
                 <html>
@@ -61,6 +61,24 @@ async function envoyerEmail(ticket) {
     }
 }
 
+let ticketCounter = 0;
+let currentYear = new Date().getFullYear();
+
+async function generateNumeroTicket() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+
+    if (year !== currentYear) {
+        currentYear = year;
+        ticketCounter = 0;
+    }
+
+    ticketCounter += 1;
+    const counterString = String(ticketCounter).padStart(5, '0');
+    return `TCK-${year}${month}-${counterString}`;
+}
+
 // Créer un ticket
 exports.createTicket = async (req, res) => {
     console.log("Données reçues :", req.body);
@@ -79,9 +97,13 @@ exports.createTicket = async (req, res) => {
             }
         }
 
+        // Génération du NumeroTicket
+        const NumeroTicket = await generateNumeroTicket();
+
         // Création des données du ticket
         const ticketData = {
             ...req.body,
+            NumeroTicket,
             file: req.file ? req.file.filename : null
         };
 

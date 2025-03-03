@@ -35,9 +35,11 @@
           <td class="px-4 py-2 text-sm text-gray-900 border border-gray-300">
             <div class="flex items-center space-x-2">
               <span class="font-bold">STATUT :</span>
-              <span class="inline-block w-4 h-4 bg-red-800 rounded-full"></span>
+              <span class="inline-block w-4 h-4 bg-yellow-400 rounded-full"></span>
+              <span>En attente</span>
+              <span class="inline-block w-4 h-4 bg-blue-400 rounded-full"></span>
               <span>Ouvert</span>
-              <span class="inline-block w-4 h-4 bg-orange-300 rounded-full"></span>
+              <span class="inline-block w-4 h-4 bg-orange-500 rounded-full"></span>
               <span>En cours</span>
               <span class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
               <span>Clôturé</span>
@@ -74,8 +76,9 @@
               <span v-else class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
             </td>
             <td class="border px-4 py-2 text-center">
-              <span v-if="ticket.statut === 'ouvert'" class="inline-block w-4 h-4 bg-red-800 rounded-full"></span>
-              <span v-else-if="ticket.statut === 'en cours'" class="inline-block w-4 h-4 bg-orange-300 rounded-full"></span>
+              <span v-if="ticket.statut === 'ouvert'" class="inline-block w-4 h-4 bg-blue-400 rounded-full"></span>
+              <span v-else-if="ticket.statut === 'en cours'" class="inline-block w-4 h-4 bg-orange-500 rounded-full"></span>
+              <span v-else-if="ticket.statut === 'en attente'" class="inline-block w-4 h-4 bg-yellow-400 rounded-full"></span>
               <span v-else class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
             </td>
             <td class="border px-4 py-2 text-center">{{ new Date(ticket.createdAt).toLocaleDateString() }}</td>
@@ -137,7 +140,7 @@
     </button>
 
    <!-- Affichage du bouton "Modifier" uniquement pour les Clients et si le ticket n'est pas clôturé -->
-<button v-if="userRole === 'Client' && ticket.statut === 'ouvert'" @click="openTicketModal(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+<button v-if="userRole === 'Client' && ticket.statut === 'en attente'" @click="openTicketModal(ticket)" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11V4m-7 7h14m-7 7v-3m-2-5h7m-3 0h4" />
   </svg>
@@ -217,6 +220,7 @@ export default {
       notes: [],
       selectedStatus: '',
       ticketFilterOptions: [
+        { value: 'en attente', label: 'En attente' },
         { value: 'ouvert', label: 'Ouvert' },
         { value: 'en cours', label: 'En cours' },
         { value: 'cloturé', label: 'Clôturé' },
@@ -361,10 +365,14 @@ fetchTickets() {
       }
     },
     openTicketDetails(ticket) {
+      if (this.userRole === 'Admin' || this.userRole === 'AgentSupport') {
+        if (ticket.statut === 'en attente') {
+          ticket.statut = 'ouvert';
+          this.updateTicket(ticket);
+        }
+      }
       this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
     },
-
-    
     openTicketModal(ticket = null) {
       this.selectedTicket = ticket ? { ...ticket } : {};
       this.isEdit = !!ticket;

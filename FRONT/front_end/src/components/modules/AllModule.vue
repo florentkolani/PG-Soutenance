@@ -37,7 +37,7 @@
           </router-link>
         </li>
         <li>
-          <router-link to="/about" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+          <router-link to="/Apropos" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
           </router-link>
         </li>
       </ul>
