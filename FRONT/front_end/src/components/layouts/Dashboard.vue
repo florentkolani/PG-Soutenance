@@ -173,7 +173,7 @@ export default {
         },
         {
           name: 'À propos',
-          route: '/',
+          route: '/Apropos',
           role: [] 
         }
       ],
