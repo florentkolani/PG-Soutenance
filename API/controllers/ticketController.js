@@ -19,36 +19,51 @@ async function envoyerEmail(ticket) {
     try {
         // Récupérer le nom de l'utilisateur à partir de l'ID
         const user = await User.findById(ticket.userId);
+        const typeDeDemande = await type.findById(ticket.typeDeDemandeId);
 
         if (!user) {
             throw new Error("Utilisateur non trouvé");
         }
 
+        if (!typeDeDemande) {
+            throw new Error("Type de demande non trouvé");
+        }
+
         const mailOptions = {
             from: user.email, // email du client
             to: process.env.EMAIL_NOVA_LEAD , // Email des admins et agents support
-            subject: `Nouveau ticket créé par ${user.name}`, // Utiliser le nom de l'utilisateur
+            subject: `Nouvelle demande d’assistance reçue – Ticket #${ticket.NumeroTicket} (${typeDeDemande.name})`, // Objet de l'email
             html: `
                 <html>
                     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-                        <h3 style="color: #007BFF;">Création d'un nouveau ticket par ${user.name}</h3>
-                        <p>Bonjour,</p>
-                        <p>Un nouveau ticket a été créé. Voici les détails :</p>
+                        <h3 style="color: #007BFF;">Nouvelle demande d’assistance reçue – Ticket #${ticket.NumeroTicket}</h3>
+
+                        <p>Bonjour NOVA LEAD,</p>
+
+                        <p>Un nouveau ticket d’assistance a été soumis par <strong>${user.name}</strong>.</p>
+
+                        <p><strong>Détails du ticket :</strong></p>
                         <ul style="list-style: none; padding: 0;">
-                            <li><strong>🔴 Urgence :</strong> ${ticket.urgence}</li>
-                            <li><strong>📋 Statut :</strong> ${ticket.statut}</li>
+                            <li><strong>📌 Numéro du Ticket :</strong> #${ticket.NumeroTicket}</li>
+                            <li><strong>👤 Client :</strong> ${user.name}</li>
+                            <li><strong>📌 Objet :</strong> ${typeDeDemande.name}</li>
                             <li><strong>📝 Description :</strong> ${ticket.description}</li>
+                            <li><strong>⚠️ Priorité :</strong> ${ticket.urgence ? 'Urgente' : 'Pas urgente'}</li>
+                            <li><strong>📅 Date de soumission :</strong> ${new Date(ticket.createdAt).toLocaleString()}</li>
                         </ul>
-                        <p>Nous vous invitons à prendre en charge ce ticket dans les meilleurs délais.</p>
-                        <p>Vous pouvez consulter les informations du ticket et y répondre en cliquant sur le lien ci-dessous :</p>
+
+                        <p>Merci de prendre en charge cette demande dès que possible.</p>
+
+                        <p>Vous pouvez consulter et traiter le ticket en cliquant sur le lien ci-dessous :</p>
                         <p>
                             <a href="http://localhost:5173/login" 
                             style="color: #3498db; text-decoration: none; font-weight: bold;">
-                                ➡️ Accéder à votre compte
+                                ➡️ Accéder à la plateforme
                             </a>
                         </p>
-                        <p style="margin-top: 20px;">Merci pour votre collaboration.</p>
-                        <p style="text-align: right; margin-top: 30px;">Cordialement,<br><em>${user.name}</em></p>
+
+                        <p style="margin-top: 20px;">Cordialement,</p>
+                        <p style="text-align: right; margin-top: 30px;"><em>${user.name}</em></p>
                     </body>
                 </html>
             `,
@@ -74,9 +89,22 @@ async function generateNumeroTicket() {
         ticketCounter = 0;
     }
 
-    ticketCounter += 1;
-    const counterString = String(ticketCounter).padStart(5, '0');
-    return `TCK-${year}${month}-${counterString}`;
+    let numeroTicket;
+    let isUnique = false;
+
+    while (!isUnique) {
+        ticketCounter += 1;
+        const counterString = String(ticketCounter).padStart(5, '0');
+        numeroTicket = `TCK-${year}${month}-${counterString}`;
+
+        // Vérifier l'unicité du numéro de ticket
+        const existingTicket = await Ticket.findOne({ NumeroTicket: numeroTicket });
+        if (!existingTicket) {
+            isUnique = true;
+        }
+    }
+
+    return numeroTicket;
 }
 
 // Créer un ticket
@@ -171,31 +199,45 @@ exports.closeTicket = async (req, res) => {
             return res.status(404).send('Utilisateur non trouvé');
         }
 
-       // Préparer et envoyer l'email
-const emailSubject = 'Votre ticket a été clôturé';
+        // Préparer et envoyer l'email
+        const emailSubject = `Votre demande d’assistance #${updatedTicket.NumeroTicket} a été clôturée`;
 
-const emailHtml = `
-    <html>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <h3 style="color: #007BFF;">Ticket clôturé avec succès</h3>
-            <p>Bonjour ${user.name},</p>
-            <p>Nous vous informons que votre ticket <strong>(ID: ${updatedTicket._id})</strong> a été clôturé avec succès.</p>
-            <p>Nous espérons que votre problème a été résolu à votre entière satisfaction.</p>
-            <p>Si vous avez d'autres questions ou si vous souhaitez rouvrir ce ticket, n'hésitez pas à nous contacter via la plateforme.</p>
-            <p>
-                <a href="http://localhost:5173/login" 
-                   style="color: #3498db; text-decoration: none; font-weight: bold;">
-                    ➡️ Accéder à votre compte
-                </a>
-            </p>
-            <p style="margin-top: 20px;">Merci de votre confiance.</p>
-            <p style="text-align: right; margin-top: 30px;">
-                Cordialement,<br>
-                <em>L'équipe de support</em>
-            </p>
-        </body>
-    </html>
-`;
+        const emailHtml = `
+            <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                    <h3 style="color: #007BFF;">Ticket clôturé avec succès</h3>
+                    <p>Bonjour ${user.name},</p>
+                    
+                    <p>Nous vous informons que votre demande d’assistance <strong>#${updatedTicket.NumeroTicket}</strong> concernant 
+                    <strong>${updatedTicket.description}</strong> a été traitée et clôturée avec succès.</p>
+
+                    <p><strong>Détails de votre demande :</strong></p>
+                    <ul style="list-style: none; padding: 0;">
+                        <li><strong>📌 Numéro du Ticket :</strong> #${updatedTicket.NumeroTicket}</li>
+                        <li><strong>📅 Date de clôture :</strong> ${new Date().toLocaleString()}</li>
+                        <li><strong>⭐ Note attribuée à l’assistance :</strong> ${updatedTicket.note || 'Non attribuée'}</li>
+                    </ul>
+
+                    <p>Nous vous remercions de votre confiance et espérons que notre assistance a répondu à vos attentes.</p>
+
+                    <p>Si vous avez d’autres préoccupations, n’hésitez pas à soumettre une nouvelle demande via notre plateforme d’assistance.</p>
+
+                    <p>À bientôt et merci de faire confiance à <strong>NOVA LEAD</strong> !</p>
+
+                    <p>
+                        <a href="http://localhost:5173/login" 
+                           style="color: #3498db; text-decoration: none; font-weight: bold;">
+                            ➡️ Accéder à la plateforme
+                        </a>
+                    </p>
+
+                    <p style="margin-top: 20px;">Cordialement,</p>
+                    <p style="text-align: right; margin-top: 30px;">
+                        <em>L'équipe de support NOVA LEAD</em>
+                    </p>
+                </body>
+            </html>
+        `;
 
         await sendEmail(user.email, emailSubject, emailHtml);
 

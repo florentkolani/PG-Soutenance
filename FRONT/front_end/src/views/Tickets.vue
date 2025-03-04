@@ -455,14 +455,18 @@ fetchTickets() {
         return this.closeTicket(ticketId);
     })
     .then(response => {
-        // Mise à jour du ticket avec le statut "cloturé"
-        const ticketId = response.data._id;
-        const updatedTicket = { ...response.data, statut: 'cloturé' };
-        
-        // Mettre à jour l'état local avec le ticket mis à jour
-        this.updateTicketInState(ticketId, updatedTicket);
-        this.closeRatingModal();
-        this.fetchTickets();
+        if (response && response._id) {
+            // Mise à jour du ticket avec le statut "cloturé"
+            const ticketId = response._id;
+            const updatedTicket = { ...response, statut: 'cloturé' };
+            
+            // Mettre à jour l'état local avec le ticket mis à jour
+            this.updateTicketInState(ticketId, updatedTicket);
+            this.closeRatingModal();
+            this.fetchTickets();
+        } else {
+            throw new Error('Invalid response data');
+        }
     })
     .catch(error => {
         console.error('Erreur lors de la soumission de la note ou de la clôture du ticket:', error);
@@ -488,7 +492,7 @@ closeTicket(ticketId) {
             throw new Error('Aucune donnée de réponse');
         }
         console.log('Ticket fermé avec succès:', response.data);
-        return response;
+        return response.data; // Return the actual data
     })
     .catch(error => {
         console.error('Erreur lors de la fermeture du ticket:', error);
