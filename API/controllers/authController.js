@@ -123,35 +123,40 @@ exports.register = async (req, res) => {
         // Sauvegarder l'utilisateur dans la base de données
         await user.save();
 
-        // Envoyer un e-mail contenant les informations de connexion
-        const emailSubject = 'Bienvenue chez NOVA LEAD';
-        const emailContent = `
-        <html>
-            <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-                <p>Bonjour ${name},</p>
-                <p>Nous avons le plaisir de vous informer que votre compte utilisateur a été créé avec succès sur notre plateforme d'assistance en ligne de, <strong>NOVA LEAD</strong>.</p>
-                <p>Voici vos informations de connexion :</p>
-                <ul>
-                <li><strong>Email</strong> : ${email}</li>
-                <li><strong>Mot de passe</strong> : ${randomPassword}</li>
-                </ul>
-                <p>Nous vous recommandons de vous connecter dès maintenant pour personnaliser votre mot de passe et accéder à votre tableau de bord. Sur votre tableau de bord, vous pourrez :</p>
-                <ul>
-                <li>Créer et gérer vos tickets d'assistance.</li>
-                <li>Suivre l'état de vos demandes en temps réel.</li>
-                <li>Communiquer avec notre équipe d'assistance.</li>
-                </ul>
-                <p>Pour accéder à la plateforme, cliquez sur le lien ci-dessous :</p>
-                <p>
-                <a href="http://localhost:5173/login" style="color: #3498db; text-decoration: none;">Accéder à votre compte</a>
-                </p>
-                <p>Si vous avez des questions ou si vous avez besoin d'aide, n'hésitez pas à nous contacter. Nous sommes là pour vous aider.</p>
-                <p style="text-align: right; margin-top: 20px;">Cordialement,</p>
-                <p style="text-align: right;">L'équipe de support NOVA LEAD</p>
-            </body>
-            </html>
-      `;
+        const emailSubject = "Bienvenue sur notre plateforme d’assistance";
+            const emailContent = `
+            <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <p>Bonjour Cher partenaire ${name},</p>
 
+                    <p>Nous sommes ravis de vous accueillir sur la plateforme d’assistance de NOVA LEAD. Votre compte a été créé avec succès, et vous pouvez dès maintenant accéder à notre espace dédié au suivi et à la gestion de vos demandes d’assistance.</p>
+
+                    <p><strong>Voici vos informations de connexion :</strong></p>
+                    <ul>
+                        <li><strong>Identifiant :</strong> ${email}</li>
+                        <li><strong>Mot de passe temporaire :</strong> ${randomPassword}</li>
+                    </ul>
+
+                    <p>Lors de votre première connexion, nous vous demandons de modifier votre mot de passe pour garantir la sécurité de votre compte.</p>
+
+                    <p><strong>Comment accéder à la plateforme ?</strong></p>
+                    <ul>
+                        <li><a href="http://localhost:5173/login">Rendez-vous sur ce lien</a></li>
+                        <li>Connectez-vous avec vos identifiants fournis ci-dessus.</li>
+                        <li>Suivez les instructions pour changer votre mot de passe.</li>
+                        <li>Commencez à soumettre et suivre vos demandes d’assistance.</li>
+                    </ul>
+
+                    <p>Désormais, toutes vos requêtes seront centralisées sur cette plateforme afin de vous offrir un service plus efficace et un meilleur suivi de vos demandes.</p>
+
+                    <p>Nous vous remercions de votre confiance et restons à votre disposition pour toute question ou assistance supplémentaire.</p>
+
+                    <p style="text-align: right; margin-top: 20px;">Cordialement,</p>
+                    <p style="text-align: right;">L'équipe de support NOVA LEAD</p>
+                </body>
+            </html>
+            `;
+        // Envoyer un email de bienvenue
         await sendEmail(user.email, emailSubject, emailContent);
 
         console.log('Utilisateur enregistré:', user); 

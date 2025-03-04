@@ -1,5 +1,6 @@
 const Message = require('../models/messageModel');
 const Ticket = require('../models/ticketModel');
+const type = require('../models/typeDeDemandeModel');
 const mongoose = require("mongoose");
 const { sendEmail } = require('../services/emailService'); 
 const User = require('../models/userModel');
@@ -43,37 +44,49 @@ exports.sendMessage = async (req, res) => {
         ]; // Emails des agents/admin depuis les variables d'environnement
 
         const recipients = isClient ? supportEmails : [clientEmail];
+        const typeDeDemande = await type.findById(ticket.typeDeDemandeId);
 
-const subject = isClient
-    ? `Nouveau message d'un client concernant le ticket #${ticketId}`
-    : `Nouvelle réponse à votre ticket #${ticketId}`;
-
-const htmlContent = `
-    <html>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <h3 style="color: #007BFF;">Mise à jour du ticket <strong>#${ticketId}</strong></h3>
-            <p>Bonjour,</p>
-            <p>Un nouveau message a été ajouté au ticket <strong>#${ticketId}</strong>. Voici les détails :</p>
-            <ul style="list-style: none; padding: 0; margin: 0;">
-                <li><strong>Auteur :</strong> ${req.user.name || req.user.role}</li>
-                <li><strong>Message :</strong> ${req.body.content}</li>
-            </ul>
-            <p>Pour consulter toutes les informations liées à ce ticket, cliquez sur le lien ci-dessous :</p>
-            <p>
-                <a href="http://localhost:5173/login" 
-                   style="color: #3498db; text-decoration: none; font-weight: bold;">
-                    ➡️ Accéder à la plateforme
-                </a>
-            </p>
-            <p style="margin-top: 20px;">Merci pour votre réactivité.</p>
-            <p style="text-align: right; margin-top: 30px;">
-                Cordialement,<br>
-                <em>L'équipe de support</em>
-            </p>
-        </body>
-    </html>
-`;
-
+        const subject = isClient
+        ? `Nouveau message d'un client concernant le ticket #${ticket.NumeroTicket} (${typeDeDemande.name})`
+        : `Nouvelle réponse à votre ticket #${ticket.NumeroTicket} (${typeDeDemande.name})`;
+    
+    const htmlContent = `
+        <html>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <h3 style="color: #007BFF;">Mise à jour de votre demande d’assistance <strong>#${ticket.NumeroTicket} (${typeDeDemande.name})</strong></h3>
+                
+                <p>Bonjour ${req.user.name},</p>
+                
+                <p>Nous avons bien reçu votre demande d’assistance <strong>#${ticket.NumeroTicket}</strong> concernant 
+                <strong>(${typeDeDemande.name})</strong>.</p>
+    
+                <p>Un agent a été assigné à votre demande. Voici les détails :</p>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li><strong>📌 Statut actuel :</strong> ${ticket.statut}</li>
+                    <li><strong>📝 Description :</strong> ${ticket.description}</li>
+                </ul>
+    
+                <p>Notre équipe a commencé l’analyse de votre requête et reviendra vers vous dans les plus brefs délais avec une solution ou des informations complémentaires.</p>
+    
+                <p>Votre demande est bien prise en charge. Nous vous tiendrons informé de toute mise à jour.</p>
+    
+                <p>Merci de votre patience, nous restons à votre disposition pour toute question.</p>
+    
+                <p>
+                    <a href="http://localhost:5173/login" 
+                       style="color: #3498db; text-decoration: none; font-weight: bold;">
+                        ➡️ Accéder à la plateforme
+                    </a>
+                </p>
+    
+                <p style="margin-top: 20px;">Cordialement,</p>
+                <p style="text-align: right; margin-top: 30px;">
+                    <em>L'équipe de support NOVA LEAD</em>
+                </p>
+            </body>
+        </html>
+    `;
+    
 
         // Envoyer l'e-mail via la fonction sendEmail
         await sendEmail(recipients, subject, htmlContent);
