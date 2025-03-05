@@ -1,6 +1,7 @@
 const Ticket = require('../models/ticketModel');
 const User = require('../models/userModel');
 const type = require('../models/typeDeDemandeModel');
+const rating = require('../models/ratingModel');
 const nodemailer = require("nodemailer");
 const {sendEmail} = require('../services/emailService');
 
@@ -199,6 +200,9 @@ exports.closeTicket = async (req, res) => {
             return res.status(404).send('Utilisateur non trouvé');
         }
 
+        // Récupérer la note associée au ticket
+        const ticketRating = await rating.findOne({ ticketId: ticketId });
+
         // Préparer et envoyer l'email
         const emailSubject = `Votre demande d’assistance #${updatedTicket.NumeroTicket} a été clôturée`;
 
@@ -215,7 +219,7 @@ exports.closeTicket = async (req, res) => {
                     <ul style="list-style: none; padding: 0;">
                         <li><strong>📌 Numéro du Ticket :</strong> #${updatedTicket.NumeroTicket}</li>
                         <li><strong>📅 Date de clôture :</strong> ${new Date().toLocaleString()}</li>
-                        <li><strong>⭐ Note attribuée à l’assistance :</strong> ${updatedTicket.note || 'Non attribuée'}</li>
+                        <li><strong>⭐ Note attribuée à l’assistance :</strong> ${ticketRating ? ticketRating.note : 'Non attribuée'}</li>
                     </ul>
 
                     <p>Nous vous remercions de votre confiance et espérons que notre assistance a répondu à vos attentes.</p>
