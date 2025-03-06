@@ -46,10 +46,10 @@
               <!-- Urgency, Description, and File Upload -->
               <div>
                 <label for="urgence" class="block mb-2 text-sm font-medium text-gray-900">
-                  Urgence <span class="text-red-500">*</span>
+                  Priorité <span class="text-red-500">*</span>
                 </label>
                 <select v-model="urgence" id="urgence" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg">
-                  <option value="">Sélectionnez l'Urgence</option>
+                  <option value="">Sélectionnez un type de Priorité</option>
                   <option value="urgent">Urgent</option>
                   <option value="Pas Urgent">Pas Urgent</option>
                 </select>
