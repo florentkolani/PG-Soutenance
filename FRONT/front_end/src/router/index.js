@@ -12,6 +12,7 @@ import PdfUploader from '../views/PdfUploader.vue';
 import GestionsPays from '../views/GestionsPays.vue';
 import GestionsVille from '../views/GestionsVille.vue';
 import Apropos from '@/views/Apropos.vue';
+import VideoUploader from '@/views/VideoUploader.vue';
 
 const routes = [
   { path: '/login', component: LoginView },
@@ -30,6 +31,7 @@ const routes = [
   { path: '/GestionsPays', name: 'GestionsPays', component: GestionsPays },
   { path: '/GestionsVille', name: 'GestionsVille', component: GestionsVille },
   { path: '/Apropos', name: 'Apropos', component: Apropos },
+  { path: '/videos', name: 'VideoUploader', component: VideoUploader },
 ];
 
 const router = createRouter({

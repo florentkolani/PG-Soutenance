@@ -16,9 +16,17 @@ exports.uploadPdf = async (req, res) => {
     }
 
     // Validation du type de fichier
-    if (pdfFile.mimetype !== "application/pdf") {
+    const allowedMimeTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-powerpoint",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    ];
+
+    if (!allowedMimeTypes.includes(pdfFile.mimetype)) {
       fs.unlinkSync(pdfFile.path); // Suppression du fichier non valide
-      return res.status(400).json({ message: "Seuls les fichiers PDF sont autorisés" });
+      return res.status(400).json({ message: "Seuls les fichiers PDF, Word et PowerPoint sont autorisés" });
     }
 
     const pdfUrl = `/uploads/${pdfFile.filename}`; // Chemin du fichier dans le serveur
@@ -96,9 +104,17 @@ exports.updatePdf = async (req, res) => {
 
     if (pdfFile) {
       // Validation du type de fichier
-      if (pdfFile.mimetype !== "application/pdf") {
+      const allowedMimeTypes = [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-powerpoint",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ];
+
+      if (!allowedMimeTypes.includes(pdfFile.mimetype)) {
         fs.unlinkSync(pdfFile.path); // Suppression du fichier non valide
-        return res.status(400).json({ message: "Seuls les fichiers PDF sont autorisés" });
+        return res.status(400).json({ message: "Seuls les fichiers PDF, Word et PowerPoint sont autorisés" });
       }
 
       const pdfUrl = `/uploads/${pdfFile.filename}`; // Chemin du fichier dans le serveur

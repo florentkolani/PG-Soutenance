@@ -10,7 +10,19 @@
       class="fixed top-0 left-0 w-full bg-green shadow z-10"
     />
 
-    <div class="mt-20">
+    <!-- Barre de navigation -->
+    <nav class="mt-20 mb-6">
+      <ul class="flex space-x-4">
+        <li>
+          <router-link to="/Pdfuploader" class="text-blue-500 hover:underline" replace>Documents</router-link>
+        </li>
+        <li>
+          <router-link to="/videos" class="text-blue-500 hover:underline">Vidéos</router-link>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="mt-6">
       <h1 class="text-2xl font-bold mb-6">Gestion des Documents PDF</h1>
 
       <!-- Formulaire de téléchargement : Afficher uniquement pour Admin et Agent -->
@@ -73,7 +85,7 @@
                 type="file"
                 id="pdfFile"
                 ref="fileInput"
-                accept="application/pdf"
+                accept="application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation"
                 @change="onFileChange"
                 class="hidden"
               />

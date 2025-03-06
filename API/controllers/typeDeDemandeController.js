@@ -65,9 +65,8 @@ exports.updateTypeDeDemande = async (req, res) => {
         typeDeDemande.description = description || typeDeDemande.description;
 
         const updatedTypeDeDemande = await typeDeDemande.save();
-        res.status(200).json({ message: 'Type de demande mis à jour avec succès', updatedTypeDeDemande });
+        res.status(200).json({ message: 'Type de demande mis à jour avec succès', typeDeDemande: updatedTypeDeDemande });
     } catch (error) {
-      
         res.status(500).json({ message: 'Erreur lors de la mise à jour du type de demande', error });
     }
 };
@@ -89,4 +88,4 @@ exports.archiveTypeDeDemande = async (req, res) => {
       res.status(500).json({ message: 'Erreur interne du serveur', error: error.message });
     }
   };
-  
+

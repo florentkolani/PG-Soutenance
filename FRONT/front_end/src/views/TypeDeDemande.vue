@@ -21,7 +21,7 @@
         <tbody class="text-gray-600 text-sm font-light">
           <tr v-for="type in types" :key="type._id" class="border-b border-gray-200 hover:bg-gray-100">
             <td class="border border-gray-300 px-4 py-2">{{ type.name }}</td>
-            <td class="border border-gray-300 px-4 py-2">{{ type.description }}</td>
+            <td class="border border-gray-300 px-4 py-2">{{ truncateText(type.description, 50) }}</td>
             <td class="border border-gray-300 px-4 py-2 text-center">
               <button @click="viewDetails(type)" class="bg-green-500 text-white px-2 py-1 rounded mr-2 hover:bg-green-600">Détails</button>
               <button @click="openEditModal(type)" class="bg-blue-500 text-white px-2 py-1 rounded mr-2 hover:bg-blue-600">Modifier</button>
@@ -190,6 +190,12 @@ export default {
     openRequestTypeFilterOptions() {
       // Logic for filtering request types
     },
+    truncateText(text, length) {
+      if (text.length > length) {
+        return text.substring(0, length) + '...';
+      }
+      return text;
+    },
 
     checkAuthorization() {
       const token = this.getToken();
@@ -279,9 +285,6 @@ async archiveType() {
   confirmArchive(id) {
       this.confirmArchiveId = id;
     },
-
-  },
-    
     async updateType() {
       const token = this.getToken();
       if (!token) return;
@@ -300,7 +303,7 @@ async archiveType() {
 
         this.alertTitle = 'Succès';
         this.alertMessage = 'Le TypeDeDemande a été mis à jour avec succès.';
-        this.getTypes();
+        await this.getTypes(); // Reload types after update
       } catch (error) {
         console.error(error);
         this.alertTitle = 'Erreur';
@@ -309,32 +312,7 @@ async archiveType() {
         this.closeEditModal();
       }
     },
-    
-    async archiveType() {
-      const token = this.getToken();
-      if (!token) return;
-
-      try {
-        const response = await fetch(`${API_URL}/types/${this.confirmArchiveId}`, {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) throw new Error('Erreur lors de l\'archivage du TypeDeDemande.');
-
-        // this.alertTitle = 'Succès';
-        this.alertMessage = 'Le TypeDeDemande a été archivé avec succès.';
-        this.getTypes();
-      } catch (error) {
-        console.error(error);
-        this.alertTitle = 'Erreur';
-        this.alertMessage = 'Une erreur est survenue lors de l\'archivage.';
-      } finally {
-        this.confirmArchiveId = null;
-      }
-    },
+  },
 };
 </script>
 
