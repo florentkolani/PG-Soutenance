@@ -15,7 +15,7 @@
         {{ primaryActionText }} <span class="ml-1">+</span>
         </button>
         <button 
-          v-if="filterAction" 
+          v-if="filterAction && showFilter" 
           @click="$emit('filterAction')" 
           class="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition flex items-center"
         >
@@ -68,6 +68,12 @@ export default {
       selectedStatus: '', // Valeur du filtre sélectionné
       logo,
     };
+  },
+  computed: {
+    showFilter() {
+      const excludedRoutes = ['VideoUploader', 'PdfUploader', 'Archives', 'Apropos'];
+      return !excludedRoutes.includes(this.$route.name);
+    },
   },
   methods: {
     emitFilter() {

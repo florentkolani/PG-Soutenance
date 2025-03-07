@@ -5,13 +5,13 @@
       title="NOVA LEAD" 
       primaryActionText="" 
       @primaryAction="showProductModal = true" 
-      @filterAction="openFilterOptions" 
       @goToDashboard="redirectToDashboard" 
       class="fixed top-0 left-0 w-full bg-green shadow z-10"
     />
-
-    <!-- Barre de navigation -->
-    <nav class="mt-20 mb-6">
+    <div class="container mx-auto px-4 mt-12">
+  <div class="flex justify-between items-center">
+    <!-- Barre de navigation (liens à gauche) -->
+    <nav class="bg-white shadow rounded-lg p-3">
       <ul class="flex space-x-4">
         <li>
           <router-link to="/Pdfuploader" class="text-blue-500 hover:underline" replace>Documents</router-link>
@@ -22,9 +22,22 @@
       </ul>
     </nav>
 
+    <!-- Filtre par produit (à droite) -->
+    <div class="w-1/6">
+      <select
+        v-model="filterProduct"
+        id="filterProduct"
+        class="block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        @change="filtervideos"
+      >
+        <option value="">Tous les produits</option>
+        <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}</option>
+      </select>
+    </div>
+  </div>
+</div>
     <div class="mt-6">
-      <h1 class="text-2xl font-bold mb-6">Gestion des Vidéos</h1>
-
+      <h1 class="text-2xl font-bold mb-6">TUTORIELS</h1>
       <!-- Formulaire de téléchargement : Afficher uniquement pour Admin et Agent -->
       <form 
         v-if="isAdmin || isAgentSupport" 
@@ -143,16 +156,20 @@
 
       <!-- Liste des vidéos publiées -->
       <div>
-        <h2 class="text-lg font-semibold mb-4">Vidéos :</h2>
-        <div v-if="videoList.length > 0" class="grid grid-cols-1 gap-6">
-          <div v-for="(video, index) in videoList" :key="index" class="bg-white shadow rounded-lg p-4 flex">
-            <div class="w-1/3">
+        <!-- <h2 class="text-lg font-semibold mb-4">Vidéos :</h2> -->
+        <div v-if="filteredVideoList.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div v-for="(video, index) in filteredVideoList" :key="index" class="bg-white shadow rounded-lg p-4 flex">
+            <div class="w-1/2">
               <video controls class="w-full h-48">
                 <source :src="`http://localhost:5000/api${video.url}`" type="video/mp4">
                 Votre navigateur ne supporte pas la lecture de vidéos.
               </video>
+              <div>
+                  <p class="text-gray-500 text-sm">Date de publication: {{ new Date(video.createdAt).toLocaleString() }}</p>
+                  <!-- <p class="text-gray-500 text-sm">Mis à jour le: {{ new Date(video.updatedAt).toLocaleString() }}</p> -->
+                </div>
             </div>
-            <div class="w-2/3 pl-10">
+            <div class="w-1/2 pl-10">
               <p class="font-semibold text-gray-800 truncate">{{ video.title }}</p>
               <p class="text-gray-600 text-sm mt-2">
                 <span v-if="!video.expanded && video.comment.length > 100">
@@ -175,10 +192,7 @@
                     Modifier
                   </button>
                 </div>
-                <div>
-                  <p class="text-gray-500 text-sm">Date de publication: {{ new Date(video.createdAt).toLocaleString() }}</p>
-                  <!-- <p class="text-gray-500 text-sm">Mis à jour le: {{ new Date(video.updatedAt).toLocaleString() }}</p> -->
-                </div>
+                
               </div>
             </div>
           </div>
@@ -209,6 +223,8 @@ export default {
       userRole: "",
       isEditing: false,
       editingVideoId: null,
+      filterProduct: '',
+      filteredVideoList: [],
     };
   },
   computed: {
@@ -270,6 +286,7 @@ export default {
       try {
         const response = await axios.get(`${API_URL}/videos/uploads`);
         this.videoList = response.data.map((video) => ({ ...video, expanded: false }));
+        this.filtervideos();
       } catch (error) {
         console.error("Erreur lors de la récupération des vidéos :", error);
       }
@@ -329,6 +346,13 @@ export default {
       this.videoFile = null;
       if (this.$refs.fileInput) {
         this.$refs.fileInput.value = "";
+      }
+    },
+    filtervideos() {
+      if (this.filterProduct) {
+        this.filteredVideoList = this.videoList.filter(video => video.produit === this.filterProduct);
+      } else {
+        this.filteredVideoList = this.videoList;
       }
     },
   },
