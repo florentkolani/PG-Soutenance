@@ -77,7 +77,6 @@ async function envoyerEmail(ticket) {
     }
 }
 
-let ticketCounter = 0;
 let currentYear = new Date().getFullYear();
 
 async function generateNumeroTicket() {
@@ -87,27 +86,28 @@ async function generateNumeroTicket() {
 
     if (year !== currentYear) {
         currentYear = year;
-        ticketCounter = 0;
     }
 
-    let numeroTicket;
-    let isUnique = false;
+    // Rechercher le dernier numéro de ticket dans la base de données pour l'année et le mois actuels
+    const lastTicket = await Ticket.findOne({
+        NumeroTicket: new RegExp(`^TCK-${year}${month}-\\d{5}$`)
+    }).sort({ NumeroTicket: -1 });
 
-    while (!isUnique) {
-        ticketCounter += 1;
-        const counterString = String(ticketCounter).padStart(5, '0');
-        numeroTicket = `TCK-${year}${month}-${counterString}`;
+    let ticketCounter = 0;
 
-        // Vérifier l'unicité du numéro de ticket
-        const existingTicket = await Ticket.findOne({ NumeroTicket: numeroTicket });
-        if (!existingTicket) {
-            isUnique = true;
-        }
+    if (lastTicket) {
+        // Extraire le compteur du dernier numéro de ticket
+        const lastCounter = parseInt(lastTicket.NumeroTicket.split('-')[2], 10);
+        ticketCounter = lastCounter;
     }
+
+    // Incrémenter le compteur pour le nouveau ticket
+    ticketCounter += 1;
+    const counterString = String(ticketCounter).padStart(5, '0');
+    const numeroTicket = `TCK-${year}${month}-${counterString}`;
 
     return numeroTicket;
 }
-
 // Créer un ticket
 exports.createTicket = async (req, res) => {
     console.log("Données reçues :", req.body);

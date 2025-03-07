@@ -5,13 +5,13 @@
       title="NOVA LEAD" 
       primaryActionText="" 
       @primaryAction="showProductModal = true" 
-      @filterAction="openFilterOptions" 
       @goToDashboard="redirectToDashboard" 
       class="fixed top-0 left-0 w-full bg-green shadow z-10"
     />
-
-    <!-- Barre de navigation -->
-    <nav class="mt-20 mb-6">
+    <div class="container mx-auto px-4 mt-12">
+  <div class="flex justify-between items-center">
+    <!-- Barre de navigation (liens à gauche) -->
+    <nav class="bg-white shadow rounded-lg p-3">
       <ul class="flex space-x-4">
         <li>
           <router-link to="/Pdfuploader" class="text-blue-500 hover:underline" replace>Documents</router-link>
@@ -22,9 +22,22 @@
       </ul>
     </nav>
 
-    <div class="mt-6">
-      <h1 class="text-2xl font-bold mb-6">Gestion des Documents PDF</h1>
-
+    <!-- Filtre par produit (à droite) -->
+    <div class="w-1/6">
+      <select
+        v-model="filterProduct"
+        id="filterProduct"
+        class="block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        @change="filterPdfs"
+      >
+        <option value="">Tous les produits</option>
+        <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}</option>
+      </select>
+    </div>
+  </div>
+</div>
+    <div class="mt-4">
+      <h1 class="text-2xl font-bold mb-6">MANUELS ET GUIDES</h1>
       <!-- Formulaire de téléchargement : Afficher uniquement pour Admin et Agent -->
       <form 
         v-if="isAdmin || isAgentSupport" 
@@ -143,9 +156,9 @@
 
       <!-- Liste des PDF publiés -->
       <div>
-        <h2 class="text-lg font-semibold mb-4">Documents PDF :</h2>
-        <div v-if="pdfList.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="(pdf, index) in pdfList" :key="index" class="bg-white shadow rounded-lg p-4">
+        <!-- <h2 class="text-lg font-semibold mb-4">MANUELS ET GUIDES :</h2> -->
+        <div v-if="filteredPdfList.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div v-for="(pdf, index) in filteredPdfList" :key="index" class="bg-white shadow rounded-lg p-4">
             <p class="font-semibold text-gray-800 truncate">{{ pdf.title }}</p>
             <p class="text-gray-600 text-sm mt-2">
               <span v-if="!pdf.expanded && pdf.comment.length > 100">
@@ -207,6 +220,8 @@ export default {
       userRole: "",
       isEditing: false,
       editingPdfId: null,
+      filterProduct: '',
+      filteredPdfList: [],
     };
   },
   computed: {
@@ -299,6 +314,7 @@ export default {
       try {
         const response = await axios.get(`${API_URL}/pdfs`);
         this.pdfList = response.data.map((pdf) => ({ ...pdf, expanded: false }));
+        this.filterPdfs();
       } catch (error) {
         console.error("Erreur lors de la récupération des PDF :", error);
       }
@@ -358,6 +374,13 @@ export default {
       this.pdfFile = null;
       if (this.$refs.fileInput) {
         this.$refs.fileInput.value = "";
+      }
+    },
+    filterPdfs() {
+      if (this.filterProduct) {
+        this.filteredPdfList = this.pdfList.filter(pdf => pdf.produit._id === this.filterProduct);
+      } else {
+        this.filteredPdfList = this.pdfList;
       }
     },
   },
