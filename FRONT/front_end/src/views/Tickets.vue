@@ -13,7 +13,7 @@
     <main class="container mx-auto p-4">
 <!-- Titre et légende -->
 <div class="flex flex-row items-center justify-between space-x-4 mb-4">
-  <h1 class="text-2xl font-bold">Liste des Tickets</h1>
+  <h1 class="text-2xl font-bold">Liste des tickets</h1>
 
   <!-- Tableau des légendes -->
   <div class="overflow-x-auto border-gray-500 bg-slate-200 rounded-lg">
@@ -54,12 +54,12 @@
       <table class="min-w-full bg-white">
         <thead>
           <tr>
-            <th class="py-2 pl-4 text-left">Client</th>
-            <th class="py-2 pl-4 text-left">Type de Demande</th>
+            <th class="py-2 pl-4 text-left">Identité</th>
+            <th class="py-2 pl-4 text-left">Type de demande</th>
             <th class="py-2 pl-4 text-left">Produit</th>
             <th class="py-2 text-center">Urgence</th>
             <th class="py-2 text-center">Statut</th>
-            <th class="py-2 text-center">Date de Création</th>
+            <th class="py-2 text-center">Date de création</th>
             <th class="py-2 text-center">Note</th>
             <th class="py-2 text-center">Actions</th>
           </tr>
@@ -81,7 +81,16 @@
               <span v-else-if="ticket.statut === 'en attente'" class="inline-block w-4 h-4 bg-yellow-400 rounded-full"></span>
               <span v-else class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
             </td>
-            <td class="border px-4 py-2 text-center">{{ new Date(ticket.createdAt).toLocaleDateString() }}</td>
+            <td class="border px-4 py-2 text-center">
+              {{ new Date(ticket.createdAt).toLocaleString('fr-FR', { 
+                  day: '2-digit', 
+                  month: '2-digit', 
+                  year: 'numeric', 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+              }) }}
+            </td>
+
 
             <td class="border px-4 py-2 text-center">
   <div class="flex justify-center space-x-1">
@@ -373,16 +382,25 @@ fetchTickets() {
       }
       this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
     },
-    openTicketModal(ticket = null) {
-      this.selectedTicket = ticket ? { ...ticket } : {};
-      this.isEdit = !!ticket;
-      this.showTicketModal = true;
-    },
+        openTicketModal(ticket = null) {
+                this.selectedTicket = ticket ? { ...ticket } : {};
+          this.isEdit = !!ticket;
+          this.showTicketModal = true;
+            },
     closeTicketModal() {
       this.showTicketModal = false;
       this.selectedTicket = null;
     },
+    checkTicketLimit() {
+      const inProgressTickets = this.tickets.filter(ticket => ticket.statut === 'en cours');
+      return inProgressTickets.length >= 3;
+    },
     createTicket(ticketData) {
+      if (this.checkTicketLimit()) {
+        this.alertMessage = "Vous avez déjà trois tickets en cours. Veuillez clôturer certains tickets avant d'en créer de nouveaux.";
+        this.showAlertModal = true;
+        return;
+      }
       const token = localStorage.getItem('token');
       axios
         .post(`${API_URL}/tickets`, ticketData, {
@@ -396,17 +414,35 @@ fetchTickets() {
     },
     
     updateTicket(ticketData) {
-      const token = localStorage.getItem('token');
-      axios
-        .put(`${API_URL}/tickets/${ticketData._id}`, ticketData, {
-          headers: { Authorization: `Bearer ${token}` },
+    const token = localStorage.getItem('token');
+    const formData = new FormData();
+
+    // Ajoutez tous les champs nécessaires à formData
+    formData.append('productId', ticketData.productId._id);
+    formData.append('typeDeDemandeId', ticketData.typeDeDemandeId._id);
+    formData.append('userId', ticketData.userId._id);
+    formData.append('urgence', ticketData.urgence);
+    formData.append('description', ticketData.description);
+    formData.append('status', ticketData.status);
+
+    // Si un fichier est joint, ajoutez-le à formData
+    if (ticketData.file) {
+        formData.append('file', ticketData.file);
+    }
+
+    axios
+        .put(`${API_URL}/tickets/${ticketData._id}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${token}`,
+            },
         })
         .then(() => {
-          this.closeTicketModal();
-          this.fetchTickets();
+            this.closeTicketModal();
+            this.fetchTickets();
         })
         .catch(error => console.error('Erreur lors de la mise à jour du ticket:', error));
-    },
+},
     openRatingModal(ticket) {
       const token = localStorage.getItem('token');
       this.selectedTicketId = ticket._id;

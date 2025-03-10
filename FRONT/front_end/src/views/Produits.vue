@@ -2,20 +2,20 @@
   <div class="bg-gray-100 min-h-screen">
     <Header 
       title="NOVA LEAD" 
-      primaryActionText="Nouveau Produit" 
+      primaryActionText="Nouveau produit" 
       @primaryAction="showProductModal = true" 
       @filterAction="openFilterOptions" 
        @goToDashboard="redirectToDashboard"
     />
 
     <main class="container mx-auto p-4">
-      <h1 class="text-2xl font-bold mb-4">Liste des Produits</h1>
+      <h1 class="text-2xl font-bold mb-4">Liste des produits</h1>
       <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
         <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
           <tr>
             <th class="border border-gray-300 px-4 py-2">Nom</th>
             <th class="border border-gray-300 px-4 py-2">Description</th>
-            <th class="border border-gray-300 px-4 py-2">Date de Creation</th>
+            <th class="border border-gray-300 px-4 py-2">Date de creation</th>
             <th class="border border-gray-300 px-4 py-2">Actions</th>
           </tr>
         </thead>
@@ -23,7 +23,15 @@
           <tr v-for="product in products" :key="product._id" class="border-b border-gray-200 hover:bg-gray-100">
             <td class=" px-4 py-2">{{ product.name }}</td>
             <td class="px-4 py-2"> {{ truncateText(product.description, 50) }}</td>
-            <td class=" px-4 py-2 text-center">{{ new Date(product.createdAt).toLocaleDateString() }}</td>
+            <td class="border px-4 py-2 text-center">
+              {{ new Date(product.createdAt).toLocaleString('fr-FR', { 
+                  day: '2-digit', 
+                  month: '2-digit', 
+                  year: 'numeric', 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+              }) }}
+            </td>
             <td class=" px-4 py-2 text-center">
               <button @click="viewDetails(product)" class="bg-green-500 text-white px-2 py-1 rounded mr-2 hover:bg-green-600">Détails</button>
               <button @click="openEditModal(product)" class="bg-blue-500 text-white px-2 py-1 rounded mr-2 hover:bg-blue-600">Modifier</button>
@@ -212,31 +220,42 @@ export default {
       return token;
     },
     async getProducts() {
-  try {
-    const token = this.checkAuthorization();
-    if (!token) return;
+      try {
+        const token = this.checkAuthorization();
+        if (!token) return;
 
-    const response = await fetch(`${API_URL}/products`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
+        const response = await fetch(`${API_URL}/products`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
 
-    if (response.ok) {
-      this.products = await response.json(); // Charge uniquement les produits non archivés
-    } else if (response.status === 401) {
-      console.error("Non autorisé. Redirection vers la page de connexion.");
-      this.$router.push('/login');
-    } else {
-      console.error("Erreur lors du chargement des produits.");
-      this.showError("Erreur lors du chargement des produits.");
-    }
-  } catch (error) {
-    console.error("Erreur réseau :", error);
-    this.showError("Erreur réseau. Veuillez réessayer.");
-  }
-}
-,
+        if (response.ok) {
+          const data = await response.json();
+
+          // Trier les produits par ordre alphabétique (en fonction du nom ou du label)
+          const sortedProducts = data.sort((a, b) => {
+            const nameA = (a.name ?? '').toUpperCase(); // Utiliser le champ 'name' (ou 'label' si applicable)
+            const nameB = (b.name ?? '').toUpperCase(); // Utiliser le champ 'name' (ou 'label' si applicable)
+            if (nameA < nameB) return -1;
+            if (nameA > nameB) return 1;
+            return 0;
+          });
+
+          // Assigner les produits triés
+          this.products = sortedProducts;
+        } else if (response.status === 401) {
+          console.error("Non autorisé. Redirection vers la page de connexion.");
+          this.$router.push('/login');
+        } else {
+          console.error("Erreur lors du chargement des produits.");
+          this.showError("Erreur lors du chargement des produits.");
+        }
+      } catch (error) {
+        console.error("Erreur réseau :", error);
+        this.showError("Erreur réseau. Veuillez réessayer.");
+      }
+    },
     changePage(page) {
       this.currentPage = page;
       this.getProducts();

@@ -126,6 +126,12 @@ exports.createTicket = async (req, res) => {
             }
         }
 
+        // Vérifier si l'utilisateur a déjà trois tickets en cours
+        const inProgressTickets = await Ticket.countDocuments({ userId: req.body.userId, statut: 'en cours' });
+        if (inProgressTickets >= 3) {
+            return res.status(400).json({ message: "Vous avez déjà trois tickets en cours. Veuillez clôturer certains tickets avant d'en créer de nouveaux." });
+        }
+
         // Génération du NumeroTicket
         const NumeroTicket = await generateNumeroTicket();
 
@@ -171,16 +177,32 @@ exports.updateTicketStatus = async (req, res) => {
 // Mettre à jour un ticket
 exports.updateTicket = async (req, res) => {
     try {
-        const ticket = await Ticket.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!ticket) {
-            return res.status(404).json({ message: 'Ticket non trouvé' });
-        }
-        res.status(200).json(ticket);
+      console.log("Données reçues pour la mise à jour :", req.body);
+      console.log("Fichier reçu :", req.file);
+  
+      const ticketData = {
+        productId: req.body.productId,
+        typeDeDemandeId: req.body.typeDeDemandeId,
+        userId: req.body.userId,
+        urgence: req.body.urgence,
+        description: req.body.description,
+        status: req.body.status,
+      };
+  
+      if (req.file) {
+        ticketData.file = req.file.path;
+      }
+  
+      const ticket = await Ticket.findByIdAndUpdate(req.params.id, ticketData, { new: true });
+      if (!ticket) {
+        return res.status(404).json({ message: 'Ticket non trouvé' });
+      }
+      res.status(200).json(ticket);
     } catch (error) {
-        res.status(400).json({ message: 'Erreur lors de la mise à jour du ticket', error: error.message });
+      console.error("Erreur lors de la mise à jour du ticket :", error);
+      res.status(400).json({ message: 'Erreur lors de la mise à jour du ticket', error: error.message });
     }
-};
-
+  };
 
 // Fermer un ticket et envoyer un email
 exports.closeTicket = async (req, res) => {

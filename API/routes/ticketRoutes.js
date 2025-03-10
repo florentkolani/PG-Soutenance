@@ -6,7 +6,7 @@ const upload = require('../upload'); // Importer la configuration de `multer`
 const router = express.Router();
 
 router.post('/', protect, upload.single('file'), createTicket);
-router.put('/:id', protect, updateTicket);
+router.put('/:id', protect, upload.single('file'), updateTicket);
 router.put('/:ticketId/close', protect, restrictToRoles('Client'), closeTicket);
 router.get('/', protect, getTickets);
 router.get('/:id', protect, getTicketById);

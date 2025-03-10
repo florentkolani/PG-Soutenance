@@ -3,7 +3,7 @@
     
     <Header 
       title="NOVA LEAD" 
-      primaryActionText="Nouvel Utilisateur" 
+      primaryActionText="Nouvel utilisateur" 
       @primaryAction="showModal = true" 
       @filterChanged="onFilterChanged"
        @goToDashboard="redirectToDashboard"
@@ -13,7 +13,7 @@
 
     <main class="container mx-auto p-4">
       <div class="flex justify-between items-center mb-4">
-        <h1 class="text-2xl font-bold">Liste des Utilisateurs</h1>
+        <h1 class="text-2xl font-bold">Liste des utilisateurs</h1>
       </div>
 
       <!-- Table des utilisateurs -->
@@ -24,6 +24,7 @@
             <th class="py-3 px-6 text-left">Email</th>
             <th class="py-3 px-6 text-left">Contact</th>
             <th class="py-3 px-6 text-left">Rôle</th>
+            <th class="py-3 px-6 text-left">Date de création</th>
             <th class="py-3 px-6 text-center">Actions</th>
           </tr>
         </thead>
@@ -33,6 +34,15 @@
             <td class="py-3 px-6 text-left">{{ user.email }}</td>
             <td class="py-3 px-6 text-left">{{ user.contact }}</td>
             <td class="py-3 px-6 text-left">{{ user.role }}</td>
+            <td class="border px-4 py-2 text-center">
+              {{ new Date(user.createdAt).toLocaleString('fr-FR', { 
+                  day: '2-digit', 
+                  month: '2-digit', 
+                  year: 'numeric', 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+              }) }}
+            </td>
             
             <td class="py-3 px-6 text-center">
               <button @click="viewDetails(user)" class="bg-green-500 text-white px-4 py-2 rounded mr-2">Détails</button>
@@ -285,7 +295,7 @@ export default {
       }
       return token;
     },
-    //charge tous les utilisateurs non archivées
+
     fetchUsers(page = this.currentPage, limit = this.itemsPerPage) {
       const token = this.checkAuthorization();
       if (!token) return;
@@ -300,19 +310,33 @@ export default {
         }
       })
       .then(response => {
-        this.users = response.data.data.filter(user => !user.isArchived);
-      this.pagination = {
-        currentPage: response.data.currentPage,
-        totalItems: response.data.totalItems,
-        totalPages: response.data.totalPages,
-        itemsPerPage: limit,
-      }
+        // Filtrer les utilisateurs non archivés
+        const nonArchivedUsers = response.data.data.filter(user => !user.isArchived);
+
+        // Trier les utilisateurs par ordre alphabétique (en fonction du nom)
+        const sortedUsers = nonArchivedUsers.sort((a, b) => {
+          const nameA = (a.name ?? '').toUpperCase(); 
+          const nameB = (b.name ?? '').toUpperCase(); 
+          if (nameA < nameB) return -1;
+          if (nameA > nameB) return 1;
+          return 0;
+        });
+
+        // Assigner les utilisateurs triés
+        this.users = sortedUsers;
+
+        // Mettre à jour la pagination
+        this.pagination = {
+          currentPage: response.data.currentPage,
+          totalItems: response.data.totalItems,
+          totalPages: response.data.totalPages,
+          itemsPerPage: limit,
+        };
       })
       .catch(error => {
         console.error('Erreur de chargement des Utilisateurs:', error);
       });
     },
-
     onFilterChanged(role) {
       this.selectedRole = role;
     },

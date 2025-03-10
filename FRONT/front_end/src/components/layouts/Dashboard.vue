@@ -142,7 +142,7 @@ export default {
           role: ['Admin', 'AgentSupport'] 
         },
         {
-          name: 'TypeDeDemandes',
+          name: 'Type de demandes',
           route: '/TypeDeDemande',
           role: ['Admin', 'AgentSupport']
         },
