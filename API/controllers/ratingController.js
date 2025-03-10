@@ -3,6 +3,10 @@ const Rating = require('../models/ratingModel');
 // Attribuer une note à un ticket
 exports.addRating = async (req, res) => {
     try {
+        const existingRating = await Rating.findOne({ ticketId: req.body.ticketId });
+        if (existingRating) {
+            return res.status(400).json({ message: 'Le ticket est déjà noté' });
+        }
         const rating = new Rating(req.body);
         await rating.save();
         res.status(201).json(rating);

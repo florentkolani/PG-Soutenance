@@ -10,7 +10,7 @@
       <div class="relative p-4 w-full max-w-2xl bg-white rounded-lg shadow">
         <div class="relative p-4">
           <div class="flex justify-between items-center pb-4 mb-4 border-b">
-            <h3 class="text-lg font-semibold text-gray-900">Ajouter Un Utilisateur</h3>
+            <h3 class="text-lg font-semibold text-gray-900">Ajoutez un utilisateur</h3>
             <button
               @click="$emit('close')"
               class="text-red-600 hover:text-red-800 text-2xl"

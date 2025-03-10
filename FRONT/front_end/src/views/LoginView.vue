@@ -23,11 +23,11 @@
           <form class="space-y-4 md:space-y-6" @submit.prevent="login">
             <div>
               <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Votre email</label>
-              <input v-model="email" type="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="name@company.com" required />
+              <input v-model="email" type="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" required />
             </div>
             <div class="relative">
               <label for="password" class="block mb-2 text-sm font-medium text-gray-900">Mot de passe</label>
-              <input :type="showPassword ? 'text' : 'password'" v-model="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 pr-10" required />
+              <input :type="showPassword ? 'text' : 'password'" v-model="password" id="password" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 pr-10" required />
               <button type="button" @click="togglePasswordVisibility" class="absolute inset-y-0 right-3 top-5 flex items-center text-gray-500 focus:outline-none">
                 <span v-if="showPassword">👁️</span>
                 <span v-else>👁️‍🗨️</span>

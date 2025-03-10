@@ -6,10 +6,10 @@
         <img class="w-12 h-12 mb-2" src="../assets/logo.png" alt="logo">
         NOVA LEAD
       </a>
-      <h2 class="text-2xl font-bold mb-4 text-center">Choisissez un nouveau mot de passe</h2>
+      <h2 class="text-xl font-bold mb-4 text-center">Définissez un nouveau mot de passe</h2>
       <form @submit.prevent="changePassword">
         <div class="mb-4 relative">
-          <label for="newPassword" class="block text-sm font-medium text-gray-900">Nouveau mot de passe</label>
+          <label for="newPassword" class="block mb-2 text-sm font-medium text-gray-900">Nouveau mot de passe</label>
           <input 
             v-model="newPassword" 
             :type="showNewPassword ? 'text' : 'password'" 
@@ -20,13 +20,13 @@
           <button 
             type="button" 
             @click="toggleShowNewPassword" 
-            class="absolute inset-y-0 right-2 flex items-center text-gray-500 focus:outline-none"
+            class="absolute inset-y-0 right-3 top-7 flex items-center text-gray-500 focus:outline-none"
           >
             <i :class="showNewPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
           </button>
         </div>
         <div class="mb-4 relative">
-          <label for="confirmPassword" class="block text-sm font-medium text-gray-900">Confirmer le mot de passe</label>
+          <label for="confirmPassword" class="block mb-2 text-sm font-medium text-gray-900">Confirmer le mot de passe</label>
           <input 
             v-model="confirmPassword" 
             :type="showConfirmPassword ? 'text' : 'password'" 
@@ -37,7 +37,7 @@
           <button 
             type="button" 
             @click="toggleShowConfirmPassword" 
-            class="absolute inset-y-0 right-2 flex items-center text-gray-500 focus:outline-none"
+            class="absolute inset-y-0 right-3 top-7 flex items-center text-gray-500 focus:outline-none"
           >
             <i :class="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
           </button>
@@ -49,6 +49,12 @@
       <div v-if="error" class="mt-4 text-red-500 text-sm text-center">{{ error }}</div>
     </div>
   </section>
+  <div v-if="successMessage" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white p-4 rounded-lg shadow-md text-center">
+      <p class="text-green-500">{{ successMessage }}</p>
+      <button @click="closePopup" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">OK</button>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -63,6 +69,7 @@ export default {
       showNewPassword: false,
       showConfirmPassword: false,
       error: null,
+      successMessage: null,
     };
   },
   methods: {
@@ -86,11 +93,15 @@ export default {
 
         // Déconnexion automatique après modification
         localStorage.removeItem('token');
-        this.$router.push('/');
+        this.successMessage = 'Votre mot de passe a été mis à jour avec succès.';
       } catch (error) {
         console.error('Erreur lors du changement de mot de passe:', error);
         this.error = "Une erreur s'est produite. Veuillez réessayer.";
       }
+    },
+    closePopup() {
+      this.successMessage = null;
+      this.$router.push('/');
     },
   },
 };

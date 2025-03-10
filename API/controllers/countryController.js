@@ -14,16 +14,32 @@ exports.createCountry = async (req, res) => {
 
 exports.getCountries = async (req, res) => {
     try {
-        const { page = 1, limit = 10 } = req.query;
-        const countries = await Country.find({ isarchived: false }) // Exclude archived countries
-            .skip((page - 1) * limit)
-            .limit(parseInt(limit));
-        const totalItems = await Country.countDocuments({ isarchived: false }); // Exclude archived countries
-        res.status(200).json({ message: 'Pays récupérés avec succès', countries, totalItems });
+      const { page = 1, limit = 10, sortBy = 'name', sortOrder = 'asc' } = req.query;
+  
+      // Options de tri
+      const sortOptions = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+  
+      // Récupérer les pays non archivés, triés et paginés
+      const countries = await Country.find({ isarchived: false })
+        .sort(sortOptions) // Appliquer le tri
+        .skip((page - 1) * limit)
+        .limit(parseInt(limit));
+  
+      // Compter le nombre total de pays non archivés
+      const totalItems = await Country.countDocuments({ isarchived: false });
+  
+      // Renvoyer les résultats
+      res.status(200).json({
+        message: 'Pays récupérés avec succès',
+        countries,
+        totalItems,
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalItems / limit),
+      });
     } catch (error) {
-        res.status(400).json({ message: 'Erreur lors de la récupération des pays', error: error.message });
+      res.status(400).json({ message: 'Erreur lors de la récupération des pays', error: error.message });
     }
-};
+  };
 
 exports.getCountryById = async (req, res) => {
     try {

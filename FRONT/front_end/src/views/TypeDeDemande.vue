@@ -2,19 +2,20 @@
   <div class="bg-gray-100 min-h-screen">
     <Header 
       title="NOVA LEAD" 
-      primaryActionText="Nouveau TypeDeDemande" 
+      primaryActionText="Nouveau type de demande" 
       @primaryAction="showTypeModal = true" 
       @filterAction="openRequestTypeFilterOptions" 
        @goToDashboard="redirectToDashboard"
     />
 
     <main class="container mx-auto p-4">
-      <h1 class="text-2xl font-bold mb-4">Liste des TypesDeDemande</h1>
+      <h1 class="text-2xl font-bold mb-4">Liste des types de demande</h1>
       <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
         <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
           <tr>
             <th class="border border-gray-300 px-4 py-2 text-left">Nom</th>
             <th class="border border-gray-300 px-4 py-2 text-left">Description</th>
+            <th class="border border-gray-300 px-4 py-2 text-center">Date de création</th>
             <th class="border border-gray-300 px-4 py-2">Actions</th>
           </tr>
         </thead>
@@ -22,6 +23,15 @@
           <tr v-for="type in types" :key="type._id" class="border-b border-gray-200 hover:bg-gray-100">
             <td class="border border-gray-300 px-4 py-2">{{ type.name }}</td>
             <td class="border border-gray-300 px-4 py-2">{{ truncateText(type.description, 50) }}</td>
+            <td class="border px-4 py-2 text-center">
+              {{ new Date(type.createdAt).toLocaleString('fr-FR', { 
+                  day: '2-digit', 
+                  month: '2-digit', 
+                  year: 'numeric', 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+              }) }}
+            </td>
             <td class="border border-gray-300 px-4 py-2 text-center">
               <button @click="viewDetails(type)" class="bg-green-500 text-white px-2 py-1 rounded mr-2 hover:bg-green-600">Détails</button>
               <button @click="openEditModal(type)" class="bg-blue-500 text-white px-2 py-1 rounded mr-2 hover:bg-blue-600">Modifier</button>
@@ -206,7 +216,6 @@ export default {
       }
       return token;
     },
-
     async getTypes() {
   const token = this.checkAuthorization();
   if (!token) return;
@@ -222,7 +231,20 @@ export default {
     if (!response.ok) throw new Error('Erreur lors de la récupération des TypesDeDemande.');
 
     const data = await response.json();
-    this.types = data.types; // Charge uniquement les non-archivés
+
+    // Trier les types de demande par ordre alphabétique (en fonction du nom ou du label)
+    const sortedTypes = data.types.sort((a, b) => {
+      const nameA = (a.name ?? '').toUpperCase(); // Utiliser le champ 'name' (ou 'label' si applicable)
+      const nameB = (b.name ?? '').toUpperCase(); // Utiliser le champ 'name' (ou 'label' si applicable)
+      if (nameA < nameB) return -1;
+      if (nameA > nameB) return 1;
+      return 0;
+    });
+
+    // Assigner les types triés
+    this.types = sortedTypes;
+
+    // Mettre à jour la pagination
     this.totalItems = data.totalItems;
     this.totalPages = data.totalPages;
     this.currentPage = data.currentPage;
@@ -230,7 +252,6 @@ export default {
     console.error(error);
   }
 },
-
 
 async archiveType() {
   const token = this.getToken();

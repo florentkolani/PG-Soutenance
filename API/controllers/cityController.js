@@ -14,17 +14,33 @@ exports.createCity = async (req, res) => {
 
 exports.getCities = async (req, res) => {
     try {
-        const { page = 1, limit = 10 } = req.query;
-        const cities = await City.find({ isarchived: false })
-            .populate('country')
-            .skip((page - 1) * limit)
-            .limit(parseInt(limit));
-        const totalItems = await City.countDocuments({ isarchived: false });
-        res.status(200).json({ cities, totalItems });
+      const { page = 1, limit = 10, sortBy = 'name', sortOrder = 'asc' } = req.query;
+  
+      // Options de tri
+      const sortOptions = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+  
+      // Récupérer les villes non archivées, triées et paginées
+      const cities = await City.find({ isarchived: false })
+        .populate('country') // Remplir les informations du pays associé
+        .sort(sortOptions) // Appliquer le tri
+        .skip((page - 1) * limit)
+        .limit(parseInt(limit));
+  
+      // Compter le nombre total de villes non archivées
+      const totalItems = await City.countDocuments({ isarchived: false });
+  
+      // Renvoyer les résultats
+      res.status(200).json({
+        message: 'Villes récupérées avec succès',
+        cities,
+        totalItems,
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalItems / limit),
+      });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+      res.status(400).json({ message: 'Erreur lors de la récupération des villes', error: error.message });
     }
-};
+  };
 
 exports.getCityById = async (req, res) => {
     try {

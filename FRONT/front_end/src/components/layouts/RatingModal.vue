@@ -4,7 +4,7 @@
     <div v-if="showModal" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
       <div class="bg-white p-6 rounded shadow-lg w-96 relative">
         <button @click="close" class="absolute top-2 right-2 text-red-600 hover:text-red-800 text-2xl">&times;</button>
-        <h2 class="text-lg font-bold mb-4 text-center">Noter le Ticket</h2>
+        <h2 class="text-lg font-bold mb-4 text-center">Noter le ticket</h2>
         <form @submit.prevent="submitRating">
           <div class="mb-4">
             <label class="block text-gray-700">Note:</label>
@@ -16,7 +16,7 @@
               <option value="Très Satisfait">Très Satisfait</option>
             </select>
           </div>
-          <div class="mb-4">
+          <div v-if="rating.note === 'Médiocre' || rating.note === 'Passable'" class="mb-4">
             <label class="block text-gray-700">Commentaire:</label>
             <textarea v-model="rating.commentaire" required class="border rounded p-2 w-full"></textarea>
           </div>
