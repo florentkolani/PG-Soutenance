@@ -18,6 +18,7 @@
           <tr>
             <th class="border border-gray-300 px-4 py-2">Nom</th>
             <th class="border border-gray-300 px-4 py-2">Code</th>
+            <th class="border border-gray-300 px-4 py-2">Date de création</th>
             <th class="border border-gray-300 px-4 py-2">Actions</th>
           </tr>
         </thead>
@@ -25,10 +26,20 @@
           <tr v-for="country in paginatedCountries" :key="country._id" class="border-b border-gray-200 hover:bg-gray-100">
             <td class="border px-4 py-2">{{ country.name }}</td>
             <td class="border px-4 py-2">{{ country.code }}</td>
+            <td class="border px-4 py-2 text-center">
+              {{ new Date(country.createdAt).toLocaleString('fr-FR', { 
+                  day: '2-digit', 
+                  month: '2-digit', 
+                  year: 'numeric', 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+              }) }}
+            </td>
             <td class="px-4 py-2 text-center">
               <button @click="editCountry(country)" class="bg-blue-500 text-white px-2 py-1 rounded mr-2 hover:bg-blue-600">Modifier</button>
               <button @click="viewCountryDetails(country)" class="bg-green-500 text-white px-2 py-1 rounded mr-2 hover:bg-green-600">Détails</button>
               <button @click="archiveCountry(country._id)" class="bg-red-500 text-white px-2 py-1 rounded mr-2 hover:bg-red-600">Archiver</button>
+              <button @click="openCityModal(country)" class="bg-yellow-500 text-white px-2 py-1 rounded mr-2 hover:bg-yellow-600">Ajout de ville</button>
             </td>
           </tr>
         </tbody>
@@ -149,6 +160,14 @@
       </div>
     </div>
 
+    <!-- City Modal -->
+    <CityModal 
+      :showModal="showCityModal"
+      :city.sync="selectedCity" 
+      @close="closeCityModal" 
+      @save="saveCity"
+    />
+
   </div>
 </template>
 
@@ -157,13 +176,15 @@ import axios from 'axios';
 import Header from "@/components/layouts/Header.vue";
 import CountryModal from '@/components/layouts/CountryModal.vue';
 import Pagination from '@/components/layouts/Pagination.vue';
+import CityModal from '@/components/layouts/CityModal.vue';
 import { API_URL } from '@/services/config';
 
 export default {
   components: {
     Header,
     CountryModal,
-    Pagination
+    Pagination,
+    CityModal
   },
   emits: ['close', 'save'],
   data() {
@@ -180,6 +201,8 @@ export default {
       totalItems: 0,
       successMessage: '',
       errorMessage: '',
+      showCityModal: false,
+      selectedCity: { name: '', countryId: '' },
     };
   },
   computed: {
@@ -278,6 +301,25 @@ export default {
       } catch (error) {
         console.error('Erreur lors de la mise à jour du pays:', error);
         this.errorMessage = 'Erreur lors de la mise à jour du pays.';
+      }
+    },
+    openCityModal(country) {
+      localStorage.setItem('selectedCountryId', country._id);
+      this.$router.push({ name: 'GestionsVille', query: { countryId: country._id } });
+    },
+    closeCityModal() {
+      this.showCityModal = false;
+      this.selectedCity = { name: '', countryId: '' };
+    },
+    async saveCity(city) {
+      try {
+        await axios.post(`${API_URL}/cities`, city);
+        this.fetchCountries();
+        this.closeCityModal();
+        this.successMessage = 'Ville enregistrée avec succès';
+      } catch (error) {
+        console.error('Erreur lors de l\'enregistrement de la ville:', error);
+        this.errorMessage = 'Erreur lors de l\'enregistrement de la ville';
       }
     },
   },

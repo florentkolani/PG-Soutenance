@@ -16,37 +16,27 @@
             <!-- Modal body -->
             <form @submit.prevent="addCity">
               <div class="mb-4">
-                <label for="cityName" class="block mb-2 text-sm font-medium text-gray-900">
-                  Nom de la Ville  <span class="text-red-500">*</span>
-                </label>
-                <input v-model="city.name" type="text" id="cityName" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5" placeholder="Entez le nom de la ville" required />
-              </div>
-              <!-- Sélecteur de pays avec recherche -->
-              <div class="mb-4 relative">
-                <label for="pays" class="block text-sm font-medium text-gray-900 mb-2">
-                  Pays <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  v-model="countrySearch"
-                  placeholder="Rechercher ou sélectionner un pays"
-                  class="bg-white border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5 mb-2"
-                  @input="filterCountries"
-                  @focus="showCountryDropdown = true"
-                  required
+                <label for="city-name" class="block text-sm font-medium text-gray-700">Ville:</label>
+                <input 
+                  id="city-name" 
+                  v-model="city.name" 
+                  type="text" 
+                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
+                  placeholder="Entrez le nom de la ville" 
+                  required 
                 />
-                <ul v-if="showCountryDropdown && filteredCountries.length" class="absolute z-10 bg-white border border-gray-300 rounded-lg w-full mt-1 max-h-60 overflow-auto">
-                  <li
-                    v-for="country in filteredCountries"
-                    :key="country._id"
-                    @click="selectCountry(country)"
-                    class="p-2 cursor-pointer hover:bg-gray-200"
-                  >
-                    {{ country.name }}
-                  </li>
-                </ul>
               </div>
-              <button type="submit" class="text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5">Ajouter</button>
+              <div class="flex justify-center space-x-4">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md shadow-md transition-all">
+                  Enregistrer
+                </button>
+                <button 
+                  @click.prevent="$emit('close')" 
+                  type="button" 
+                  class="bg-gray-500 hover:bg-gray-300 text-black px-6 py-2 rounded-md shadow-md transition-all">
+                  Annuler
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -73,7 +63,17 @@
   <script>
   import { API_URL } from '@/services/config';
   export default {
-    props: ['showModal', 'city'],
+    props: {
+      showModal: {
+        type: Boolean,
+        required: true
+      },
+      city: {
+        type: Object,
+        default: () => ({ name: '', countryId: '' })
+      }
+    },
+    emits: ['close', 'save'],
     data() {
       return {
         countries: [],
@@ -114,6 +114,7 @@
             this.successMessage = 'Ville ajoutée avec succès';
             this.resetForm();
             this.$emit('close');
+            
           } else {
             const errorData = await response.json();
             console.error('Failed to add city:', errorData);
@@ -156,6 +157,14 @@
       },
       closeDropdowns() {
         this.showCountryDropdown = false;
+      },
+      save() {
+        if (this.city.name && this.city.countryId) {
+          this.$emit('save', this.city);
+          this.$emit('close');  // Fermer le modal après la sauvegarde
+        } else {
+          this.errorMessage = 'Veuillez remplir tous les champs.';
+        }
       }
     },
     created() {
