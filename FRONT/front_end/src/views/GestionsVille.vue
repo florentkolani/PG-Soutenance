@@ -27,13 +27,14 @@
 
     <!-- List of cities -->
     <main class="container mx-auto px-4 py-4">
-      <h1 class="text-2xl font-bold text-gray-800">Liste des villes</h1>
+      <h1 class="text-2xl font-bold text-gray-800">Liste des villes </h1>
 
       <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
         <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
           <tr>
             <th class="border border-gray-300 px-4 py-2">Villes</th>
             <th class="border border-gray-300 px-4 py-2">Pays</th>
+            <th class="border border-gray-300 px-4 py-2">Date de création</th>
             <th class="border border-gray-300 px-4 py-2">Actions</th>
           </tr>
         </thead>
@@ -41,6 +42,16 @@
           <tr v-for="city in paginatedCities" :key="city._id" class="border-b border-gray-200 hover:bg-gray-100">
             <td class="border px-4 py-2">{{ city.name }}</td>
             <td class="border px-4 py-2">{{ city.country ? city.country.name : 'N/A' }}</td>
+            <td class="border px-4 py-2 text-center">
+              {{ new Date(city.createdAt).toLocaleString('fr-FR', { 
+                  day: '2-digit', 
+                  month: '2-digit', 
+                  year: 'numeric', 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+              }) }}
+            </td>
+
             <td class="px-4 py-2 text-center">
               <button @click="editCity(city)" class="bg-blue-500 text-white px-2 py-1 rounded mr-2 hover:bg-blue-600">Modifier</button>
               <button @click="viewCityDetails(city)" class="bg-green-500 text-white px-2 py-1 rounded mr-2 hover:bg-green-600">Détails</button>
@@ -189,14 +200,20 @@ export default {
   methods: {
     async fetchCities() {
       try {
+        const countryId = this.$route.query.countryId;
         const response = await axios.get(`${API_URL}/cities`, {
           params: {
+            countryId,
             page: this.currentPage,
             limit: this.itemsPerPage
           }
         });
         this.cities = response.data.cities || [];
         this.totalItems = response.data.totalItems || 0;
+        if (this.cities.length === 0 && this.currentPage > 1) {
+          this.currentPage--;
+          this.fetchCities();
+        }
       } catch (error) {
         console.error('Erreur lors de la récupération des villes:', error);
         this.errorMessage = 'Erreur lors de la récupération des villes';
@@ -207,7 +224,8 @@ export default {
       this.fetchCities();
     },
     openNewCityModal() {
-      this.selectedCity = { name: '', countryId: '' };
+      const countryId = this.$route.query.countryId;
+      this.selectedCity = { name: '', countryId };
       this.showCityModal = true;
     },
     editCity(city) {

@@ -4,6 +4,7 @@ const CountrySchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
+        set: (value) => value.toUpperCase(), 
     },
     code: {
         type: String,
