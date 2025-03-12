@@ -234,8 +234,8 @@ exports.closeTicket = async (req, res) => {
                     <h3 style="color: #007BFF;">Ticket clôturé avec succès</h3>
                     <p>Bonjour ${user.name},</p>
                     
-                    <p>Nous vous informons que votre demande d’assistance <strong>#${updatedTicket.NumeroTicket}</strong> concernant 
-                    <strong>${updatedTicket.description}</strong> a été traitée et clôturée avec succès.</p>
+                    <p>Nous vous informons que votre demande d’assistance <strong>#${updatedTicket.NumeroTicket}</strong> ayant pour objet
+                    <strong>${updatedTicket.typeDeDemandeId.name}</strong>  a été traitée et clôturée avec succès.</p>
 
                     <p><strong>Détails de votre demande :</strong></p>
                     <ul style="list-style: none; padding: 0;">

@@ -114,7 +114,6 @@
             this.successMessage = 'Ville ajoutée avec succès';
             this.resetForm();
             this.$emit('close');
-            
           } else {
             const errorData = await response.json();
             console.error('Failed to add city:', errorData);
@@ -151,6 +150,7 @@
       },
       closeSuccessMessage() {
         this.successMessage = '';
+        location.reload(); // Refresh the page
       },
       closeErrorMessage() {
         this.errorMessage = '';
