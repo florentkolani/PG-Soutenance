@@ -190,10 +190,12 @@
       <!-- Confirmation d'archivage -->
       <div v-if="showArchiveModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center text-enter">
         <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-          <h2 class="text-xl font-bold mb-4 text-center">Confirmer l'archivage</h2>
-          <p>Êtes-vous sûr de vouloir archiver cet utilisateur ?</p>
+                <svg class="mx-auto mb-4 text-red-500 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                </svg>
+          <p>Êtes-vous sûr de vouloir archiver cet utilisateur?</p>
           <div class="flex justify-center mt-4">
-            <button @click="archiveUser(selectedUserId)" class="bg-yellow-500 text-white px-4 py-2 rounded mr-2">Oui, archiver</button>
+            <button @click="archiveUser(selectedUserId)" class="bg-red-500 text-white px-4 py-2 rounded mr-2">Oui, archiver</button>
             <button @click="closeArchiveModal" class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
           </div>
         </div>

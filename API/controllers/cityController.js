@@ -6,7 +6,7 @@ exports.createCity = async (req, res) => {
         const { name, country } = req.body;
         const city = new City({ name, country });
         await city.save();
-        res.status(201).json(city);
+        res.status(201).json({ city, refresh: true });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -67,7 +67,7 @@ exports.updateCity = async (req, res) => {
             { new: true }
         );
         if (!city) return res.status(404).json({ error: 'City not found' });
-        res.status(200).json(city);
+        res.status(200).json({ city, refresh: true });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -92,7 +92,7 @@ exports.archiveCity = async (req, res) => {
         city.isarchived = true;
         await city.save();
 
-        res.status(200).json({ message: "Ville archivée avec succès", city });
+        res.status(200).json({ message: "Ville archivée avec succès", city, refresh: true });
     } catch (error) {
         console.error("Erreur lors de l'archivage de la ville :", error);
         res.status(500).json({ message: "Erreur interne du serveur", error: error.message });
