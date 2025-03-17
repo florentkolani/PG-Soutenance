@@ -141,7 +141,12 @@ exports.register = async (req, res) => {
 
                     <p><strong>Comment accéder à la plateforme ?</strong></p>
                     <ul>
-                        <li><a href="http://localhost:5173/login">Rendez-vous sur ce lien</a></li>
+                        <li>
+                        <a href="http://localhost:5173/login" 
+                        style="color: #3498db; text-decoration: none; font-weight: bold;">
+                        ➡️ Accéder à la plateforme
+                        </a>
+                    </li>
                         <li>Connectez-vous avec vos identifiants fournis ci-dessus.</li>
                         <li>Suivez les instructions pour changer votre mot de passe.</li>
                         <li>Commencez à soumettre et suivre vos demandes d’assistance.</li>
@@ -151,8 +156,8 @@ exports.register = async (req, res) => {
 
                     <p>Nous vous remercions de votre confiance et restons à votre disposition pour toute question ou assistance supplémentaire.</p>
 
-                    <p style="text-align: right; margin-top: 20px;">Cordialement,</p>
-                    <p style="text-align: right;">L'équipe de support NOVA LEAD</p>
+                    <p style="margin-top: 20px;">Cordialement,</p>
+                    <p style="margin-top: 5px;">L'équipe de support NOVA LEAD</p>
                 </body>
             </html>
             `;

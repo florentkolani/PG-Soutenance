@@ -9,14 +9,14 @@
           <div class="relative p-4">
             <!-- Modal header -->
             <div class="flex justify-between items-center pb-4 mb-4 border-b">
-              <h3 class="text-lg font-semibold text-gray-900">Ajouter une ville</h3>
+              <h3 class="text-lg font-semibold text-gray-900">Ajoutez une nouvelle ville</h3>
               <button @click="$emit('close')" class="text-red-600 hover:text-red-800 text-2xl">&times;</button>
             </div>
   
             <!-- Modal body -->
             <form @submit.prevent="addCity">
               <div class="mb-4">
-                <label for="city-name" class="block text-sm font-medium text-gray-700">Ville:</label>
+                <label for="city-name" class="block text-sm font-medium text-gray-700 mb-2">Ville <span class="text-red-500">*</span></label>
                 <input 
                   id="city-name" 
                   v-model="city.name" 

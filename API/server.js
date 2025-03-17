@@ -28,6 +28,7 @@ const path = require("path");
 const countryRoutes = require('./routes/countryRoutes');
 const cityRoutes = require('./routes/cityRoutes');
 const videoRoutes = require('./routes/videoRoutes');
+const emailRoutes = require("./routes/emailRoutes");
 
 // Utilisation des routes
 app.use('/api/auth', authRoutes);
@@ -40,6 +41,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/tickets', messageRoutes);
 app.use("/api/pdfs", pdfRoutes);
 app.use('/api/videos', videoRoutes);
+app.use("/api/emails", emailRoutes);
 // Gestion des fichiers statiques et des en-têtes pour les téléchargements
 app.use('/API/uploads', express.static(path.join(__dirname, 'uploads'), {
     setHeaders: (res, filePath) => {

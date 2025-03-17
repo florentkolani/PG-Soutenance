@@ -5,6 +5,7 @@
       <div class="bg-white p-6 rounded shadow-lg w-96 relative">
         <button @click="close" class="absolute top-2 right-2 text-red-600 hover:text-red-800 text-2xl">&times;</button>
         <h2 class="text-lg font-bold mb-4 text-center">Noter le ticket</h2>
+        <p class="text-sm text-gray-600 text-center mb-4">En notant ce ticket, vous le clôturez automatiquement.</p>
         <form @submit.prevent="submitRating">
           <div class="mb-4">
             <label class="block text-gray-700">Note:</label>
@@ -53,6 +54,7 @@ export default {
     showModal: Boolean,
     ticketId: String,
     alreadyRated: Boolean, 
+    ticketType: String, // Add a prop for the type of request
   },
   data() {
     return {
@@ -72,7 +74,7 @@ export default {
         return;
       }
       this.$emit('submitRating', { ...this.rating, ticketId: this.ticketId });
-      this.showSuccess("Merci pour votre note!");
+      this.showSuccess(`Le ticket a été clôturé avec succès.`);
       this.close();
     },
     close() {

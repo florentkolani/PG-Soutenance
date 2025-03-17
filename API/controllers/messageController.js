@@ -44,33 +44,35 @@ exports.sendMessage = async (req, res) => {
         ]; // Emails des agents/admin depuis les variables d'environnement
 
         const recipients = isClient ? supportEmails : [clientEmail];
+        const recipientName = isClient ? "Support NOVA LEAD" : ticket.userId.name;
         const typeDeDemande = await type.findById(ticket.typeDeDemandeId);
+        const senderName = req.user.name;
 
         const subject = isClient
-        ? `Nouveau message d'un client concernant le ticket #${ticket.NumeroTicket} (${typeDeDemande.name})`
-        : `Nouvelle réponse à votre ticket #${ticket.NumeroTicket} (${typeDeDemande.name})`;
+        ? `Nouveau message de #${senderName} concernant le ticket #${ticket.NumeroTicket} (${typeDeDemande.name})`
+        : `Nouvelle réponse de  #${senderName} concernant votre ticket #${ticket.NumeroTicket} (${typeDeDemande.name})`;
+
+        
     
     const htmlContent = `
         <html>
             <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
                 <h3 style="color: #007BFF;">Mise à jour de votre demande d’assistance <strong>#${ticket.NumeroTicket} (${typeDeDemande.name})</strong></h3>
                 
-                <p>Bonjour ${req.user.name},</p>
+                <p>Bonjour ${recipientName},</p>
                 
-                <p>Nous avons bien reçu votre demande d’assistance <strong>#${ticket.NumeroTicket}</strong> concernant 
+                <p>Nous avez un mouveau message concernant votre ticket <strong>#${ticket.NumeroTicket}</strong> 
                 <strong>(${typeDeDemande.name})</strong>.</p>
     
-                <p>Un agent a été assigné à votre demande. Voici les détails :</p>
+                <p>Voici les détails de la demande :</p>
                 <ul style="list-style: none; padding: 0; margin: 0;">
                     <li><strong>📌 Statut actuel :</strong> ${ticket.statut}</li>
                     <li><strong>📝 Description :</strong> ${ticket.description}</li>
                 </ul>
     
-                <p>Notre équipe a commencé l’analyse de votre requête et reviendra vers vous dans les plus brefs délais avec une solution ou des informations complémentaires.</p>
-    
-                <p>Votre demande est bien prise en charge. Nous vous tiendrons informé de toute mise à jour.</p>
-    
-                <p>Merci de votre patience, nous restons à votre disposition pour toute question.</p>
+                <p>Message envoyé par : <strong>${senderName}</strong></p>
+
+                <p>Nous vous prions de vous connecté à la plateforme pour plus d'informations.</p>
     
                 <p>
                     <a href="http://localhost:5173/login" 
@@ -80,8 +82,8 @@ exports.sendMessage = async (req, res) => {
                 </p>
     
                 <p style="margin-top: 20px;">Cordialement,</p>
-                <p style="text-align: right; margin-top: 30px;">
-                    <em>L'équipe de support NOVA LEAD</em>
+                <p style="margin-top: 5px;">
+                    <em>${senderName}</em>
                 </p>
             </body>
         </html>

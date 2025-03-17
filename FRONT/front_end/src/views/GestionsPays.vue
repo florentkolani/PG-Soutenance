@@ -65,7 +65,7 @@
     <!-- Dialogue pour les détails -->
     <div v-if="selectedCountryDetails" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
       <div class="bg-white rounded-lg p-6 w-2/3 shadow-md relative">
-        <h2 class="text-xl font-bold mb-4 text-center">Détails du Pays</h2>
+        <h2 class="text-xl font-bold mb-4 text-center">Détails sur le Pays</h2>
         <table class="table-auto w-full border-collapse border border-gray-300">
           <thead>
             <tr class="bg-gray-200 text-left">
@@ -75,11 +75,11 @@
           </thead>
           <tbody>
             <tr>
-              <td class="border border-gray-300 px-4 py-2 font-bold">Nom</td>
+              <td class="border border-gray-300 px-4 py-2 font-bold">Nom du pays</td>
               <td class="border border-gray-300 px-4 py-2">{{ selectedCountryDetails.name }}</td>
             </tr>
             <tr>
-              <td class="border border-gray-300 px-4 py-2 font-bold">Code</td>
+              <td class="border border-gray-300 px-4 py-2 font-bold">Code du pays</td>
               <td class="border border-gray-300 px-4 py-2">{{ selectedCountryDetails.code }}</td>
             </tr>
           </tbody>
@@ -91,10 +91,10 @@
     <!-- Dialogue pour l'édition -->
     <div v-if="editCountryData" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg">
-        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Modifier le Pays</h2>
+        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Modifier le pays</h2>
         <form @submit.prevent="updateCountry">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Nom :</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Nom du pays</label>
             <input 
               v-model="editCountryData.name" 
               type="text" 
@@ -103,7 +103,7 @@
             />
           </div>
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Code :</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Code du pays</label>
             <input 
               v-model="editCountryData.code" 
               type="text" 
@@ -150,20 +150,20 @@
     <div v-if="successMessage" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
       <div class="bg-white rounded-lg p-6 w-1/3 shadow-md relative text-center">
         <svg
-  class="mx-auto text-green-500 w-12 h-12 dark:text-green-400"
-  aria-hidden="true"
-  xmlns="http://www.w3.org/2000/svg"
-  fill="none"
-  viewBox="0 0 24 24"
->
-  <path
-    stroke="currentColor"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    stroke-width="2"
-    d="M5 11.917 9.724 16.5 19 7.5"
-  />
-</svg>
+          class="mx-auto text-green-500 w-12 h-12 dark:text-green-400"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 11.917 9.724 16.5 19 7.5"
+          />
+        </svg>
         <h3 class="text-lg font-semibold text-green-700">Succès!</h3>
         <p>{{ successMessage }}</p>
         <button @click="successMessage = ''" class="bg-green-500 text-white px-4 py-2 mt-4 rounded-md">Fermer</button>

@@ -310,6 +310,7 @@ export default {
     console.error("Erreur lors de l'envoi des données :", error.response?.data || error.message);
 
     if (error.response?.status === 400 && error.response.data.message.includes("trois tickets en cours")) {
+      this.$emit('close'); // Fermer le formulaire d'ajout de ticket
       this.errorMessage = error.response.data.message;
       this.showLimitModal = true; // Afficher la boîte de dialogue de limite
     } else {
