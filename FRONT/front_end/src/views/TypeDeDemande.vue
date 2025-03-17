@@ -61,7 +61,7 @@
 
     <div v-if="selectedType" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
   <div class="bg-white rounded-lg p-6 w-2/3 shadow-md">
-    <h2 class="text-xl font-bold mb-4 text-center">Détails du TypeDeDemande</h2>
+    <h2 class="text-xl font-bold mb-4 text-center">Détails du type de demande</h2>
     <table class="table-auto w-full border-collapse border border-gray-300">
       <thead>
         <tr class="bg-gray-200 text-left">
@@ -71,11 +71,11 @@
       </thead>
       <tbody>
         <tr>
-          <td class="border border-gray-300 px-4 py-2 font-bold">Nom</td>
+          <td class="border border-gray-300 px-4 py-2 font-bold">Nom de type de demande</td>
           <td class="border border-gray-300 px-4 py-2">{{ selectedType.name }}</td>
         </tr>
         <tr>
-          <td class="border border-gray-300 px-4 py-2 font-bold">Description</td>
+          <td class="border border-gray-300 px-4 py-2 font-bold">Description du type de demande</td>
           <td class="border border-gray-300 px-4 py-2">{{ selectedType.description }}</td>
         </tr>
       </tbody>
@@ -90,11 +90,11 @@
     <!-- Dialogue pour l'édition -->
 <div v-if="editTypeData" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
   <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg">
-    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Modifier le TypeDeDemande</h2>
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Modifier le type de demande</h2>
     <form @submit.prevent="updateType">
       <!-- Champ Nom -->
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700">Nom :</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Nom de type de demande</label>
         <input 
           v-model="editTypeData.name" 
           type="text" 
@@ -104,7 +104,7 @@
       </div>
       <!-- Champ Description -->
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700">Description :</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Description de type de demande</label>
         <textarea 
           v-model="editTypeData.description" 
           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
@@ -138,7 +138,7 @@
                 <svg class="mx-auto mb-4 text-red-500 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
                 </svg>
-        <p class="text-center">Êtes-vous sûr de vouloir archiver ce TypeDedemande ?</p>
+        <p class="text-center">Êtes-vous sûr de vouloir archiver ce type de demande ?</p>
         <div class="flex justify-center mt-4">
           <button @click="archiveType" class="bg-red-500 text-white px-4 py-2 rounded-md">Oui, archiver</button>
           <button @click="closeConfirmArchive" class="bg-gray-500 text-white px-4 py-2 ml-2 rounded-md">Annuler</button>

@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.post('/', protect, upload.single('file'), createTicket);
 router.put('/:id', protect, upload.single('file'), updateTicket);
+router.put('/:ticketId/statut', protect, updateTicketStatus);
 router.put('/:ticketId/close', protect, restrictToRoles('Client'), closeTicket);
 router.get('/', protect, getTickets);
 router.get('/:id', protect, getTicketById);

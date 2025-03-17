@@ -22,7 +22,7 @@
       <p class="mb-4 text-gray-600">
         Les activités faites par NOVA LEAD sont suivantes :
       </p>
-      <ul>
+      <ul class="mb-4">
         <li>• Le développement de logiciels sur mesure : la conception et le développement de logiciels personnalisés pour répondre aux besoins spécifiques des clients dans divers secteurs, mais surtout, la microfinance.</li>
         <li>• Les services de maintenance et de support technique : la fourniture de services de maintenance continue et de support technique pour assurer la performance, la fiabilité et la sécurité des solutions logicielles livrées.</li>
         <li>• L’hébergement des applications : c’est la gestion efficace des serveurs, des bases de données et des services cloud.</li>
@@ -33,7 +33,7 @@
       <p class="mb-4 text-gray-600">
         Nova Lead a déjà conçu des logiciels parmi lesquels peuvent être cités :
       </p>
-      <ul>
+      <ul class="mb-4">
         <li>• DOGA KABA : une plateforme digitale de gestion des demandes de crédit, des plaintes, des réclamations, de la performance sociale et environnementale. Elle est spécialement conçue sur mesure pour les microfinances.</li>
         <li>• LETAVI : une plateforme de services à valeur ajoutée (envoi de SMS en masse).</li>
         <li>• MIVO CRM : une plateforme de décentralisation des activités opérationnelles de MIVO ENERGY.</li>

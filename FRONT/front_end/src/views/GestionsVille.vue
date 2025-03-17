@@ -116,7 +116,7 @@
     <!-- Dialogue pour les détails -->
     <div v-if="selectedCityDetails" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
       <div class="bg-white rounded-lg p-6 w-2/3 shadow-md relative">
-        <h2 class="text-xl font-bold mb-4 text-center">Détails de la Ville</h2>
+        <h2 class="text-xl font-bold mb-4 text-center">Détails sur la ville</h2>
         <table class="table-auto w-full border-collapse border border-gray-300">
           <thead>
             <tr class="bg-gray-200 text-left">
@@ -126,11 +126,11 @@
           </thead>
           <tbody>
             <tr>
-              <td class="border border-gray-300 px-4 py-2 font-bold">Nom</td>
+              <td class="border border-gray-300 px-4 py-2 font-bold">Nom de la ville</td>
               <td class="border border-gray-300 px-4 py-2">{{ selectedCityDetails.name }}</td>
             </tr>
             <tr>
-              <td class="border border-gray-300 px-4 py-2 font-bold">Pays</td>
+              <td class="border border-gray-300 px-4 py-2 font-bold">Pays de la ville</td>
               <td class="border border-gray-300 px-4 py-2">{{ selectedCityDetails.country.name }}</td>
             </tr>
           </tbody>
@@ -142,10 +142,10 @@
     <!-- Dialogue pour l'édition -->
     <div v-if="editCityData" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg">
-        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Modifier la Ville</h2>
+        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Modifier la ville</h2>
         <form @submit.prevent="updateCity">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Nom :</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Nom de la ville</label>
             <input 
               v-model="editCityData.name" 
               type="text" 
@@ -154,7 +154,7 @@
             />
           </div>
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Pays :</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Pays de la ville</label>
             <select 
               v-model="editCityData.country" 
               class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300"

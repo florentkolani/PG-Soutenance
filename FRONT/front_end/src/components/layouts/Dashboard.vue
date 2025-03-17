@@ -151,11 +151,11 @@ export default {
           route: '/GestionsPays',
           role: ['Admin', 'AgentSupport']
         },
-        // {
-        //   name: 'GestionsVille',
-        //   route: '/GestionsVille',
-        //   role: ['Admin', 'AgentSupport']
-        // },
+         {
+           name: 'SendEmail',
+           route: '/SendEmail',
+           role: ['Admin', 'AgentSupport']
+         },
         {
           name: 'Tickets',
           route: '/Tickets',
@@ -169,7 +169,7 @@ export default {
         {
           name: 'Archives',
           route: '/Archives',
-          role: [] 
+          role: ['Admin', 'AgentSupport'] 
         },
         {
           name: 'À propos',

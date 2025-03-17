@@ -64,7 +64,7 @@ async function envoyerEmail(ticket) {
                         </p>
 
                         <p style="margin-top: 20px;">Cordialement,</p>
-                        <p style="text-align: right; margin-top: 30px;"><em>${user.name}</em></p>
+                        <p style="margin-top: 5px;"><em>${user.name}</em></p>
                     </body>
                 </html>
             `,
@@ -165,8 +165,53 @@ exports.updateTicketStatus = async (req, res) => {
         if (!ticket) {
             return res.status(404).json({ message: 'Ticket non trouvé' });
         }
+
+        const previousStatus = ticket.statut;
         ticket.statut = req.body.statut || ticket.statut;
         await ticket.save();
+
+        // Envoi d'un email uniquement si le statut passe de "en attente" à "ouvert"
+        if (previousStatus === 'en attente' && ticket.statut === 'ouvert') {
+            const user = await User.findById(ticket.userId);
+            const typeDeDemande = await type.findById(ticket.typeDeDemandeId); // Fetch typeDeDemande here
+            if (user && typeDeDemande) {
+                const emailSubject = `Acquisition de réception du ticket #${ticket.NumeroTicket} (${typeDeDemande.name})`;
+                const emailHtml = `
+                    <html>
+                        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                            <h3 style="color: #007BFF;">Votre ticket #${ticket.NumeroTicket} 
+                            concernant (${typeDeDemande.name}) est en cours d'analyse</h3>
+                            
+                            <p>Bonjour ${user.name},</p>
+                            <p>Nous avons bien reçu votre demande d'assistance, <strong>#${ticket.NumeroTicket}</strong> 
+                            concernant <strong>${typeDeDemande.name}</strong>.</p>
+                            <p>Un agent a été assigné à votre demande. Voici les détails :</p>
+                                <ul style="list-style: none; padding: 0; margin: 0;">
+                                    <li><strong>📌 Statut actuel :</strong> ${ticket.statut}</li>
+                                    <li><strong>📝 Description :</strong> ${ticket.description}</li>
+                                </ul>
+                            <p>Notre équipe a commencé l’analyse de votre requête et reviendra vers vous dans les plus brefs délais avec une solution ou des informations complémentaires.</p>
+    
+                            <p>Votre demande est bien prise en charge. Nous vous tiendrons informé de toute mise à jour.</p>
+    
+                            <p>Merci de votre patience, nous restons à votre disposition pour toute question.</p>
+                            <p>
+                                <a href="http://localhost:5173/login" 
+                                   style="color: #3498db; text-decoration: none; font-weight: bold;">
+                                    ➡️ Accéder à la plateforme
+                                </a>
+                            </p>
+                            <p style="margin-top: 20px;">Cordialement,</p>
+                            <p style="margin-top: 5px;">
+                                <em>L'équipe de support NOVA LEAD</em>
+                            </p>
+                        </body>
+                    </html>
+                `;
+                await sendEmail(user.email, emailSubject, emailHtml);
+                console.log('Email d\'acquisition envoyé avec succès.');
+            }
+        }
 
         res.status(200).json(ticket);
     } catch (error) {
@@ -224,6 +269,14 @@ exports.closeTicket = async (req, res) => {
 
         // Récupérer la note associée au ticket
         const ticketRating = await rating.findOne({ ticketId: ticketId });
+        if (!ticketRating) {
+            return res.status(404).send('Note non trouvée');
+        }
+        // Récupérer le type de demande associé au ticket
+        const typeDeDemande = await type.findById(updatedTicket.typeDeDemandeId);
+        if (!typeDeDemande) {
+            return res.status(404).send('Type de demande non trouvé');
+        }
 
         // Préparer et envoyer l'email
         const emailSubject = `Votre demande d’assistance #${updatedTicket.NumeroTicket} a été clôturée`;
@@ -235,7 +288,7 @@ exports.closeTicket = async (req, res) => {
                     <p>Bonjour ${user.name},</p>
                     
                     <p>Nous vous informons que votre demande d’assistance <strong>#${updatedTicket.NumeroTicket}</strong> ayant pour objet
-                    <strong>${updatedTicket.typeDeDemandeId.name}</strong>  a été traitée et clôturée avec succès.</p>
+                    <strong>#(${typeDeDemande.name})</strong>  a été traitée et clôturée avec succès.</p>
 
                     <p><strong>Détails de votre demande :</strong></p>
                     <ul style="list-style: none; padding: 0;">
@@ -258,7 +311,7 @@ exports.closeTicket = async (req, res) => {
                     </p>
 
                     <p style="margin-top: 20px;">Cordialement,</p>
-                    <p style="text-align: right; margin-top: 30px;">
+                    <p style="margin-top: 5px;">
                         <em>L'équipe de support NOVA LEAD</em>
                     </p>
                 </body>

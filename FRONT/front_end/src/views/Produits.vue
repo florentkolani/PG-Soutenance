@@ -48,7 +48,7 @@
    <!-- Dialogue pour les détails -->
    <div v-if="selectedProduct" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
   <div class="bg-white rounded-lg p-6 w-2/3 shadow-md relative">
-    <h2 class="text-xl font-bold mb-4 text-center">Détails du Produit</h2>
+    <h2 class="text-xl font-bold mb-4 text-center">Détails du produit</h2>
     <table class="table-auto w-full border-collapse border border-gray-300">
       <thead>
         <tr class="bg-gray-200 text-left">
@@ -58,11 +58,11 @@
       </thead>
       <tbody>
         <tr>
-          <td class="border border-gray-300 px-4 py-2 font-bold">Nom</td>
+          <td class="border border-gray-300 px-4 py-2 font-bold">Nom du produit</td>
           <td class="border border-gray-300 px-4 py-2">{{ selectedProduct.name }}</td>
         </tr>
         <tr>
-          <td class="border border-gray-300 px-4 py-2 font-bold">Description</td>
+          <td class="border border-gray-300 px-4 py-2 font-bold">Description du produit</td>
           <td class="border border-gray-300 px-4 py-2">{{ selectedProduct.description }}</td>
         </tr>
         <tr>
@@ -81,11 +81,11 @@
     <!-- Dialogue pour l'édition -->
 <div v-if="editProductData" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
   <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg">
-    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Modifier le Produit</h2>
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Modifier le produit</h2>
     <form @submit.prevent="updateProduct">
       <!-- Champ Nom -->
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700">Nom :</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Nom du produit</label>
         <input 
           v-model="editProductData.name" 
           type="text" 
@@ -95,7 +95,7 @@
       </div>
       <!-- Champ Description -->
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700">Description :</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Description du produit</label>
         <textarea 
           v-model="editProductData.description" 
           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 

@@ -377,12 +377,22 @@ fetchTickets() {
       if (this.userRole === 'Admin' || this.userRole === 'AgentSupport') {
         if (ticket.statut === 'en attente') {
           ticket.statut = 'ouvert';
-          this.updateTicket(ticket);
+          this.updateTicketStatus(ticket._id, { statut: 'ouvert' });
         }
       }
       this.$router.push({ name: 'TicketDetails', params: { ticketId: ticket._id } });
     },
-        openTicketModal(ticket = null) {
+    updateTicketStatus(ticketId, statusData) {
+      const token = localStorage.getItem('token');
+      axios.put(`${API_URL}/tickets/${ticketId}/statut`, statusData, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(() => {
+        this.fetchTickets();
+      })
+      .catch(error => console.error('Erreur lors de la mise à jour du statut du ticket:', error));
+    },
+    openTicketModal(ticket = null) {
                 this.selectedTicket = ticket ? { ...ticket } : {};
           this.isEdit = !!ticket;
           this.showTicketModal = true;
