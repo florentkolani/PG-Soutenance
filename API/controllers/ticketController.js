@@ -65,6 +65,9 @@ async function envoyerEmail(ticket) {
 
                         <p style="margin-top: 20px;">Cordialement,</p>
                         <p style="margin-top: 5px;"><em>${user.name}</em></p>
+                        <p style="margin-top: 20px; font-size: 12px; color: #777;">
+                            <strong>NB :</strong> Cet e-mail a été envoyé automatiquement, merci de ne pas y répondre.
+                        </p>
                     </body>
                 </html>
             `,
@@ -205,6 +208,10 @@ exports.updateTicketStatus = async (req, res) => {
                             <p style="margin-top: 5px;">
                                 <em>L'équipe de support NOVA LEAD</em>
                             </p>
+                            <p style="margin-top: 20px; font-size: 12px; color: #777;">
+                                <strong>NB :</strong> Cet e-mail a été envoyé automatiquement, merci de ne pas y répondre.
+                            </p>
+                            
                         </body>
                     </html>
                 `;
@@ -313,6 +320,9 @@ exports.closeTicket = async (req, res) => {
                     <p style="margin-top: 20px;">Cordialement,</p>
                     <p style="margin-top: 5px;">
                         <em>L'équipe de support NOVA LEAD</em>
+                    </p>
+                    <p style="margin-top: 20px; font-size: 12px; color: #777;">
+                        <strong>NB :</strong> Cet e-mail a été envoyé automatiquement, merci de ne pas y répondre.
                     </p>
                 </body>
             </html>

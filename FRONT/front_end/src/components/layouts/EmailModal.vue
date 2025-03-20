@@ -70,6 +70,66 @@
         </div>
       </div>
     </div>
+
+    <!-- Success Popup -->
+    <div v-if="showSuccessPopup" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+      <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+        <div class="flex justify-center mb-4">
+          <svg
+          class="mx-auto text-green-500 w-12 h-12 dark:text-green-400"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 11.917 9.724 16.5 19 7.5"
+          />
+        </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Email envoyé avec succès !</h2>
+        <button
+          @click="handleSuccessPopupClose"
+          class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+
+    <!-- Error Popup -->
+    <div v-if="showErrorPopup" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+      <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+        <div class="flex justify-center mb-4">
+          <svg
+          class="mx-auto text-red-500 w-12 h-12 dark:text-red-400"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM15 9l-6 6m0-6l6 6"
+          />
+        </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Échec de l'envoi de l'email.</h2>
+        <button
+          @click="handleErrorPopupClose"
+          class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+        >
+          Réessayer
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -93,6 +153,8 @@ export default {
       isSending: false,
       isDropdownOpen: false,
       quill: null,
+      showSuccessPopup: false, // New state for success popup
+      showErrorPopup: false, // New state for error popup
     };
   },
   methods: {
@@ -131,17 +193,21 @@ export default {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        alert("Email envoyé avec succès !");
-        this.emailSubject = "";
-        this.quill.root.innerHTML = ""; // Clear the editor
-        this.selectedEmails = [];
-        this.$emit('close');
+        this.showSuccessPopup = true; // Show success popup
       } catch (error) {
         console.error("Erreur lors de l'envoi de l'email :", error);
-        alert("Échec de l'envoi de l'email. Veuillez réessayer.");
+        this.showErrorPopup = true; // Show error popup
       } finally {
         this.isSending = false;
       }
+    },
+    handleSuccessPopupClose() {
+      this.showSuccessPopup = false; // Hide the popup
+      this.$emit('close'); // Close the modal
+      window.location.reload(); // Refresh the page
+    },
+    handleErrorPopupClose() {
+      this.showErrorPopup = false; // Hide the error popup
     },
     toggleDropdown() {
       this.isDropdownOpen = !this.isDropdownOpen;
