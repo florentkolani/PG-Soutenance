@@ -116,6 +116,23 @@
     <!-- Boîte de dialogue de succès -->
     <div v-if="showSuccessMessage" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div class="bg-white p-4 rounded-lg shadow-lg max-w-md w-full text-center">
+        <div class="flex justify-center mb-4">
+          <svg
+          class="mx-auto text-green-500 w-12 h-12 dark:text-green-400"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 11.917 9.724 16.5 19 7.5"
+          />
+        </svg>
+        </div>
         <h3 class="text-xl font-bold mb-4">Succès</h3>
         <p>{{ successMessage }}</p>
         <button @click="closeSuccessDialog" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
@@ -302,7 +319,7 @@ export default {
       },
     });
 
-    this.successMessage = this.isEdit ? "Ticket mis à jour avec succès !" : "Ticket créé avec succès !";
+    this.successMessage = this.isEdit ? "Votre ticket a été mis à jour avec succès !" : "Votre ticket a été créé avec succès !";
     this.showSuccessMessage = true;
     this.$emit('close');
     this.$emit('refreshData'); // Rafraîchit les données

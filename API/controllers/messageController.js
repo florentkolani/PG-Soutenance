@@ -85,6 +85,9 @@ exports.sendMessage = async (req, res) => {
                 <p style="margin-top: 5px;">
                     <em>${senderName}</em>
                 </p>
+                <p style="margin-top: 20px; font-size: 12px; color: #777;">
+                    <strong>NB :</strong> Cet e-mail a été envoyé automatiquement, merci de ne pas y répondre.
+                </p>
             </body>
         </html>
     `;
