@@ -71,7 +71,7 @@ export default {
   },
   computed: {
     showFilter() {
-      const excludedRoutes = ['VideoUploader', 'PdfUploader', 'Archives', 'Apropos', 'GestionPays', 'GestionVilles','Produits','TypeDeDemande'];
+      const excludedRoutes = ['VideoUploader', 'sendEmail', 'PdfUploader', 'Archives', 'Apropos', 'GestionsPays', 'GestionsVille','TypeDeDemande','Produits'];
       return !excludedRoutes.includes(this.$route.name);
     },
   },

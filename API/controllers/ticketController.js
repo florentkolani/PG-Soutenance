@@ -33,15 +33,15 @@ async function envoyerEmail(ticket) {
         const mailOptions = {
             from: user.email, // email du client
             to: process.env.EMAIL_NOVA_LEAD , // Email des admins et agents support
-            subject: `Nouvelle demande d’assistance reçue – Ticket #${ticket.NumeroTicket} (${typeDeDemande.name})`, // Objet de l'email
+            subject: `Nouvelle demande d'assistance reçue – Ticket #${ticket.NumeroTicket} (${typeDeDemande.name})`, // Objet de l'email
             html: `
                 <html>
                     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-                        <h3 style="color: #007BFF;">Nouvelle demande d’assistance reçue – Ticket #${ticket.NumeroTicket}</h3>
+                        <h3 style="color: #007BFF;">Nouvelle demande d'assistance reçue – Ticket #${ticket.NumeroTicket}</h3>
 
                         <p>Bonjour NOVA LEAD,</p>
 
-                        <p>Un nouveau ticket d’assistance a été soumis par <strong>${user.name}</strong>.</p>
+                        <p>Un nouveau ticket d'assistance a été soumis par <strong>${user.name}</strong>.</p>
 
                         <p><strong>Détails du ticket :</strong></p>
                         <ul style="list-style: none; padding: 0;">
@@ -193,7 +193,7 @@ exports.updateTicketStatus = async (req, res) => {
                                     <li><strong>📌 Statut actuel :</strong> ${ticket.statut}</li>
                                     <li><strong>📝 Description :</strong> ${ticket.description}</li>
                                 </ul>
-                            <p>Notre équipe a commencé l’analyse de votre requête et reviendra vers vous dans les plus brefs délais avec une solution ou des informations complémentaires.</p>
+                            <p>Notre équipe a commencé l'analyse de votre requête et reviendra vers vous dans les plus brefs délais avec une solution ou des informations complémentaires.</p>
     
                             <p>Votre demande est bien prise en charge. Nous vous tiendrons informé de toute mise à jour.</p>
     
@@ -286,7 +286,7 @@ exports.closeTicket = async (req, res) => {
         }
 
         // Préparer et envoyer l'email
-        const emailSubject = `Votre demande d’assistance #${updatedTicket.NumeroTicket} a été clôturée`;
+        const emailSubject = `Votre demande d'assistance #${updatedTicket.NumeroTicket} a été clôturée`;
 
         const emailHtml = `
             <html>
@@ -294,19 +294,19 @@ exports.closeTicket = async (req, res) => {
                     <h3 style="color: #007BFF;">Ticket clôturé avec succès</h3>
                     <p>Bonjour ${user.name},</p>
                     
-                    <p>Nous vous informons que votre demande d’assistance <strong>#${updatedTicket.NumeroTicket}</strong> ayant pour objet
+                    <p>Nous vous informons que votre demande d'assistance <strong>#${updatedTicket.NumeroTicket}</strong> ayant pour objet
                     <strong>#(${typeDeDemande.name})</strong>  a été traitée et clôturée avec succès.</p>
 
                     <p><strong>Détails de votre demande :</strong></p>
                     <ul style="list-style: none; padding: 0;">
                         <li><strong>📌 Numéro du Ticket :</strong> #${updatedTicket.NumeroTicket}</li>
                         <li><strong>📅 Date de clôture :</strong> ${new Date().toLocaleString()}</li>
-                        <li><strong>⭐ Note attribuée à l’assistance :</strong> ${ticketRating ? ticketRating.note : 'Non attribuée'}</li>
+                        <li><strong>⭐ Note attribuée à l'assistance :</strong> ${ticketRating ? ticketRating.note : 'Non attribuée'}</li>
                     </ul>
 
                     <p>Nous vous remercions de votre confiance et espérons que notre assistance a répondu à vos attentes.</p>
 
-                    <p>Si vous avez d’autres préoccupations, n’hésitez pas à soumettre une nouvelle demande via notre plateforme d’assistance.</p>
+                    <p>Si vous avez d'autres préoccupations, n'hésitez pas à soumettre une nouvelle demande via notre plateforme d'assistance.</p>
 
                     <p>À bientôt et merci de faire confiance à <strong>NOVA LEAD</strong> !</p>
 
@@ -393,5 +393,34 @@ exports.addMessageToTicket = async (req, res) => {
         res.status(200).json(ticket);
     } catch (error) {
         res.status(400).json({ message: 'Erreur lors de l\'ajout du message', error: error.message });
+    }
+};
+
+// Ajouter cette nouvelle fonction dans le contrôleur
+exports.getTicketStats = async (req, res) => {
+    try {
+        let filter = {};
+        
+        if (req.user.role === 'Client' || req.params.userId) {
+            filter.userId = req.params.userId || req.user._id;
+        }
+
+        const tickets = await Ticket.find(filter);
+
+        const stats = {
+            total: tickets.length,
+            waiting: tickets.filter(ticket => ticket.statut === 'en attente').length,
+            open: tickets.filter(ticket => ticket.statut === 'ouvert').length,
+            inProgress: tickets.filter(ticket => ticket.statut === 'en cours').length,
+            resolved: tickets.filter(ticket => ticket.statut === 'cloturé').length
+        };
+
+        res.status(200).json(stats);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des statistiques:', error);
+        res.status(500).json({ 
+            message: 'Erreur lors de la récupération des statistiques des tickets', 
+            error: error.message 
+        });
     }
 };

@@ -35,7 +35,7 @@
     >
       <p><strong>{{ message.userId?.name || 'Inconnu' }}</strong></p>
       <p>{{ message.content }}</p>
-      <p class="text-xs text-gray-500 text-right">{{ formatDateWithTime(message.createdAt) }}</p>
+      
 
       <!-- Lien de téléchargement du fichier joint pour le message de description -->
 <div v-if="message.isDescription && ticket.file" class="mt-2">
@@ -49,6 +49,21 @@
   </a>
   <p v-if="fileDownloadError" class="text-red-500">{{ fileDownloadError }}</p>
 </div>
+
+<!-- Ajout de l'input pour le fichier -->
+<div v-if="message.file" class="mt-2">
+  <a 
+  :href="`${API_URL}/uploads/${message.file}`" 
+    class="text-blue-500 hover:underline flex items-center"
+    @click.prevent="downloadMessageFile(message.file)"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+    </svg>
+    Télécharger le fichier
+  </a>
+</div>
+
     <div class="flex items-center justify-end">
       <!-- Bouton Répondre -->
       <button 
@@ -59,6 +74,7 @@
         Répondre
       </button>
     </div>
+    <p class="text-xs text-gray-500 text-right mt-3">{{ formatDateWithTime(message.createdAt) }}</p>
       
 
     </div>
@@ -97,22 +113,60 @@
             @input="adjustTextareaHeight"
           ></textarea>
 
-          <div class="flex justify-end space-x-3">
+          <div class="flex justify-between items-center ">
+             <!-- Ajout de l'input pour le fichier -->
+          <div class="flex items-center space-x-2 p-3 bg-gray-200 rounded-lg hover:bg-gray-300 transition duration-200">
+            <input
+              type="file"
+              ref="fileInput"
+              @change="handleFileChange"
+              accept="image/*,.pdf,.doc,.docx"
+              class="hidden"
+            />
             <button
               type="button"
+              @click="$refs.fileInput.click()"
+              class="px-4 py-3 rounded-lg bg-gray-300 transition duration-200 flex items-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+              </svg>
+              Joindre un fichier
+            </button>
+            <span v-if="selectedFile" class="text-sm text-gray-600">
+              {{ selectedFile.name }}
+              <button
+                type="button"
+                @click="removeFile"
+                class="ml-2 text-red-500 hover:text-red-700"
+              >
+                ×
+              </button>
+            </span>
+          </div>
+
+          <div class="flex justify-end space-x-8">
+            <div class="flex items-center space-x-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition duration-200 p-3">
+              <button
+              type="button"
               @click="replyingToMessageId = null"
-              class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition duration-200"
+              class="px-4 py-4 rounded-lg bg-gray-300 transition duration-200 p-3"
             >
               Annuler
             </button>
+            </div>
+            
             <button
               type="submit"
-              class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition duration-200"
-              :disabled="isSending"
+              class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition duration-200 p-3"
+              :disabled="isSending || (!newMessage && !selectedFile)"
             >
               Envoyer
             </button>
           </div>
+          </div>
+
+         
         </form>
       </div>
     </div>
@@ -139,6 +193,8 @@ export default {
       maxTextareaHeight: 120,  
       fileDownloadError: null,
       replyingToMessageId: null, // ID of the message being replied to
+      selectedFile: null,
+      API_URL: import.meta.env.VITE_API_URL,
     };
   },
   mounted() {
@@ -241,61 +297,97 @@ fetchTicket() {
       });
     },
 
-    sendMessage() {
-  if (!this.newMessage.trim()) return;
-
-  const token = localStorage.getItem('token');
-  const messageContent = this.newMessage;
-  const tempMessageId = `temp-${Date.now()}`;
-
-  const tempMessage = {
-    _id: tempMessageId,
-    content: messageContent,
-    createdAt: new Date().toISOString(),
-    userId: { _id: this.currentUserId, name: 'Vous' },
-  };
-
-  this.messages.push(tempMessage);
-  this.newMessage = '';
-  this.isSending = true; // Début de l'état de chargement
-  this.replyingToMessageId = null; // Hide the input area after sending
-
-  axios.post(
-    `${API_URL}/tickets/${this.ticketId}/messages`,
-    { content: messageContent },
-    { headers: { Authorization: `Bearer ${token}` } }
-  )
-    .then(response => {
-      const index = this.messages.findIndex(msg => msg._id === tempMessageId);
-      if (index !== -1) {
-        this.messages.splice(index, 1, response.data);
+    handleFileChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.selectedFile = file;
       }
-      this.isSending = false; // Fin de l'état de chargement
-    })
-    .catch(error => {
-      console.error("Erreur lors de l'envoi du message :", error);
-      const index = this.messages.findIndex(msg => msg._id === tempMessageId);
-      if (index !== -1) {
-        this.messages.splice(index, 1);
-      }
-      this.isSending = false; // Fin de l'état de chargement
-    });
-},
+    },
 
-updateTicketStatus(ticketId, statusData) {
-    const token = localStorage.getItem('token');
-    console.log('Mise à jour du statut pour le ticket ID:', ticketId, 'avec les données:', statusData);
-    return axios.put(`${API_URL}/tickets/${ticketId}/statut`, statusData, {
-        headers: { Authorization: `Bearer ${token}` },
-    })
-    .then(response => {
-        console.log('Réponse du serveur pour la mise à jour du statut:', response.data);
-        return response;
-    })
-    .catch(error => {
-        console.error('Erreur lors de la mise à jour du statut du ticket:', error);
-    });
-},
+    removeFile() {
+      this.selectedFile = null;
+      this.$refs.fileInput.value = '';
+    },
+
+    async sendMessage() {
+      if (!this.newMessage.trim() && !this.selectedFile) return;
+
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      
+      if (this.newMessage.trim()) {
+        formData.append('content', this.newMessage.trim());
+      }
+      
+      if (this.selectedFile) {
+        formData.append('file', this.selectedFile);
+      }
+
+      this.isSending = true;
+
+      try {
+        const response = await axios.post(
+          `${API_URL}/tickets/${this.ticketId}/messages`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        );
+
+        this.messages.push(response.data);
+        this.newMessage = '';
+        this.selectedFile = null;
+        this.$refs.fileInput.value = '';
+        this.replyingToMessageId = null;
+      } catch (error) {
+        console.error("Erreur lors de l'envoi du message :", error);
+      } finally {
+        this.isSending = false;
+      }
+    },
+
+    async downloadMessageFile(filename) {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${API_URL}/uploads/${filename}`, {
+          responseType: 'blob',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.status === 200) {
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', filename);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.URL.revokeObjectURL(url); // Clean up the URL object
+        } else {
+          throw new Error('File not found');
+        }
+      } catch (error) {
+        this.fileDownloadError = 'Impossible de télécharger le fichier.';
+        console.error(error);
+      }
+    },
+
+    updateTicketStatus(ticketId, statusData) {
+        const token = localStorage.getItem('token');
+        console.log('Mise à jour du statut pour le ticket ID:', ticketId, 'avec les données:', statusData);
+        return axios.put(`${API_URL}/tickets/${ticketId}/statut`, statusData, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+        .then(response => {
+            console.log('Réponse du serveur pour la mise à jour du statut:', response.data);
+            return response;
+        })
+        .catch(error => {
+            console.error('Erreur lors de la mise à jour du statut du ticket:', error);
+        });
+    },
     isNewDate(messages, index) {
       if (index === 0) return true;
       const currentDate = new Date(messages[index].createdAt).toDateString();
