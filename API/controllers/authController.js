@@ -21,7 +21,7 @@ exports.login = async (req, res) => {
         }
 
         // Générer un jeton JWT
-        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const token = jwt.sign({ id: user._id, role: user.role, email: user.email, name: user.name }, process.env.JWT_SECRET, { expiresIn: '1d' });
         // Vérifier si c'est la première connexion
         const mustChangePassword = user.mustChangePassword || false;
 

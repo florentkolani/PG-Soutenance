@@ -2,13 +2,12 @@
   <div class="flex h-screen">
  <!-- Sidebar -->
   <aside
-    :aria-expanded="sidebarVisible"
-    :class="[
-    'bg-gray-300 w-64 p-4 border-r fixed md:relative h-screen z-20 transition-transform duration-300',
+  :aria-expanded="sidebarVisible"
+  :class="[
+    'bg-gray-200 w-54 p-4 border-r fixed md:relative h-screen z-20 transition-transform duration-300',
     sidebarVisible ? 'translate-x-0' : '-translate-x-full',
     'md:translate-x-0'
-    
-    ]"
+  ]"
     >
 
       <div class="flex items-center mb-2">
@@ -26,8 +25,11 @@
           <!-- Utiliser filteredModules pour parcourir uniquement les modules autorisés -->
           <li v-for="module in filteredModules" :key="module.name">
             <router-link
-              :to="module.route"
-              class="block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+            :to="module.route"
+            :class="[
+              'block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100',
+              $route.path === module.route ? 'bg-blue-50 text-blue-700' : ''
+            ]"
             >
               {{ module.name }}
             </router-link>
@@ -89,29 +91,32 @@
 </header>
 
 <div class="flex space-x-4 p-6 bg-gray-100">
-  <div class="bg-white shadow-md rounded-lg p-4 w-1/4 text-center">
+  <div class="bg-white shadow-md rounded-lg p-4 w-1/5 text-center">
     <h4 class="text-lg font-semibold text-gray-700">Total Tickets</h4>
-    <p class="text-2xl font-bold text-indigo-500">{{ ticketData.total }}</p>
+    <p class="text-2xl font-bold text-yellow-300">{{ ticketData.total }}</p>
   </div>
-  <div class="bg-white shadow-md rounded-lg p-4 w-1/4 text-center">
+  <div class="bg-white shadow-md rounded-lg p-4 w-1/5 text-center">
+    <h4 class="text-lg font-semibold text-gray-700">En attente</h4>
+    <p class="text-2xl font-bold text-yellow-500">{{ ticketData.waiting }}</p>
+  </div>
+  <div class="bg-white shadow-md rounded-lg p-4 w-1/5 text-center">
     <h4 class="text-lg font-semibold text-gray-700">Ouverts</h4>
-    <p class="text-2xl font-bold text-red-500">{{ ticketData.open }}</p>
+    <p class="text-2xl font-bold text-blue-500">{{ ticketData.open }}</p>
   </div>
-  <div class="bg-white shadow-md rounded-lg p-4 w-1/4 text-center">
+  <div class="bg-white shadow-md rounded-lg p-4 w-1/5 text-center">
     <h4 class="text-lg font-semibold text-gray-700">En Cours</h4>
-    <p class="text-2xl font-bold text-blue-500">{{ ticketData.inProgress }}</p>
+    <p class="text-2xl font-bold text-orange-500">{{ ticketData.inProgress }}</p>
   </div>
-  <div class="bg-white shadow-md rounded-lg p-4 w-1/4 text-center">
-    <h4 class="text-lg font-semibold text-gray-700">Résolus</h4>
-    <p class="text-2xl font-bold text-yellow-500">{{ ticketData.resolved }}</p>
+  <div class="bg-white shadow-md rounded-lg p-4 w-1/5 text-center">
+    <h4 class="text-lg font-semibold text-gray-700">Clôturés</h4>
+    <p class="text-2xl font-bold text-green-500">{{ ticketData.resolved }}</p>
   </div>
 </div>
-
 <!-- Main View with Transition -->
 <transition name="fade" mode="out-in">
   <main class="flex-1 p-6 overflow-y-auto bg-gray-50" key="$route.fullPath">
     <router-view />
-    <TicketChart :data="[ticketData.open, ticketData.inProgress, ticketData.resolved]" />
+    <TicketChart :data="[ticketData.waiting, ticketData.open, ticketData.inProgress, ticketData.resolved]" />
   </main>
 </transition>
 
@@ -124,17 +129,16 @@ import { getUserRole, getToken } from '@/services/authService';
 import AllModule from '@/components/modules/AllModule.vue';
 import TicketChart from '@/views/TicketChart.vue';
 import { API_URL } from '@/services/config';
+
 export default {
   name: 'Dashboard',
   data() {
-  return {
-    AllModule: [
-        
+    return {
+      AllModule: [
         {
           name: 'Utilisateurs',
           route: '/Utilisateurs',
           role: ['Admin'],
-           
         },
         {
           name: 'Produits',
@@ -177,59 +181,61 @@ export default {
           role: [] 
         }
       ],
-    sidebarVisible: false,
-    userInfo: null,
-    ticketData: {
-      total: 35,
-      open: 10,
-      inProgress: 5,
-      resolved: 20
-    },
-    showDropdown: false,
-   
+      sidebarVisible: false,
+      userInfo: null,
+      ticketData: {
+        total: 0,
+        waiting: 0,
+        open: 0,
+        inProgress: 0,
+        resolved: 0
+      },
+      showDropdown: false,
+    };
+  },
 
-  };
-},
-
-computed: {
-  filteredModules() {
-    return this.AllModule.filter(module => 
-      module.role.length === 0 || module.role.includes(this.role)
-    );
-  }
-}
-,
-
-  async created() {
-    this.role = getUserRole();
-
-    const token = getToken();
-    if (token) {
-      const decoded = jwt_decode(token);
-
-      if (decoded.name && decoded.email) {
-        this.userInfo = {
-          name: decoded.name,
-          email: decoded.email,
-        };
-      } else {
-        // Sinon, récupère les informations via une API (si nécessaire)
-        try {
-          const userInfo = await fetchUserInfo(decoded.id);
-          this.userInfo = userInfo;
-        } catch (error) {
-          console.error("Erreur lors de la récupération des informations de l'utilisateur :", error);
-        }
-      }
-    } else {
-      console.error("Token non disponible");
+  computed: {
+    filteredModules() {
+      return this.AllModule.filter(module => 
+        module.role.length === 0 || module.role.includes(this.role)
+      );
     }
   },
+
+  async created() {
+    try {
+        const token = getToken();
+        if (!token) {
+            console.error("Token non disponible");
+            this.$router.push('/login');
+            return;
+        }
+
+        const decoded = window.jwt_decode(token);
+
+        this.role = decoded.role || getUserRole();
+        this.userInfo = {
+            name: decoded.name,
+            email: decoded.email,
+            role: decoded.role || getUserRole(),
+            id: decoded.id || decoded._id || decoded.userId // Ajout de plus de fallbacks
+        };
+        
+        if (!this.userInfo.id) {
+            console.error("ID utilisateur non trouvé dans le token");
+            return;
+        }
+
+        await this.fetchTickets();
+    } catch (error) {
+        console.error("Erreur lors de l'initialisation:", error);
+    }
+  },
+
   methods: {
     toggleSidebar() {
       this.sidebarVisible = !this.sidebarVisible;
       console.log("État de sidebarVisible :", this.sidebarVisible);
-
     },
     logout() {
       localStorage.removeItem('token');
@@ -238,9 +244,53 @@ computed: {
     toggleDropdown() {
       this.showDropdown = !this.showDropdown;
     },
+    async fetchTickets() {
+        try {
+            const token = getToken();
+            if (!token) throw new Error('Token non disponible');
+
+            const role = this.role; // Utiliser le rôle stocké dans le composant
+            const userId = this.userInfo?.id;
+
+            let url = `${API_URL}/tickets/stats`;
+            if (role !== 'Admin' && role !== 'AgentSupport' && userId) {
+                url += `/${userId}`;
+            }
+
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Erreur lors de la récupération des tickets');
+            }
+
+            const stats = await response.json();
+
+            this.ticketData = {
+                total: stats.total || 0,
+                waiting: stats.waiting || 0,
+                open: stats.open || 0,
+                inProgress: stats.inProgress || 0,
+                resolved: stats.resolved || 0
+            };
+        } catch (error) {
+            console.error('Erreur:', error);
+            this.ticketData = {
+                total: 0,
+                waiting: 0,
+                open: 0,
+                inProgress: 0,
+                resolved: 0
+            };
+        }
+    }
   },
 
-  
   components: {
     TicketChart,
     AllModule
@@ -271,7 +321,6 @@ async function fetchUserInfo(userId) {
 
   return await response.json();
 }
-
 </script>
 
 

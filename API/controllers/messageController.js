@@ -14,6 +14,11 @@ exports.sendMessage = async (req, res) => {
             return res.status(400).json({ message: 'ID de ticket invalide' });
         }
 
+        // Vérifier qu'il y a soit un message soit un fichier
+        if (!req.body.content && !req.file) {
+            return res.status(400).json({ message: 'Un message ou un fichier est requis' });
+        }
+
         // Récupérer le ticket
         const ticket = await Ticket.findById(ticketId).populate('userId');
 
@@ -23,9 +28,10 @@ exports.sendMessage = async (req, res) => {
 
         // Créer un nouveau message
         const message = new Message({
-            content: req.body.content,
+            content: req.body.content || '',
             ticketId,
-            userId: req.user.id
+            userId: req.user.id,
+            file: req.file ? req.file.filename : undefined
         });
         await message.save();
 
@@ -57,7 +63,7 @@ exports.sendMessage = async (req, res) => {
     const htmlContent = `
         <html>
             <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-                <h3 style="color: #007BFF;">Mise à jour de votre demande d’assistance <strong>#${ticket.NumeroTicket} (${typeDeDemande.name})</strong></h3>
+                <h3 style="color: #007BFF;">Mise à jour de votre demande d'assistance <strong>#${ticket.NumeroTicket} (${typeDeDemande.name})</strong></h3>
                 
                 <p>Bonjour ${recipientName},</p>
                 
@@ -101,7 +107,10 @@ exports.sendMessage = async (req, res) => {
         res.status(201).json(populatedMessage);
     } catch (error) {
         console.error("Erreur lors de l'envoi du message :", error);
-        res.status(500).json({ message: "Erreur lors de l'envoi du message", error });
+        res.status(500).json({ 
+            message: "Erreur lors de l'envoi du message", 
+            error: error.message 
+        });
     }
 };
 // Récupérer les messages d'un ticket spécifique
