@@ -4,23 +4,28 @@
     <div
       v-if="!showDialog"
       tabindex="-1"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/75 backdrop-blur-sm"
       @click.self="closeDropdowns"
     >
-      <div class="relative p-4 w-full max-w-2xl bg-white rounded-lg shadow">
-        <div class="relative p-4">
-          <div class="flex justify-between items-center pb-4 mb-4 border-b">
-            <h3 class="text-lg font-semibold text-gray-900">Ajoutez un utilisateur</h3>
+      <div class="relative w-full max-w-2xl transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all">
+        <div class="p-6">
+          <div class="flex justify-between items-center pb-4 mb-4 border-b border-gray-200">
+            <h3 class="text-xl font-bold text-gray-900">
+              {{ isEditing ? 'Modifier' : 'Ajouter' }} un utilisateur
+            </h3>
             <button
               @click="$emit('close')"
-              class="text-red-600 hover:text-red-800 text-2xl"
+              class="rounded-lg p-1.5 hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-colors"
               :disabled="isLoading"
             >
-              &times;
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
             </button>
           </div>
-          <!-- Modal body -->
-          <form @submit.prevent="registerUser">
+
+          <!-- Form -->
+          <form @submit.prevent="submitForm">
             <div class="grid gap-4 mb-4 sm:grid-cols-2">
               <div>
                 <label for="name" class="block mb-2 text-sm font-medium text-gray-900">
@@ -150,10 +155,10 @@
             <div class="flex justify-center">
               <button
                 type="submit"
-                class="inline-flex items-center px-5 py-2.5 mt-4 text-sm font-medium text-black bg-green-300 rounded-lg hover:bg-green-800 disabled:opacity-50"
+                class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 disabled:opacity-50 transition-all duration-200"
                 :disabled="isLoading"
               >
-                Ajouter l'utilisateur
+                {{ isEditing ? 'Modifier' : 'Ajouter' }} l'utilisateur
               </button>
             </div>
           </form>
@@ -187,6 +192,13 @@ import axios from 'axios';
 import { API_URL } from '@/services/config';
 
 export default {
+  props: {
+    userToEdit: {
+      type: Object,
+      default: null
+    }
+  },
+
   data() {
     return {
       user: {
@@ -212,7 +224,11 @@ export default {
       showCityDropdown: false,
     };
   },
+
   computed: {
+    isEditing() {
+      return !!this.userToEdit;
+    },
     filteredCountries() {
       return this.countries.filter(country =>
         country.name.toLowerCase().includes(this.countrySearch.toLowerCase())
@@ -224,6 +240,29 @@ export default {
       );
     },
   },
+
+  watch: {
+    userToEdit: {
+      immediate: true,
+      handler(newValue) {
+        if (newValue) {
+          // Pré-remplir le formulaire avec les données de l'utilisateur
+          this.user = { ...newValue };
+          this.countrySearch = newValue.pays;
+          this.citySearch = newValue.ville;
+          
+          // Trouver et sélectionner le pays
+          const country = this.countries.find(c => c.name === newValue.pays);
+          if (country) {
+            this.selectedCountryCode = country.code;
+            this.selectedCountryDialCode = country.dialCode;
+            this.loadCities(country.code);
+          }
+        }
+      }
+    }
+  },
+
   async created() {
     // Fetch countries from the database
     try {
@@ -291,45 +330,46 @@ export default {
       }
     },
 
-    // Enregistrer un nouvel utilisateur
-    async registerUser() {
+    async submitForm() {
       this.isLoading = true;
 
-      const indicatif = this.selectedCountryDialCode || ''; // Utiliser le code pays sélectionné
-      const contact = this.user.contact || ''; // Contact saisi par l'utilisateur
-
-      // Vérification du code et du contact
-      if (!indicatif || !contact) {
-        this.dialogType = 'error';
-        this.dialogMessage = "Veuillez renseigner l'indicatif et le numéro de contact.";
-        this.showDialog = true;
-        this.isLoading = false;
-        return;
-      }
-
-      // Concaténer le code et le numéro
-      const fullContact = `${indicatif}${contact}`;
-      const userPayload = { ...this.user, contact: fullContact };
-
       try {
-        const response = await axios.post(`${API_URL}/auth/register`, userPayload);
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('Token non trouvé');
 
-        if (response.status === 201) {
-          this.dialogType = 'success';
-          this.dialogMessage = 'Utilisateur enregistré avec succès';
-          this.showDialog = true;
+        const headers = {
+          Authorization: `Bearer ${token}`
+        };
+
+        let response;
+        if (this.isEditing) {
+          // Mise à jour
+          response = await axios.put(
+            `${API_URL}/users/${this.userToEdit._id}`,
+            this.user,
+            { headers }
+          );
         } else {
-          this.dialogType = 'error';
-          this.dialogMessage = response.data.message || "Erreur d'enregistrement de l'utilisateur";
+          // Création
+          response = await axios.post(
+            `${API_URL}/auth/register`,
+            this.user,
+            { headers }
+          );
+        }
+
+        if (response.status === 200 || response.status === 201) {
+          this.dialogType = 'success';
+          this.dialogMessage = `Utilisateur ${this.isEditing ? 'modifié' : 'ajouté'} avec succès`;
           this.showDialog = true;
+          this.$emit('user-updated');
         }
       } catch (error) {
         this.dialogType = 'error';
-        this.dialogMessage = "Une erreur est survenue lors de l'enregistrement.";
+        this.dialogMessage = `Erreur lors de ${this.isEditing ? 'la modification' : "l'ajout"} de l'utilisateur`;
         this.showDialog = true;
       } finally {
         this.isLoading = false;
-        this.resetForm();
       }
     },
 

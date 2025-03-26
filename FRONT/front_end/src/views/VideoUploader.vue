@@ -3,160 +3,44 @@
     <!-- Header intégré -->
     <Header 
       title="NOVA LEAD" 
-      primaryActionText="" 
-      @primaryAction="showProductModal = true" 
+      :primaryActionText="isAdmin || isAgentSupport ? 'Ajouter une vidéo' : ''" 
+      @primaryAction="showVideoModal = true" 
       @goToDashboard="redirectToDashboard" 
       class="fixed top-0 left-0 w-full bg-green shadow z-10"
     />
     <div class="container mx-auto px-4 mt-12">
-  <div class="flex justify-between items-center">
-    <!-- Barre de navigation (liens à gauche) -->
-    <nav class="bg-white shadow rounded-lg p-3">
-      <ul class="flex space-x-4">
-        <li>
-          <router-link to="/Pdfuploader" class="text-blue-500 hover:underline" replace>Documents</router-link>
-        </li>
-        <li>
-          <router-link to="/videos" class="text-blue-500 hover:underline">Vidéos</router-link>
-        </li>
-      </ul>
-    </nav>
+      <div class="flex justify-between items-center">
+        <!-- Barre de navigation (liens à gauche) -->
+        <nav class="bg-white shadow rounded-lg p-3">
+          <ul class="flex space-x-4">
+            <li>
+              <router-link to="/Pdfuploader" class="text-blue-500 hover:underline" replace>Documents</router-link>
+            </li>
+            <li>
+              <router-link to="/videos" class="text-blue-500 hover:underline">Vidéos</router-link>
+            </li>
+          </ul>
+        </nav>
 
-    <!-- Filtre par produit (à droite) -->
-    <div class="w-1/6">
-      <select
-        v-model="filterProduct"
-        id="filterProduct"
-        class="block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        @change="filtervideos"
-      >
-        <option value="">Tous les produits</option>
-        <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}</option>
-      </select>
+        <!-- Filtre par produit (à droite) -->
+        <div class="w-1/6">
+          <select
+            v-model="filterProduct"
+            id="filterProduct"
+            class="block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            @change="filtervideos"
+          >
+            <option value="">Tous les produits</option>
+            <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}</option>
+          </select>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
     <div class="mt-6">
       <h1 class="text-2xl font-bold mb-6">TUTORIELS</h1>
-      <!-- Formulaire de téléchargement : Afficher uniquement pour Admin et Agent -->
-      <form 
-        v-if="isAdmin || isAgentSupport" 
-        @submit.prevent="uploadVideo()" 
-        class="bg-white shadow rounded-lg p-6 mb-8"
-      >
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Input pour le titre -->
-          <div class="mb-4">
-            <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
-              Titre <span class="text-red-500">*</span></label>
-            <input
-              type="text"
-              id="title"
-              v-model="title"
-              class="block w-full border border-gray-300 rounded-lg p-2"
-              placeholder="Titre de la vidéo"
-            />
-          </div>
-          <!-- Type de Demande Select -->
-          <div class="mb-4">
-            <label for="typeDeDemande" class="block text-sm font-medium text-gray-700 mb-2">
-              Type de Demande <span class="text-red-500">*</span>
-            </label>
-            <select
-              v-model="selectedTypeDeDemande"
-              id="typeDeDemande"
-              required
-              class="block w-full border border-gray-300 rounded-lg p-2"
-            >
-              <option value="">Sélectionner un type de demande</option>
-              <option v-for="type in typeDeDemandes" :key="type._id" :value="type._id">{{ type.name }}</option>
-            </select>
-          </div>
-          <!-- Product Select -->
-          <div class="mb-4">
-            <label for="product" class="block text-sm font-medium text-gray-700 mb-2">
-              Produit <span class="text-red-500">*</span>
-            </label>
-            <select
-              v-model="selectedProduct"
-              id="product"
-              required
-              class="block w-full border border-gray-300 rounded-lg p-2"
-            >
-              <option value="">Sélectionner un produit</option>
-              <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}</option>
-            </select>
-          </div>
-          <!-- Input pour le fichier vidéo -->
-          <div class="mb-4">
-            <label for="videoFile" class="block text-sm font-medium text-gray-700 mb-2">Ajouter une Vidéo</label>
-            <div
-              class="relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 cursor-pointer"
-              @click="$refs.fileInput.click()"
-            >
-              <input
-                type="file"
-                id="videoFile"
-                ref="fileInput"
-                accept="video/*"
-                @change="onFileChange"
-                class="hidden"
-              />
-              <template v-if="!videoFile">
-                <svg
-                  class="mx-auto h-12 w-12 text-gray-400"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                <p class="mt-2 text-sm text-gray-600">Cliquer pour choisir un fichier</p>
-              </template>
-              <template v-else>
-                <div class="flex items-center justify-between bg-gray-100 p-2 rounded-lg">
-                  <p class="text-sm text-gray-700 truncate">{{ videoFile.name }}</p>
-                  <button 
-                    type="button" 
-                    @click="removeFile" 
-                    class="text-red-500 hover:text-red-700 focus:outline-none"
-                  >
-                    ✖
-                  </button>
-                </div>
-              </template>
-            </div>
-          </div>
-          <!-- Zone de commentaire -->
-          <div class="col-span-2 mb-4">
-            <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Ajouter Commentaire :</label>
-            <textarea
-              id="comment"
-              v-model="comment"
-              class="block w-full border border-gray-300 rounded-lg p-2"
-              placeholder="Ajoutez un commentaire à la vidéo"
-            ></textarea>
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-300"
-          :disabled="!comment || !title || !videoFile || !selectedTypeDeDemande || !selectedProduct"
-        >
-          Publier
-        </button>
-      </form>
 
       <!-- Liste des vidéos publiées -->
       <div>
-        <!-- <h2 class="text-lg font-semibold mb-4">Vidéos :</h2> -->
         <div v-if="filteredVideoList.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div v-for="(video, index) in filteredVideoList" :key="index" class="bg-white shadow rounded-lg p-4 flex">
             <div class="w-1/2">
@@ -200,16 +84,30 @@
         <p v-else class="text-gray-500">Aucune vidéo publiée pour l'instant.</p>
       </div>
     </div>
+
+    <!-- Modal -->
+    <VideoModal
+      v-model="showVideoModal"
+      :editing-video="editingVideo"
+      :products="products"
+      :typeDeDemandes="typeDeDemandes"
+      @video-created="onVideoCreated"
+      @video-updated="onVideoUpdated"
+    />
   </div>
 </template>
 
 <script>
 import Header from "@/components/layouts/Header.vue";
+import VideoModal from "@/components/layouts/VideoModal.vue";
 import axios from "axios";
 import { API_URL } from '@/services/config';
 
 export default {
-  components: { Header },
+  components: { 
+    Header,
+    VideoModal
+  },
   data() {
     return {
       products: [],
@@ -225,6 +123,8 @@ export default {
       editingVideoId: null,
       filterProduct: '',
       filteredVideoList: [],
+      showVideoModal: false,
+      editingVideo: null,
     };
   },
   computed: {
@@ -328,13 +228,8 @@ export default {
       this.$router.push("/dashboard");
     },
     editVideo(video) {
-      this.isEditing = true;
-      this.editingVideoId = video._id;
-      this.title = video.title;
-      this.comment = video.comment;
-      this.selectedTypeDeDemande = video.typededemande._id;
-      this.selectedProduct = video.produit._id;
-      this.videoFile = null;
+      this.editingVideo = video;
+      this.showVideoModal = true;
     },
     resetForm() {
       this.isEditing = false;
@@ -350,11 +245,25 @@ export default {
     },
     filtervideos() {
       if (this.filterProduct) {
-        this.filteredVideoList = this.videoList.filter(video => video.produit === this.filterProduct);
+        this.filteredVideoList = this.videoList.filter(video => {
+          const productId = video.produit?._id || video.produit;
+          return productId === this.filterProduct;
+        });
       } else {
         this.filteredVideoList = this.videoList;
       }
     },
+    onVideoCreated(newVideo) {
+      this.videoList.push({ ...newVideo, expanded: false });
+      this.filtervideos();
+    },
+    onVideoUpdated(updatedVideo) {
+      const index = this.videoList.findIndex(video => video._id === updatedVideo._id);
+      if (index !== -1) {
+        this.videoList[index] = { ...updatedVideo, expanded: false };
+        this.filtervideos();
+      }
+    }
   },
   async created() {
     this.decodeToken();

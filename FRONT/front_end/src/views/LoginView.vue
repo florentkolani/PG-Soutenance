@@ -1,44 +1,83 @@
 <template>
-  <section class="bg-gray-50">
-    <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-      <a href="#" class="flex flex-col items-center mb-6 text-2xl font-semibold text-gray-1000">
-        <img class="w-8 h-8 mr-2" src="../assets/logo.png" alt="logo">
-        NOVA LEAD
+  <section class="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 py-12">
+    <div class="flex flex-col items-center justify-center px-6 mx-auto h-full lg:py-0">
+      <!-- Logo et titre -->
+      <a href="#" class="flex flex-col items-center mb-8 transform hover:scale-105 transition-transform duration-300">
+        <img class="w-12 h-12 mb-2" src="../assets/logo.png" alt="logo">
+        <span class="text-3xl font-bold text-gray-800 tracking-tight">NOVA LEAD</span>
       </a>
-      <div class="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0 ">
-        <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-          <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl text-center">
-            Connectez - vous
+
+      <!-- Card de connexion -->
+      <div class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transform hover:shadow-2xl transition-all duration-300">
+        <div class="p-8 space-y-6">
+          <h1 class="text-2xl font-bold text-gray-900 text-center mb-2">
+            Bienvenue
           </h1>
+          <p class="text-center text-gray-600 text-sm mb-6">
+            Connectez-vous à votre compte
+          </p>
 
           <!-- Message d'erreur -->
-          <div v-if="showAlert" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative flex items-center justify-between text-center" role="alert">
-            <span>Échec de la connexion. Veuillez vérifier vos identifiants et Réessayez .</span>
-            <button @click="closeAlert" class="text-red-700 font-bold ml-4">
-              &times;
+          <div v-if="showAlert" 
+               class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg flex items-center space-x-3 animate-shake">
+            <i class="fas fa-exclamation-circle text-red-500"></i>
+            <span class="text-red-800 text-sm">Échec de la connexion. Veuillez vérifier vos identifiants.</span>
+            <button @click="resetError" class="text-red-500 hover:text-red-700 ml-auto">
+              <i class="fas fa-times"></i>
             </button>
           </div>
 
-          <!-- Formulaire de connexion -->
-          <form class="space-y-4 md:space-y-6" @submit.prevent="login">
-            <div>
-              <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Votre email</label>
-              <input v-model="email" type="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" required />
+          <!-- Formulaire -->
+          <form class="space-y-5" @submit.prevent="login">
+            <div class="space-y-2">
+              <label for="email" class="text-sm font-medium text-gray-700 block">Email</label>
+              <div class="relative">
+                <input 
+                  v-model="email" 
+                  type="email" 
+                  id="email" 
+                  class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  required 
+                />
+                <p class="mt-1 text-sm text-gray-500">Exemple : nom@domaine.com</p>
+              </div>
             </div>
-            <div class="relative">
-              <label for="password" class="block mb-2 text-sm font-medium text-gray-900">Mot de passe</label>
-              <input :type="showPassword ? 'text' : 'password'" v-model="password" id="password" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 pr-10" required />
-              <button type="button" @click="togglePasswordVisibility" class="absolute inset-y-0 right-3 top-5 flex items-center text-gray-500 focus:outline-none">
-                <span v-if="showPassword">👁️</span>
-                <span v-else>👁️‍🗨️</span>
-              </button>
-            </div>
-            <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Connexion</button>
-            <div class="flex justify-end">
-              <a href="/ForgotPassword" class="text-sm text-blue-600 hover:underline">Mot de passe oublié ?</a>
-            </div>
-          </form>
 
+            <div class="space-y-2">
+              <label for="password" class="text-sm font-medium text-gray-700 block">Mot de passe</label>
+              <div class="relative">
+                <input 
+                  :type="showPassword ? 'text' : 'password'" 
+                  v-model="password" 
+                  id="password" 
+                  class="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  required 
+                />
+                <button 
+                  type="button" 
+                  @click="togglePasswordVisibility" 
+                  class="absolute right-3 top-6 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                >
+                  <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                </button>
+                <p class="mt-1 text-sm text-gray-500">6 caractères minimum avec lettres et chiffres</p>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end">
+              <a href="/ForgotPassword" class="text-sm text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200">
+                Mot de passe oublié ?
+              </a>
+            </div>
+
+            <button 
+              type="submit" 
+              class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 font-medium transition-all duration-200 flex items-center justify-center space-x-2"
+            >
+              <span>Se connecter</span>
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </form>
         </div>
       </div>
     </div>
@@ -65,55 +104,77 @@ export default {
       this.showPassword = !this.showPassword;
     },
     
+    resetError() {
+      this.showAlert = false;
+      this.password = ''; // Reset le champ password
+    },
+    
     async login() {
-  console.log('Tentative de connexion...');
-  if (!this.email || !this.password) {
-    console.error('Email ou mot de passe manquant');
-    this.showAlert = true;
-    return;
-  }
-
-  try {
-    const credentials = { email: this.email, password: this.password };
-    const response = await axios.post(`${API_URL}/auth/login`, credentials);
-
-    // Afficher la réponse pour vérifier sa structure
-    console.log('Réponse de la connexion:', response);
-
-    // Vérifier si la structure de la réponse est correcte
-    if (response && response.data && response.data.token) {
-      localStorage.setItem('token', response.data.token);
-
-      // Vérification de mustChangePassword
-      if (response.data.mustChangePassword) {
-        console.log("Première connexion - redirection vers la page de modification");
-        this.$router.push('/changePassword');
-      } else {
-        console.log("Connexion réussie - redirection vers le tableau de bord");
-        this.$router.push('/dashboard');
+      console.log('Tentative de connexion...');
+      if (!this.email || !this.password) {
+        console.error('Email ou mot de passe manquant');
+        this.showAlert = true;
+        return;
       }
-    } else {
-      console.error('Token manquant dans la réponse');
-      this.showAlert = true; // Afficher l'alerte en cas de réponse invalide
-    }
-  } catch (error) {
-    console.error('Login failed:', error);
-    this.showAlert = true; // Afficher l'alerte en cas d'échec
-    if (error.response) {
-      console.error('Erreur de serveur:', error.response.data);
+
+      try {
+        const credentials = { email: this.email, password: this.password };
+        const response = await axios.post(`${API_URL}/auth/login`, credentials);
+
+        if (response && response.data && response.data.token) {
+          localStorage.setItem('token', response.data.token);
+
+          if (response.data.mustChangePassword) {
+            console.log("Première connexion - redirection vers la page de modification");
+            this.$router.push('/changePassword');
+          } else {
+            console.log("Connexion réussie - redirection vers le tableau de bord");
+            this.$router.push('/dashboard');
+          }
+        } else {
+          console.error('Token manquant dans la réponse');
+          this.showAlert = true;
+        }
+      } catch (error) {
+        console.error('Login failed:', error);
+        this.showAlert = true;
+        this.password = ''; // Reset le password en cas d'erreur
+        if (error.response) {
+          console.error('Erreur de serveur:', error.response.data);
+        }
+      }
     }
   }
-}
-
-}
-
 };
 </script>
 
-<style>
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
-button[type="button"] {
-  padding: 0;
-  background: none;
+<style scoped>
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Effet de focus amélioré */
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Animation de transition pour les boutons */
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+button:active {
+  transform: translateY(0);
 }
 </style>

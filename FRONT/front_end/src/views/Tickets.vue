@@ -2,7 +2,7 @@
   <div class="bg-gray-100 min-h-screen">
     <Header 
       title="NOVA LEAD" 
-      primaryActionText="Nouveau Ticket" 
+      primaryActionText="Nouveau ticket" 
       @primaryAction="showTicketModal = true" 
       @filterChanged="onFilterChanged"
       @goToDashboard="redirectToDashboard"
@@ -23,11 +23,11 @@
           <!-- Légende Urgence -->
           <td class="px-4 py-2 text-sm text-gray-900 border border-gray-300">
             <div class="flex items-center space-x-2">
-              <span class="font-bold">URGENCE :</span>
+              <span class="font-bold">PRIORITE :</span>
               <span class="inline-block w-4 h-4 bg-red-800 rounded-full"></span>
               <span>Urgent</span>
               <span class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
-              <span>Pas Urgent</span>
+              <span>Pas urgent</span>
             </div>
           </td>
 

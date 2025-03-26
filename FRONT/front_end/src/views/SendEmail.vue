@@ -3,7 +3,7 @@
     <!-- Header Component -->
     <Header 
       title="NOVA LEAD" 
-      primaryActionText="Envoyer un Email" 
+      primaryActionText="Envoyer un email" 
       @primaryAction="openEmailModal" 
       @filterAction="openFilterOptions" 
       @goToDashboard="redirectToDashboard"

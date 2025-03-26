@@ -53,7 +53,8 @@
 <!-- Ajout de l'input pour le fichier -->
 <div v-if="message.file" class="mt-2">
   <a 
-  :href="`${API_URL}/uploads/${message.file}`" 
+  :href="`/uploads/${message.file}`" 
+  :download="message.file"
     class="text-blue-500 hover:underline flex items-center"
     @click.prevent="downloadMessageFile(message.file)"
   >
@@ -64,16 +65,38 @@
   </a>
 </div>
 
-    <div class="flex items-center justify-end">
-      <!-- Bouton Répondre -->
-      <button 
-        v-if="message.userId?._id !== currentUserId" 
-        @click="toggleReply(message._id)" 
-        class="text-black-500 text-sm mt-2 px-3 py-1 rounded-lg bg-blue-500 transition duration-200"
-      >
-        Répondre
-      </button>
+<div class="flex items-center justify-end">
+  <!-- Bouton Répondre -->
+  <button 
+    v-if="message.userId?._id !== currentUserId" 
+    @click="toggleReply(message._id)" 
+    class="text-white text-sm mt-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 transition duration-200 flex items-center space-x-2"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+    </svg>
+    <span>Répondre</span>
+  </button>
+</div>
+
+<!-- Popup d'erreur -->
+<div v-if="showClosedTicketError" class="fixed inset-0 bg-gray-500 bg-opacity-10 flex justify-center items-center">
+  <div class="bg-white rounded-lg p-6 w-1/4 shadow-md relative text-center">
+    <div class="flex justify-center mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
     </div>
+    <h3 class="text-xl font-medium mb-4">Action impossible</h3>
+    <p class="text-gray-600 mb-6">Ce ticket est clôturé, vous ne pouvez plus y répondre.</p>
+    <button 
+      @click="showClosedTicketError = false" 
+      class="w-1/2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200 font-medium"
+    >
+      Compris
+    </button>
+  </div>
+</div>
     <p class="text-xs text-gray-500 text-right mt-3">{{ formatDateWithTime(message.createdAt) }}</p>
       
 
@@ -113,60 +136,65 @@
             @input="adjustTextareaHeight"
           ></textarea>
 
-          <div class="flex justify-between items-center ">
-             <!-- Ajout de l'input pour le fichier -->
-          <div class="flex items-center space-x-2 p-3 bg-gray-200 rounded-lg hover:bg-gray-300 transition duration-200">
-            <input
-              type="file"
-              ref="fileInput"
-              @change="handleFileChange"
-              accept="image/*,.pdf,.doc,.docx"
-              class="hidden"
-            />
-            <button
-              type="button"
-              @click="$refs.fileInput.click()"
-              class="px-4 py-3 rounded-lg bg-gray-300 transition duration-200 flex items-center"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-              </svg>
-              Joindre un fichier
-            </button>
-            <span v-if="selectedFile" class="text-sm text-gray-600">
-              {{ selectedFile.name }}
+          <div class="flex justify-between items-center">
+            <!-- Bouton pour joindre un fichier -->
+            <div class="flex items-center space-x-2">
+              <input
+                type="file"
+                ref="fileInput"
+                @change="handleFileChange"
+                accept="image/*,.pdf,.doc,.docx"
+                class="hidden"
+              />
               <button
                 type="button"
-                @click="removeFile"
-                class="ml-2 text-red-500 hover:text-red-700"
+                @click="$refs.fileInput.click()"
+                class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition duration-200 flex items-center text-gray-700"
               >
-                ×
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                </svg>
+                Joindre un fichier
               </button>
-            </span>
-          </div>
-
-          <div class="flex justify-end space-x-8">
-            <div class="flex items-center space-x-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition duration-200 p-3">
-              <button
-              type="button"
-              @click="replyingToMessageId = null"
-              class="px-4 py-4 rounded-lg bg-gray-300 transition duration-200 p-3"
-            >
-              Annuler
-            </button>
+              <span v-if="selectedFile" class="text-sm text-gray-600">
+                {{ selectedFile.name }}
+                <button
+                  type="button"
+                  @click="removeFile"
+                  class="ml-2 text-red-500 hover:text-red-700"
+                >
+                  ×
+                </button>
+              </span>
             </div>
-            
-            <button
-              type="submit"
-              class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition duration-200 p-3"
-              :disabled="isSending || (!newMessage && !selectedFile)"
-            >
-              Envoyer
-            </button>
-          </div>
-          </div>
 
-         
+            <div class="flex space-x-3">
+              <!-- Bouton Annuler -->
+              <button
+                type="button"
+                @click="replyingToMessageId = null"
+                class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition duration-200 text-gray-700"
+              >
+                Annuler
+              </button>
+              
+              <!-- Bouton Envoyer -->
+              <button
+                type="submit"
+                class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition duration-200 flex items-center justify-center min-w-[100px] disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="isSending || (!newMessage && !selectedFile)"
+              >
+                <template v-if="isSending">
+                  <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Envoi...
+                </template>
+                <span v-else>Envoyer</span>
+              </button>
+            </div>
+          </div>
         </form>
       </div>
     </div>
@@ -195,6 +223,7 @@ export default {
       replyingToMessageId: null, // ID of the message being replied to
       selectedFile: null,
       API_URL: import.meta.env.VITE_API_URL,
+      showClosedTicketError: false,
     };
   },
   mounted() {
@@ -450,10 +479,17 @@ fetchTicket() {
         }
     },
     toggleReply(messageId) {
-      // Allow replying to the description message as well
-      if (messageId === null) return; // Prevent toggling for invalid IDs
-      this.replyingToMessageId = this.replyingToMessageId === messageId ? null : messageId;
-    },
+  if (messageId === null) return;
+  
+  // Vérifier si le ticket est clôturé
+  if (this.ticket.statut === 'cloturé') {
+    this.showClosedTicketError = true; // Affiche le popup
+    return; // Empêche toute autre action
+  }
+  
+  // Si le ticket n'est pas clôturé, bascule la réponse
+  this.replyingToMessageId = this.replyingToMessageId === messageId ? null : messageId;
+},
   }
 };
 </script>

@@ -54,138 +54,57 @@
         </tbody>
       </table>
 
-      <!-- Modal d'enregistrement d'utilisateur -->
-      <UserModal v-if="showModal" @close="showModal = false" />
+      <!-- Modal d'enregistrement/modification d'utilisateur -->
+      <UserModal 
+        v-if="showModal" 
+        :userToEdit="editUserData"
+        @close="closeUserModal" 
+        @user-updated="onUserUpdated"
+      />
 
       <!-- Modal de détails -->
-<div v-if="showDetailsModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-  <div class="bg-white p-6 rounded-lg shadow-lg w-2/3">
-    <h2 class="text-xl font-bold mb-6 text-center">Détails de l'utilisateur</h2>
-    <table class="table-auto w-full border-collapse border border-gray-300">
-      <thead>
-        <tr class="bg-gray-200 text-left">
-          <th class="border border-gray-300 px-4 py-2">Champ</th>
-          <th class="border border-gray-300 px-4 py-2">Valeur</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="border border-gray-300 px-4 py-2 font-bold">Nom</td>
-          <td class="border border-gray-300 px-4 py-2">{{ selectedUser.name }}</td>
-        </tr>
-        <tr>
-          <td class="border border-gray-300 px-4 py-2 font-bold">Email</td>
-          <td class="border border-gray-300 px-4 py-2">{{ selectedUser.email }}</td>
-        </tr>
-        <tr>
-          <td class="border border-gray-300 px-4 py-2 font-bold">Contact</td>
-          <td class="border border-gray-300 px-4 py-2">{{ selectedUser.contact }}</td>
-        </tr>
-        <tr>
-          <td class="border border-gray-300 px-4 py-2 font-bold">Rôle</td>
-          <td class="border border-gray-300 px-4 py-2">{{ selectedUser.role }}</td>
-        </tr>
-        <tr>
-          <td class="border border-gray-300 px-4 py-2 font-bold">Pays</td>
-          <td class="border border-gray-300 px-4 py-2">{{ selectedUser.pays }}</td>
-        </tr>
-        <tr>
-          <td class="border border-gray-300 px-4 py-2 font-bold">Ville</td>
-          <td class="border border-gray-300 px-4 py-2">{{ selectedUser.ville }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="flex justify-center mt-6">
-      <button @click="closeDetailsModal" class="bg-green-500 text-white px-4 py-2 rounded-md">Fermer</button>
-    </div>
-  </div>
-</div>
-
-
-      <!-- Modal pour l'édition d'utilisateur -->
-<div v-if="editUserData" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-  <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg">
-    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Modifier l'Utilisateur</h2>
-    <form @submit.prevent="updateUser">
-      <!-- Champ Nom -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700">Nom :</label>
-        <input 
-          v-model="editUserData.name" 
-          type="text" 
-          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
-          placeholder="Entrez le nom"
-        />
+      <div v-if="showDetailsModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-2/3">
+          <h2 class="text-xl font-bold mb-6 text-center">Détails de l'utilisateur</h2>
+          <table class="table-auto w-full border-collapse border border-gray-300">
+            <thead>
+              <tr class="bg-gray-200 text-left">
+                <th class="border border-gray-300 px-4 py-2">Champ</th>
+                <th class="border border-gray-300 px-4 py-2">Valeur</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="border border-gray-300 px-4 py-2 font-bold">Nom</td>
+                <td class="border border-gray-300 px-4 py-2">{{ selectedUser.name }}</td>
+              </tr>
+              <tr>
+                <td class="border border-gray-300 px-4 py-2 font-bold">Email</td>
+                <td class="border border-gray-300 px-4 py-2">{{ selectedUser.email }}</td>
+              </tr>
+              <tr>
+                <td class="border border-gray-300 px-4 py-2 font-bold">Contact</td>
+                <td class="border border-gray-300 px-4 py-2">{{ selectedUser.contact }}</td>
+              </tr>
+              <tr>
+                <td class="border border-gray-300 px-4 py-2 font-bold">Rôle</td>
+                <td class="border border-gray-300 px-4 py-2">{{ selectedUser.role }}</td>
+              </tr>
+              <tr>
+                <td class="border border-gray-300 px-4 py-2 font-bold">Pays</td>
+                <td class="border border-gray-300 px-4 py-2">{{ selectedUser.pays }}</td>
+              </tr>
+              <tr>
+                <td class="border border-gray-300 px-4 py-2 font-bold">Ville</td>
+                <td class="border border-gray-300 px-4 py-2">{{ selectedUser.ville }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="flex justify-center mt-6">
+            <button @click="closeDetailsModal" class="bg-green-500 text-white px-4 py-2 rounded-md">Fermer</button>
+          </div>
+        </div>
       </div>
-      <!-- Champ Email -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700">Email :</label>
-        <input 
-          v-model="editUserData.email" 
-          type="email" 
-          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
-          placeholder="Entrez l'email"
-        />
-      </div>
-      <!-- Champ Contact -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700">Contact :</label>
-        <input 
-          v-model="editUserData.contact" 
-          type="text" 
-          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
-          placeholder="Entrez le contact"
-        />
-      </div>
-      <!-- Champ Rôle -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700">Rôle :</label>
-        <input 
-          v-model="editUserData.role" 
-          type="text" 
-          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
-          placeholder="Entrez le rôle"
-        />
-      </div>
-      <!-- Champ Pays -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700">Pays :</label>
-        <input 
-          v-model="editUserData.pays" 
-          type="text" 
-          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
-          placeholder="Entrez le pays"
-        />
-      </div>
-      <!-- Champ Ville -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700">Ville :</label>
-        <input 
-          v-model="editUserData.ville" 
-          type="text" 
-          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
-          placeholder="Entrez la ville"
-        />
-      </div>
-      <!-- Boutons -->
-      <div class="flex justify-center space-x-4">
-        <button 
-          type="submit" 
-          class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md shadow-md transition-all"
-        >
-          Enregistrer
-        </button>
-        <button 
-          @click="closeEditModal" 
-          type="button" 
-          class="bg-gray-500 hover:bg-gray-300 text-black px-6 py-2 rounded-md shadow-md transition-all"
-        >
-          Annuler
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
 
       <!-- Confirmation d'archivage -->
       <div v-if="showArchiveModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center text-enter">
@@ -202,17 +121,17 @@
       </div>
     </main>
     <!-- Modal d'alerte -->
-<div v-if="showAlertModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-  <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-    <h2 class="text-xl font-bold mb-4" :class="{'text-green-500 text-center': alert.type === 'success', 'text-red-500 text-center': alert.type === 'error'}">
-      {{ alert.type === 'success' ? 'Succès' : 'Erreur' }}
-    </h2>
-    <p>{{ alert.message }}</p>
-    <div class="flex justify-center">
-      <button @click="showAlertModal = false" class="mt-4 bg-gray-500 text-white px-4 py-2 rounded">Fermer</button>
+    <div v-if="showAlertModal" class="fixed inset-0 z-[60] bg-gray-800 bg-opacity-50 flex justify-center items-center">
+      <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+        <div :class="['text-6xl mb-4 text-center', alert.type === 'success' ? 'text-green-500' : 'text-red-500']">
+          <i :class="alert.type === 'success' ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+        </div>
+        <p class="text-center text-xl mb-4">{{ alert.message }}</p>
+        <div class="flex justify-center">
+          <button @click="showAlertModal = false" class="mt-4 bg-gray-500 text-white px-4 py-2 rounded">Fermer</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
   </div>
   
   <!-- Pagination -->
@@ -345,7 +264,7 @@ export default {
 
     openEditModal(user) {
       this.editUserData = { ...user };
-      this.showEditModal = true;
+      this.showModal = true;
     },
     closeEditModal() {
       this.editUserData = null;
@@ -357,33 +276,12 @@ export default {
       this.alert.type = type;
       this.showAlertModal = true;
 
-      // Fermez le modal après 3 secondes
+      // Fermer le modal après 3 secondes
       setTimeout(() => {
         this.showAlertModal = false;
         this.alert.message = '';
         this.alert.type = '';
-      }, 1000);
-    },
-
-    updateUser() {
-      const token = this.checkAuthorization();
-      if (!token) return;
-//Mise à jour de l'utilisateur
-      axios.put(`${API_URL}/users/${this.editUserData._id}`, this.editUserData, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-      .then(response => {
-        console.log('Utilisateur mis à jour:', response.data);
-        this.fetchUsers();
-        this.closeEditModal();
-        this.showAlert('Utilisateur mis à jour avec succès.', 'success');
-      })
-      .catch(error => {
-        console.error('Erreur de Mise à jour de Utilisateur:', error);
-        this.showAlert('Échec de la mise à jour de l\'utilisateur.', 'error');
-      });
+      }, 3000);
     },
 
     openArchiveModal(userId) {
@@ -435,6 +333,17 @@ export default {
     goToPage(page) {
       if (page < 1 || page > this.totalPages) return; 
       this.fetchUsers(page, this.itemsPerPage);
+    },
+
+    closeUserModal() {
+      this.showModal = false;
+      this.editUserData = null;
+    },
+
+    onUserUpdated() {
+      this.fetchUsers();
+      this.closeUserModal();
+      this.showAlert('Utilisateur mis à jour avec succès.', 'success');
     },
   },
 
