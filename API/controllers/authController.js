@@ -123,13 +123,13 @@ exports.register = async (req, res) => {
         // Sauvegarder l'utilisateur dans la base de données
         await user.save();
 
-        const emailSubject = "Bienvenue sur notre plateforme d’assistance";
+        const emailSubject = "Bienvenue sur notre plateforme d'assistance";
             const emailContent = `
             <html>
                 <body style="font-family: Arial, sans-serif; line-height: 1.6;">
                     <p>Bonjour Cher partenaire ${name},</p>
 
-                    <p>Nous sommes ravis de vous accueillir sur la plateforme d’assistance de NOVA LEAD. Votre compte a été créé avec succès, et vous pouvez dès maintenant accéder à notre espace dédié au suivi et à la gestion de vos demandes d’assistance.</p>
+                    <p>Nous sommes ravis de vous accueillir sur la plateforme d'assistance de NOVA LEAD. Votre compte a été créé avec succès, et vous pouvez dès maintenant accéder à notre espace dédié au suivi et à la gestion de vos demandes d'assistance.</p>
 
                     <p><strong>Voici vos informations de connexion :</strong></p>
                     <ul>
@@ -149,7 +149,7 @@ exports.register = async (req, res) => {
                     </li>
                         <li>Connectez-vous avec vos identifiants fournis ci-dessus.</li>
                         <li>Suivez les instructions pour changer votre mot de passe.</li>
-                        <li>Commencez à soumettre et suivre vos demandes d’assistance.</li>
+                        <li>Commencez à soumettre et suivre vos demandes d'assistance.</li>
                     </ul>
 
                     <p>Désormais, toutes vos requêtes seront centralisées sur cette plateforme afin de vous offrir un service plus efficace et un meilleur suivi de vos demandes.</p>
@@ -183,27 +183,24 @@ exports.resetPasswordRequest = async (req, res) => {
             return res.status(404).json({ message: 'Aucun utilisateur trouvé avec cet email.' });
         }
 
-        // Générer un jeton pour la réinitialisation de mot de passe
-        const resetToken = jwt.sign(
-            { id: user._id, email: user.email },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' } // Jeton valide pendant 1 heure
-        );
+        // Générer un nouveau mot de passe aléatoire
+        const newPassword = generateRandomPassword(8);
 
-        // Construire le lien de réinitialisation
-        const resetLink = `http://localhost:5000/api/auth/ForgotPassword?token=${resetToken}`;
+        // Mettre à jour le mot de passe de l'utilisateur
+        user.password = newPassword;
+        user.mustChangePassword = true; // Forcer le changement de mot de passe à la prochaine connexion
+        await user.save();
 
         // Contenu de l'email
-        const emailSubject = 'Réinitialisation de votre mot de passe';
+        const emailSubject = 'Nouveau mot de passe temporaire';
         const emailContent = `
         <html>
           <body style="font-family: Arial, sans-serif; line-height: 1.6;">
             <p>Bonjour ${user.name},</p>
-            <p>Nous avons reçu une demande de réinitialisation de votre mot de passe.</p>
-            <p>Cliquez sur le lien ci-dessous pour réinitialiser votre mot de passe :</p>
-            <p><a href="${resetLink}" style="color: blue; text-decoration: underline;">Réinitialiser mon mot de passe</a></p>
-            <p>Ce lien est valide pendant 1 heure.</p>
-            <p>Si vous n'avez pas demandé cette réinitialisation, veuillez ignorer cet email.</p>
+            <p>Suite à votre demande de réinitialisation, voici votre nouveau mot de passe temporaire :</p>
+            <p><strong>Mot de passe temporaire : ${newPassword}</strong></p>
+            <p>Pour des raisons de sécurité, vous devrez changer ce mot de passe lors de votre prochaine connexion.</p>
+            <p>Connectez-vous sur : <a href="http://localhost:5173/login">la plateforme</a></p>
             <p style="text-align: right; margin-top: 20px;">Cordialement,</p>
             <p style="text-align: right;">L'équipe de support</p>
           </body>
@@ -213,9 +210,9 @@ exports.resetPasswordRequest = async (req, res) => {
         // Envoyer l'email
         await sendEmail(user.email, emailSubject, emailContent);
 
-        res.status(200).json({ message: 'Email de réinitialisation envoyé avec succès.' });
+        res.status(200).json({ message: 'Un nouveau mot de passe a été envoyé à votre adresse email.' });
     } catch (error) {
-        console.error('Erreur lors de la demande de réinitialisation de mot de passe:', error);
+        console.error('Erreur lors de la réinitialisation du mot de passe:', error);
         res.status(500).json({ message: 'Erreur de serveur' });
     }
 };

@@ -3,17 +3,17 @@
     <section v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div class="bg-white p-0 rounded-lg shadow-lg max-w-lg w-full max-h-[100vh] overflow-y-auto relative">
         <button @click="$emit('close')" 
-        class="absolute top-4 right-6 text-red-600 hover:text-gray-700 text-2xl w-10 h-10 flex items-center justify-center">&times;</button>
+        class="absolute top-2 right-4 text-red-600 hover:text-gray-700 text-2xl w-8 h-8 flex items-center justify-center">&times;</button>
 
-        <div class="py-4 px-6">
-          <h2 class="mb-4 text-xl font-bold text-gray-900 text-center">
+        <div class="py-2 px-4">
+          <h2 class="mb-2 text-xl font-bold text-gray-900 text-center">
             {{ isEdit ? "Modifier le ticket" : "Créer un ticket" }}
           </h2>
           <form @submit.prevent="handleSubmit">
-            <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
+            <div class="grid gap-2 sm:grid-cols-2 sm:gap-3">
               <!-- Product Select -->
               <div class="sm:col-span-2">
-                <label for="product" class="block mb-2 text-sm font-medium text-gray-900">
+                <label for="product" class="block mb-1 text-sm font-medium text-gray-900">
                   Produit <span class="text-red-500">*</span>
                 </label>
                 <select
@@ -29,7 +29,7 @@
 
               <!-- Type de Demande Select -->
               <div class="sm:col-span-2">
-                <label for="typeDeDemande" class="block mb-2 text-sm font-medium text-gray-900">
+                <label for="typeDeDemande" class="block mb-1 text-sm font-medium text-gray-900">
                   Type de demande <span class="text-red-500">*</span>
                 </label>
                 <select
@@ -69,34 +69,67 @@
                 ></textarea>
               </div>
               <div class="sm:col-span-2">
-              <!-- Afficher le fichier récupéré s'il existe -->
-              <div v-if="file" class="mb-4">
-                <p class="text-sm font-medium text-gray-900">Fichier actuel :</p>
-                <a :href="file" target="_blank" class="text-blue-500 hover:underline">
-                  Télécharger le fichier
-                </a>
-                <button
-                  @click="removeFile"
-                  type="button"
-                  class="ml-4 text-sm text-red-500 hover:text-red-700"
-                >
-                  X
-                </button>
-              </div>
+                <!-- Afficher le fichier récupéré s'il existe -->
+                <div v-if="file" class="mb-2">
+                  <p class="text-sm font-medium text-gray-900">Fichier actuel :</p>
+                  <div class="flex items-center justify-between bg-gray-100 p-2 rounded-lg mt-1">
+                    <a :href="file" target="_blank" class="text-blue-500 hover:underline truncate">
+                      Télécharger le fichier
+                    </a>
+                    <button
+                      @click="removeFile"
+                      type="button"
+                      class="text-red-500 hover:text-red-700 focus:outline-none"
+                    >
+                      ✖
+                    </button>
+                  </div>
+                </div>
 
-              <!-- Champ pour télécharger un nouveau fichier -->
-              <label v-if="!file" for="screenshot" class="block mb-2 text-sm font-medium text-gray-900">
-                Télécharger un fichier (seul les fichiers .png, .jpg, .jpeg, .Mswords, .pdf sont autorisés)
-              </label>
-              <input
-                type="file"
-                @change="handleFileChange"
-                id="screenshot"
-                class="bg-gray-50 text-sm rounded-lg w-full p-2.5"
-              />
+                <!-- Zone d'upload -->
+                <div v-if="!file" class="mt-1">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Ajouter un fichier
+                  </label>
+                  <div
+                    class="relative border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-500 cursor-pointer transition-colors duration-200"
+                    @click="$refs.fileInput.click()"
+                  >
+                    <input
+                      type="file"
+                      ref="fileInput"
+                      @change="handleFileChange"
+                      class="hidden"
+                      accept=".png,.jpg,.jpeg,.pdf,.doc,.docx"
+                    />
+                    <div class="space-y-1 text-center">
+                      <svg
+                        class="mx-auto h-8 w-8 text-gray-400"
+                        stroke="currentColor"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        />
+                      </svg>
+                      <div class="text-sm text-gray-600">
+                        <span class="font-medium text-blue-500 hover:text-blue-600">
+                          Cliquer pour choisir
+                        </span>
+                        <p class="text-xs text-gray-500 mt-1">
+                          PNG, JPG, PDF, Word jusqu'à 10MB
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            </div>
-            <div class="flex justify-center">
+            <div class="flex justify-center mt-3">
               <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                 <div class="w-12 h-12 border-4 border-green-400 border-t-transparent rounded-full animate-spin"></div>
               </div>

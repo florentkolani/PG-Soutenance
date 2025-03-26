@@ -3,8 +3,8 @@
     <!-- Header intégré -->
     <Header 
       title="NOVA LEAD" 
-      primaryActionText="" 
-      @primaryAction="showProductModal = true" 
+      :primaryActionText="isAdmin || isAgentSupport ? 'Ajouter un document' : ''" 
+      @primaryAction="showPdfModal = true" 
       @goToDashboard="redirectToDashboard" 
       class="fixed top-0 left-0 w-full bg-green shadow z-10"
     />
@@ -38,122 +38,6 @@
 </div>
     <div class="mt-4">
       <h1 class="text-2xl font-bold mb-6">MANUELS ET GUIDES</h1>
-      <!-- Formulaire de téléchargement : Afficher uniquement pour Admin et Agent -->
-      <form 
-        v-if="isAdmin || isAgentSupport" 
-        @submit.prevent="isEditing ? updatePdf() : uploadPdf()" 
-        class="bg-white shadow rounded-lg p-6 mb-8"
-      >
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Input pour le titre -->
-          <div class="mb-4">
-            <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
-              Titre <span class="text-red-500">*</span></label>
-            <input
-              type="text"
-              id="title"
-              v-model="title"
-              class="block w-full border border-gray-300 rounded-lg p-2"
-              placeholder="Titre du document"
-            />
-          </div>
-          <!-- Type de Demande Select -->
-          <div class="mb-4">
-            <label for="typeDeDemande" class="block text-sm font-medium text-gray-700 mb-2">
-              Type de Demande <span class="text-red-500">*</span>
-            </label>
-            <select
-              v-model="selectedTypeDeDemande"
-              id="typeDeDemande"
-              required
-              class="block w-full border border-gray-300 rounded-lg p-2"
-            >
-              <option value="">Sélectionner un type de demande</option>
-              <option v-for="type in typeDeDemandes" :key="type._id" :value="type._id">{{ type.name }}</option>
-            </select>
-          </div>
-          <!-- Product Select -->
-          <div class="mb-4">
-            <label for="product" class="block text-sm font-medium text-gray-700 mb-2">
-              Produit <span class="text-red-500">*</span>
-            </label>
-            <select
-              v-model="selectedProduct"
-              id="product"
-              required
-              class="block w-full border border-gray-300 rounded-lg p-2"
-            >
-              <option value="">Sélectionner un produit</option>
-              <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}</option>
-            </select>
-          </div>
-          <!-- Input pour le fichier -->
-          <div class="mb-4">
-            <label for="pdfFile" class="block text-sm font-medium text-gray-700 mb-2">Ajouter un Document</label>
-            <div
-              class="relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 cursor-pointer"
-              @click="$refs.fileInput.click()"
-            >
-              <input
-                type="file"
-                id="pdfFile"
-                ref="fileInput"
-                accept="application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation"
-                @change="onFileChange"
-                class="hidden"
-              />
-              <template v-if="!pdfFile">
-                <svg
-                  class="mx-auto h-12 w-12 text-gray-400"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                <p class="mt-2 text-sm text-gray-600">Cliquer pour choisir un fichier</p>
-              </template>
-              <template v-else>
-                <div class="flex items-center justify-between bg-gray-100 p-2 rounded-lg">
-                  <p class="text-sm text-gray-700 truncate">{{ pdfFile.name }}</p>
-                  <button 
-                    type="button" 
-                    @click="removeFile" 
-                    class="text-red-500 hover:text-red-700 focus:outline-none"
-                  >
-                    ✖
-                  </button>
-                </div>
-              </template>
-            </div>
-          </div>
-          <!-- Zone de commentaire -->
-          <div class="col-span-2 mb-4">
-            <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Ajouter Commentaire :</label>
-            <textarea
-              id="comment"
-              v-model="comment"
-              class="block w-full border border-gray-300 rounded-lg p-2"
-              placeholder="Ajoutez un commentaire au fichier PDF"
-            ></textarea>
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-300"
-          :disabled="!comment || !title || !selectedTypeDeDemande || !selectedProduct"
-        >
-          {{ isEditing ? 'Mettre à jour' : 'Publier' }}
-        </button>
-      </form>
-
       <!-- Liste des PDF publiés -->
       <div>
         <!-- <h2 class="text-lg font-semibold mb-4">MANUELS ET GUIDES :</h2> -->
@@ -197,16 +81,30 @@
         <p v-else class="text-gray-500">Aucun document publié pour l'instant.</p>
       </div>
     </div>
+
+    <!-- Ajout du modal -->
+    <PdfModal
+      v-model="showPdfModal"
+      :editing-pdf="editingPdf"
+      :products="products"
+      :typeDeDemandes="typeDeDemandes"
+      @pdf-created="onPdfCreated"
+      @pdf-updated="onPdfUpdated"
+    />
   </div>
 </template>
 
 <script>
 import Header from "@/components/layouts/Header.vue";
+import PdfModal from "@/components/layouts/PdfModal.vue";
 import axios from "axios";
 import { API_URL } from '@/services/config';
 
 export default {
-  components: { Header },
+  components: { 
+    Header,
+    PdfModal
+  },
   data() {
     return {
       products: [],
@@ -222,6 +120,8 @@ export default {
       editingPdfId: null,
       filterProduct: '',
       filteredPdfList: [],
+      showPdfModal: false,
+      editingPdf: null,
     };
   },
   computed: {
@@ -356,13 +256,8 @@ export default {
       this.$router.push("/dashboard");
     },
     editPdf(pdf) {
-      this.isEditing = true;
-      this.editingPdfId = pdf._id;
-      this.title = pdf.title;
-      this.comment = pdf.comment;
-      this.selectedTypeDeDemande = pdf.typededemande._id;
-      this.selectedProduct = pdf.produit._id;
-      this.pdfFile = null;
+      this.editingPdf = pdf;
+      this.showPdfModal = true;
     },
     resetForm() {
       this.isEditing = false;
@@ -378,11 +273,25 @@ export default {
     },
     filterPdfs() {
       if (this.filterProduct) {
-        this.filteredPdfList = this.pdfList.filter(pdf => pdf.produit._id === this.filterProduct);
+        this.filteredPdfList = this.pdfList.filter(pdf => {
+          const productId = pdf.produit?._id || pdf.produit;
+          return productId === this.filterProduct;
+        });
       } else {
         this.filteredPdfList = this.pdfList;
       }
     },
+    onPdfCreated(newPdf) {
+      this.pdfList.push({ ...newPdf, expanded: false });
+      this.filterPdfs();
+    },
+    onPdfUpdated(updatedPdf) {
+      const index = this.pdfList.findIndex(pdf => pdf._id === updatedPdf._id);
+      if (index !== -1) {
+        this.pdfList[index] = { ...updatedPdf, expanded: false };
+        this.filterPdfs();
+      }
+    }
   },
   async created() {
     this.decodeToken();

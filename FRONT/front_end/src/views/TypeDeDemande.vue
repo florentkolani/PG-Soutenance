@@ -42,22 +42,31 @@
       </table>
       
       <!-- Message d'alerte -->
-      <div v-if="alertMessage" class="mt-4 text-center">
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-          <strong class="font-bold">{{ alertTitle }}</strong>
-          <span class="block sm:inline">{{ alertMessage }}</span>
-          <span @click="alertMessage = ''" class="absolute top-0 bottom-0 right-0 px-4 py-3 cursor-pointer">
-            <svg class="fill-current h-6 w-6 text-green-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-              <title>Fermer</title>
-              <path d="M10 9l5-5 1.414 1.414L11.414 10l5 5L14 16l-5-5-5 5-1.414-1.414 5-5-5-5L4 4z" />
-            </svg>
-          </span>
+      <div v-if="alertMessage" class="fixed inset-0 z-[60] flex items-center justify-center bg-gray-900/75 backdrop-blur-sm">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+          <div class="text-6xl mb-6 text-center text-green-500">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <p class="text-xl mb-6 text-center text-gray-700">
+            {{ alertMessage }}
+          </p>
+          <button 
+            @click="closeAlert" 
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:ring-4 focus:ring-blue-300"
+          >
+            Fermer
+          </button>
         </div>
       </div>
     </main>
 
     <!-- Type Modal -->
-    <TypeModal :showModal="showTypeModal" @close="showTypeModal = false" @type-added="getTypes" />
+    <TypeModal 
+      v-if="showTypeModal" 
+      :typeToEdit="editTypeData"
+      @close="closeTypeModal" 
+      @type-updated="onTypeUpdated"
+    />
 
     <div v-if="selectedType" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
   <div class="bg-white rounded-lg p-6 w-2/3 shadow-md">
@@ -85,52 +94,6 @@
     </div>
   </div>
 </div>
-
-
-    <!-- Dialogue pour l'édition -->
-<div v-if="editTypeData" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-  <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg">
-    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Modifier le type de demande</h2>
-    <form @submit.prevent="updateType">
-      <!-- Champ Nom -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Nom de type de demande</label>
-        <input 
-          v-model="editTypeData.name" 
-          type="text" 
-          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
-          placeholder="Entrez le nom"
-        />
-      </div>
-      <!-- Champ Description -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Description de type de demande</label>
-        <textarea 
-          v-model="editTypeData.description" 
-          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
-          placeholder="Entrez une description"
-        ></textarea>
-      </div>
-      <!-- Boutons -->
-      <div class="flex justify-center space-x-4">
-        <button 
-          type="submit" 
-          class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md shadow-md transition-all"
-        >
-          Enregistrer
-        </button>
-        <button 
-          @click="closeEditModal" 
-          type="button" 
-          class="bg-gray-500 hover:bg-gray-300 text-black px-6 py-2 rounded-md shadow-md transition-all"
-        >
-          Annuler
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
 
     <!-- Confirmation de suppression -->
     <div v-if="confirmArchiveId" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center text-center">
@@ -297,43 +260,36 @@ async archiveType() {
     },
     openEditModal(type) {
       this.editTypeData = { ...type };
+      this.showTypeModal = true;
     },
-    closeEditModal() {
+    closeTypeModal() {
+      this.showTypeModal = false;
       this.editTypeData = null;
     },
-
+    onTypeUpdated({ type, typeName }) {
+      this.getTypes();
+      this.closeTypeModal();
+      
+      if (type === 'create') {
+        this.alertMessage = `Le type de demande ${typeName} a été ajouté avec succès`;
+      } else {
+        this.alertMessage = `Le type de demande ${typeName} a été mis à jour avec succès`;
+      }
+    },
+    closeAlert() {
+      this.alertMessage = '';
+    },
+    showAlert(message) {
+      this.alertMessage = message;
+      setTimeout(() => {
+        this.closeAlert();
+      }, 10000);
+    },
     closeConfirmArchive() {
       this.confirmArchiveId = null; 
-  },
-  confirmArchive(id) {
-      this.confirmArchiveId = id;
     },
-    async updateType() {
-      const token = this.getToken();
-      if (!token) return;
-
-      try {
-        const response = await fetch(`${API_URL}/types/${this.editTypeData._id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(this.editTypeData),
-        });
-
-        if (!response.ok) throw new Error('Erreur lors de la mise à jour du TypeDeDemande.');
-
-        this.alertTitle = 'Succès';
-        this.alertMessage = 'Le TypeDeDemande a été mis à jour avec succès.';
-        await this.getTypes(); // Reload types after update
-      } catch (error) {
-        console.error(error);
-        this.alertTitle = 'Erreur';
-        this.alertMessage = 'Une erreur est survenue lors de la mise à jour.';
-      } finally {
-        this.closeEditModal();
-      }
+    confirmArchive(id) {
+      this.confirmArchiveId = id;
     },
   },
 };

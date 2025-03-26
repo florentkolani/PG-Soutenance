@@ -43,7 +43,12 @@
     </main>
 
     <!-- Product Modal -->
-    <ProductModal :showModal="showProductModal" @close="showProductModal = false" @product-added="getProducts" />
+    <ProductModal 
+      v-if="showProductModal" 
+      :productToEdit="editProductData"
+      @close="closeProductModal" 
+      @product-updated="onProductUpdated"
+    />
 
    <!-- Dialogue pour les détails -->
    <div v-if="selectedProduct" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
@@ -77,52 +82,6 @@
   </div>
 </div>
 
-
-    <!-- Dialogue pour l'édition -->
-<div v-if="editProductData" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-  <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg">
-    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Modifier le produit</h2>
-    <form @submit.prevent="updateProduct">
-      <!-- Champ Nom -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Nom du produit</label>
-        <input 
-          v-model="editProductData.name" 
-          type="text" 
-          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
-          placeholder="Entrez le nom du produit"
-        />
-      </div>
-      <!-- Champ Description -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Description du produit</label>
-        <textarea 
-          v-model="editProductData.description" 
-          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
-          placeholder="Entrez une description"
-        ></textarea>
-      </div>
-      <!-- Boutons -->
-      <div class="flex justify-center space-x-4">
-        <button 
-          type="submit" 
-          class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md shadow-md transition-all"
-        >
-          Enregistrer
-        </button>
-        <button 
-          @click="closeEditModal" 
-          type="button" 
-          class="bg-gray-500 hover:bg-gray-300 text-black px-6 py-2 rounded-md shadow-md transition-all"
-        >
-          Annuler
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-
     <!-- Confirmation d'archivage -->
     <div v-if="confirmArchiveId" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
       <div class="bg-white rounded-lg p-4 w-1/3 shadow-md">
@@ -138,14 +97,22 @@
       </div>
     </div>
 
-    <!-- Alertes -->
-    <div v-if="alertMessage" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-md shadow-md">
-      {{ alertMessage }}
-      <button @click="alertMessage = null" class="ml-2 text-sm">X</button>
-    </div>
-    <div v-if="errorMessage" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-md shadow-md">>
-      {{ errorMessage }}
-      <button @click="errorMessage = null" class="ml-2 text-sm">X</button>
+    <!-- Modal d'alerte -->
+    <div v-if="alertMessage || errorMessage" class="fixed inset-0 z-[60] flex items-center justify-center bg-gray-900/75 backdrop-blur-sm">
+      <div class="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+        <div :class="['text-6xl mb-6 text-center', alertMessage ? 'text-green-500' : 'text-red-500']">
+          <i :class="alertMessage ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+        </div>
+        <p class="text-xl mb-6 text-center text-gray-700">
+          {{ alertMessage || errorMessage }}
+        </p>
+        <button 
+          @click="closeAlert" 
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:ring-4 focus:ring-blue-300"
+        >
+          Fermer
+        </button>
+      </div>
     </div>
   </div>
 
@@ -270,38 +237,20 @@ export default {
     },
     openEditModal(product) {
       this.editProductData = { ...product };
+      this.showProductModal = true;
     },
-    closeEditModal() {
+    closeProductModal() {
+      this.showProductModal = false;
       this.editProductData = null;
     },
-    async updateProduct() {
-      const token = this.checkAuthorization();
-      if (!token) return;
-
-      try {
-        const response = await fetch(`${API_URL}/products/${this.editProductData._id}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(this.editProductData),
-        });
-
-        if (response.ok) {
-          this.showAlert("Produit mis à jour avec succès.");
-          this.getProducts();
-          this.closeEditModal();
-        } else if (response.status === 401) {
-          console.error("Non autorisé. Redirection vers la page de connexion.");
-          this.$router.push('/login');
-        } else {
-          console.error("Erreur lors de la mise à jour du produit.");
-          this.showError("Erreur lors de la mise à jour du produit.");
-        }
-      } catch (error) {
-        console.error("Erreur réseau :", error);
-        this.showError("Erreur réseau. Veuillez réessayer.");
+    onProductUpdated({ type, productName }) {
+      this.getProducts();
+      this.closeProductModal();
+      
+      if (type === 'create') {
+        this.showAlert(`Le produit ${productName} a été ajouté avec succès`);
+      } else {
+        this.showAlert(`Le produit ${productName} a été mis à jour avec succès`);
       }
     },
     confirmArchive(productId) {
@@ -339,17 +288,21 @@ export default {
     this.showError("Erreur réseau. Veuillez réessayer.");
   }
 },
+    closeAlert() {
+      this.alertMessage = null;
+      this.errorMessage = null;
+    },
     showAlert(message) {
       this.alertMessage = message;
       setTimeout(() => {
-        this.alertMessage = null;
-      }, 3000); // Disparaît après 3 secondes
+        this.closeAlert();
+      }, 10000);
     },
     showError(message) {
       this.errorMessage = message;
       setTimeout(() => {
-        this.errorMessage = null;
-      }, 3000); // Disparaît après 3 secondes
+        this.closeAlert();
+      }, 10000);
     },
     goToPage(page) {
       this.currentPage = page;

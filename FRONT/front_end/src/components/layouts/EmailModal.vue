@@ -12,38 +12,43 @@
           <form @submit.prevent="sendEmail">
             <!-- Liste des utilisateurs avec dropdown -->
             <div class="mb-6">
-              <h2 class="text-lg font-semibold mb-4">À :</h2>
-              <div class="relative">
+              <h2 class="text-lg font-semibold mb-2">À :</h2>
+              <div class="relative w-full">
                 <button
                   type="button"
                   @click="toggleDropdown"
-                  class="w-full border border-gray-300 rounded-lg p-2 text-left"
+                  class="w-full border border-gray-300 rounded-lg p-3 text-left hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200 text-base flex items-center justify-between"
                 >
-                  {{ selectedEmails.length > 0 ? selectedEmails.join(", ") : "Sélectionnez les utilisateurs" }}
+                  <span class="truncate">
+                    {{ selectedEmails.length > 0 ? selectedEmails.join(", ") : "Sélectionnez les utilisateurs" }}
+                  </span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
                 </button>
-                <div v-if="isDropdownOpen" class="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 w-full max-h-60 overflow-y-auto">
-                  <div v-for="user in users" :key="user._id" class="flex items-center p-2">
+                <div v-if="isDropdownOpen" class="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 w-full max-h-60 overflow-y-auto shadow-lg">
+                  <div v-for="user in users" :key="user._id" class="flex items-center p-3 hover:bg-gray-50">
                     <input
                       type="checkbox"
                       :value="user.email"
                       v-model="selectedEmails"
-                      class="mr-2"
+                      class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
-                    <label>{{ user.name }}</label>
+                    <label class="ml-3 cursor-pointer">{{ user.name }}</label>
                   </div>
-                  <p v-if="users.length === 0" class="text-gray-500 p-2">Aucun utilisateur disponible.</p>
+                  <p v-if="users.length === 0" class="text-gray-500 p-3">Aucun utilisateur disponible.</p>
                 </div>
               </div>
             </div>
 
             <!-- Sujet de l'email -->
             <div class="mb-4">
-              <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">Objet :</label>
+              <label for="subject" class="block text-sm font-semibold mb-2">Objet :</label>
               <input
                 type="text"
                 id="subject"
                 v-model="emailSubject"
-                class="block w-full border border-gray-300 rounded-lg p-2"
+                class="block w-full border border-gray-300 rounded-lg p-3 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200"
                 placeholder="Entrez le sujet de l'email"
                 required
               />
@@ -268,6 +273,26 @@ export default {
 }
 
 #editor {
-  min-height: 300px; /* Augmenter la hauteur */
+  min-height: 300px;
+}
+
+/* Styles pour l'éditeur Quill */
+:deep(.ql-toolbar) {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  border-color: #e5e7eb;
+  background-color: #f9fafb;
+}
+
+:deep(.ql-container) {
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  border-color: #e5e7eb;
+  font-size: 1rem;
+}
+
+:deep(.ql-editor) {
+  min-height: 250px;
+  padding: 1rem;
 }
 </style>

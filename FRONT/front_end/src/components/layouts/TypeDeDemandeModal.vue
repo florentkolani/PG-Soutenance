@@ -1,43 +1,62 @@
 <template>
-  <div>
-    <!-- Add Type de Demande Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
-      <div class="relative p-4 w-full max-w-2xl bg-white rounded-lg shadow">
-        <div class="relative p-4">
-          <!-- Modal header -->
-          <div class="flex justify-between items-center pb-4 mb-4 border-b">
-            <h3 class="text-lg font-semibold text-gray-900">Ajoutez type de demande</h3>
-            <button @click="$emit('close')" class="text-red-600 hover:text-red-800 text-2xl">&times;</button>
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/75 backdrop-blur-sm">
+    <div class="relative w-full max-w-2xl transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all mx-4">
+      <div class="p-6">
+        <!-- Header -->
+        <div class="flex justify-between items-center pb-4 mb-6 border-b border-gray-200">
+          <h3 class="text-2xl font-bold text-gray-900">
+            {{ isEditing ? 'Modifier' : 'Ajouter' }} un type de demande
+          </h3>
+          <button
+            @click="$emit('close')"
+            class="rounded-lg p-2 hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-colors"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Form -->
+        <form @submit.prevent="submitForm" class="space-y-6">
+          <div class="space-y-6">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                Nom du type de demande <span class="text-red-500">*</span>
+              </label>
+              <input 
+                v-model="typeDeDemande.name" 
+                type="text" 
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+                placeholder="Entrez le nom du type de demande"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                Description du type de demande
+              </label>
+              <textarea 
+                v-model="typeDeDemande.description" 
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors resize-none"
+                rows="4"
+                placeholder="Entrez une description"
+              ></textarea>
+            </div>
           </div>
 
-          <!-- Modal body -->
-          <form @submit.prevent="addTypeDeDemande">
-            <div class="mb-4">
-              <label for="name" class="block mb-2 text-sm font-medium text-gray-900">
-                Nom du type de demande  <span class="text-red-500">*</span>
-              </label>
-              <input v-model="typeDeDemande.name" type="text" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5" placeholder="Entrez le nom type de demande" required />
-            </div>
-            <div class="mb-4">
-              <label for="description" class="block mb-2 text-sm font-medium text-gray-900">Description du type de demande</label>
-              <textarea v-model="typeDeDemande.description" id="description" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5" placeholder="Entrez la description du type de demande"></textarea>
-            </div>
-            <button type="submit" class="text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5">Ajouter</button>
-          </form>
-        </div>
-      </div>
-    </div>
-    
-    <div v-if="showDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
-      <div class="bg-white p-5 rounded-lg shadow-xl text-center">
-        <div :class="['text-6xl mb-4', dialogType === 'success' ? 'text-green-500' : 'text-red-500']">
-          <i v-if="dialogType === 'success'" class="fas fa-check-circle"></i>
-          <i v-else class="fas fa-times-circle"></i>
-        </div>
-        <p class="text-xl mb-4">{{ dialogMessage }}</p>
-        <button @click="closeDialog" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-          Close
-        </button>
+          <!-- Submit Button -->
+          <div class="flex justify-center pt-4">
+            <button 
+              type="submit" 
+              class="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              :disabled="isLoading"
+            >
+              <span v-if="isLoading" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span>{{ isEditing ? 'Modifier' : 'Ajouter' }} le type de demande</span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -45,61 +64,83 @@
 
 <script>
 import { API_URL } from '@/services/config';
+import axios from 'axios';
+
 export default {
-  props: ['showModal'],
+  props: {
+    typeToEdit: {
+      type: Object,
+      default: null
+    }
+  },
+
   data() {
     return {
       typeDeDemande: {
         name: '',
-        description: '',
+        description: ''
       },
-      showDialog: false,
-      dialogMessage: '',
-      dialogType: '',
+      isLoading: false
     };
   },
+
+  computed: {
+    isEditing() {
+      return !!this.typeToEdit;
+    }
+  },
+
+  watch: {
+    typeToEdit: {
+      immediate: true,
+      handler(newValue) {
+        if (newValue) {
+          this.typeDeDemande = { ...newValue };
+        }
+      }
+    }
+  },
+
   methods: {
-    async addTypeDeDemande() {
+    async submitForm() {
+      this.isLoading = true;
       try {
         const token = localStorage.getItem('token');
+        if (!token) throw new Error('Token non trouvé');
 
-        const response = await fetch(`${API_URL}/types`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify(this.typeDeDemande),
-        });
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        };
 
-        if (response.ok) {
-          this.dialogType = 'success';
-          this.dialogMessage = 'Type de Demande added successfully';
-          this.showDialog = true;
-          this.resetForm();
-          this.$emit('close');
+        let response;
+        if (this.isEditing) {
+          response = await axios.put(
+            `${API_URL}/types/${this.typeToEdit._id}`,
+            this.typeDeDemande,
+            { headers }
+          );
         } else {
-          this.dialogType = 'error';
-          this.dialogMessage = 'Failed to add Type de Demande';
-          this.showDialog = true;
+          response = await axios.post(
+            `${API_URL}/types`,
+            this.typeDeDemande,
+            { headers }
+          );
+        }
+
+        if (response.status === 200 || response.status === 201) {
+          this.$emit('type-updated', {
+            type: this.isEditing ? 'update' : 'create',
+            typeName: this.typeDeDemande.name
+          });
         }
       } catch (error) {
-        console.error('Error adding type de demande:', error);
-        this.dialogType = 'error';
-        this.dialogMessage = 'An error occurred';
-        this.showDialog = true;
+        console.error('Erreur:', error);
+      } finally {
+        this.isLoading = false;
       }
-    },
-    closeDialog() {
-      this.showDialog = false;
-    },
-    resetForm() {
-      this.typeDeDemande = {
-        name: '',
-        description: '',
-      };
-    },
-  },
+    }
+  }
 };
 </script>
 
