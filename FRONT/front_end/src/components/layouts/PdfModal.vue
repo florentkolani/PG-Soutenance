@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div v-if="modelValue" class="fixed inset-0 z-50 overflow-y-auto">
+  <div v-if="modelValue" class="modal">
+    <div class="fixed inset-0 z-50 overflow-y-auto">
       <div class="flex items-center justify-center min-h-screen pt-2 px-4 pb-4 text-center">
         <div class="fixed inset-0 transition-opacity" aria-hidden="true" @click="closeModal">
           <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
@@ -9,7 +9,7 @@
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-4 sm:align-middle sm:max-w-lg sm:w-full">
           <div class="bg-gray-100 px-3 py-2 flex justify-between items-center">
             <h3 class="text-lg font-medium text-gray-900">
-              {{ isEditing ? 'Modifier le document' : 'Ajouter un document' }}
+              {{ modalTitle }}
             </h3>
             <button
               type="button"
@@ -24,7 +24,7 @@
           </div>
 
           <div class="bg-white px-4 pt-3 pb-3 sm:p-4">
-            <form @submit.prevent="isEditing ? updatePdf() : uploadPdf()">
+            <form @submit.prevent="handleSubmit">
               <div class="grid grid-cols-1 gap-2">
                 <div class="mb-2">
                   <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
@@ -33,7 +33,7 @@
                   <input
                     type="text"
                     id="title"
-                    v-model="title"
+                    v-model="form.title"
                     class="block w-full border border-gray-300 rounded-lg p-2"
                     placeholder="Titre du document"
                   />
@@ -44,7 +44,7 @@
                     Type de Demande <span class="text-red-500">*</span>
                   </label>
                   <select
-                    v-model="selectedTypeDeDemande"
+                    v-model="form.typededemande"
                     id="typeDeDemande"
                     required
                     class="block w-full border border-gray-300 rounded-lg p-2"
@@ -59,7 +59,7 @@
                     Produit <span class="text-red-500">*</span>
                   </label>
                   <select
-                    v-model="selectedProduct"
+                    v-model="form.produit"
                     id="product"
                     required
                     class="block w-full border border-gray-300 rounded-lg p-2"
@@ -85,7 +85,7 @@
                       @change="onFileChange"
                       class="hidden"
                     />
-                    <template v-if="!pdfFile">
+                    <template v-if="!form.pdfFile">
                       <div class="space-y-1 text-center">
                         <svg
                           class="mx-auto h-8 w-8 text-gray-400"
@@ -112,7 +112,7 @@
                     </template>
                     <template v-else>
                       <div class="flex items-center justify-between bg-gray-100 p-2 rounded-lg">
-                        <p class="text-sm text-gray-700 truncate">{{ pdfFile.name }}</p>
+                        <p class="text-sm text-gray-700 truncate">{{ form.pdfFile.name }}</p>
                         <button 
                           type="button" 
                           @click.stop="removeFile" 
@@ -129,7 +129,7 @@
                   <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Ajouter Commentaire :</label>
                   <textarea
                     id="comment"
-                    v-model="comment"
+                    v-model="form.comment"
                     class="block w-full border border-gray-300 rounded-lg p-2"
                     placeholder="Ajoutez un commentaire au fichier PDF"
                   ></textarea>
@@ -138,10 +138,10 @@
                 <div class="mt-3 sm:mt-4 flex justify-end space-x-2">
                   <button
                     type="submit"
-                    class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-300"
+                    class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:bg-gray-300"
                     :disabled="!isFormValid"
                   >
-                    {{ isEditing ? 'Mettre à jour' : 'Publier' }}
+                    {{ editingPdf ? 'Mettre à jour' : 'Publier' }}
                   </button>
                 </div>
               </div>
@@ -172,28 +172,20 @@ export default {
   },
   props: {
     modelValue: Boolean,
-    editingPdf: {
-      type: Object,
-      default: null
-    },
-    products: {
-      type: Array,
-      required: true
-    },
-    typeDeDemandes: {
-      type: Array,
-      required: true
-    }
+    editingPdf: Object,
+    products: Array,
+    typeDeDemandes: Array
   },
   emits: ['update:modelValue', 'pdf-updated', 'pdf-created'],
   data() {
     return {
-      title: '',
-      selectedProduct: '',
-      selectedTypeDeDemande: '',
-      pdfFile: null,
-      comment: '',
-      isEditing: false,
+      form: {
+        title: '',
+        comment: '',
+        typededemande: '',
+        produit: '',
+        pdfFile: null
+      },
       showDialog: false,
       dialogType: 'success',
       dialogTitle: '',
@@ -201,50 +193,55 @@ export default {
     }
   },
   computed: {
+    modalTitle() {
+      return this.editingPdf ? 'Modifier le document' : 'Ajouter un document';
+    },
     isFormValid() {
-      return this.title && this.selectedProduct && this.selectedTypeDeDemande && 
-             this.comment && (this.isEditing || this.pdfFile);
+      return this.form.title && this.form.produit && this.form.typededemande && 
+             this.form.comment && (this.editingPdf || this.form.pdfFile);
     }
   },
   watch: {
     editingPdf(newVal) {
       if (newVal) {
-        this.isEditing = true;
-        this.title = newVal.title;
-        this.comment = newVal.comment;
-        this.selectedTypeDeDemande = newVal.typededemande?._id || newVal.TypeDeDemande?._id || newVal.TypeDeDemande;
-        this.selectedProduct = newVal.produit?._id || newVal.produit;
-      } else {
-        this.resetForm();
+        this.form = {
+          title: newVal.title,
+          comment: newVal.comment,
+          typededemande: newVal.typededemande?._id || newVal.typededemande,
+          produit: newVal.produit?._id || newVal.produit,
+          pdfFile: null
+        };
       }
     },
     modelValue(newVal) {
       if (!newVal) {
         this.resetForm();
+      } else if (!this.editingPdf) {
+        this.resetForm();
       }
     }
   },
   methods: {
+    resetForm() {
+      this.form = {
+        title: '',
+        comment: '',
+        typededemande: '',
+        produit: '',
+        pdfFile: null
+      };
+    },
     closeModal() {
       this.$emit('update:modelValue', false);
-      this.resetForm();
+      setTimeout(() => {
+        this.resetForm();
+      }, 300);
     },
     onFileChange(event) {
-      this.pdfFile = event.target.files[0];
+      this.form.pdfFile = event.target.files[0];
     },
     removeFile() {
-      this.pdfFile = null;
-      if (this.$refs.fileInput) {
-        this.$refs.fileInput.value = '';
-      }
-    },
-    resetForm() {
-      this.title = '';
-      this.comment = '';
-      this.selectedTypeDeDemande = '';
-      this.selectedProduct = '';
-      this.pdfFile = null;
-      this.isEditing = false;
+      this.form.pdfFile = null;
       if (this.$refs.fileInput) {
         this.$refs.fileInput.value = '';
       }
@@ -267,54 +264,50 @@ export default {
         this.closeModal();
       }
     },
-    async uploadPdf() {
+    async handleSubmit() {
       const formData = new FormData();
-      formData.append("pdf", this.pdfFile);
-      formData.append("comment", this.comment);
-      formData.append("title", this.title);
-      formData.append("typededemande", this.selectedTypeDeDemande);
-      formData.append("produit", this.selectedProduct);
+      if (this.form.pdfFile) {
+        formData.append("pdf", this.form.pdfFile);
+      }
+      formData.append("comment", this.form.comment);
+      formData.append("title", this.form.title);
+      formData.append("typededemande", this.form.typededemande);
+      formData.append("produit", this.form.produit);
 
       try {
-        const response = await axios.post(`${API_URL}/pdfs`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        this.$emit('pdf-created', response.data);
-        this.showSuccessDialog("Le document a été ajouté avec succès !");
+        if (!this.editingPdf) {
+          const response = await axios.post(`${API_URL}/pdfs`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
+          this.$emit('pdf-created', response.data);
+          this.showSuccessDialog("Le document a été ajouté avec succès !");
+        } else {
+          const response = await axios.put(`${API_URL}/pdfs/${this.editingPdf._id}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
+          this.$emit('pdf-updated', response.data);
+          this.showSuccessDialog("Le document a été mis à jour avec succès !");
+        }
       } catch (error) {
         console.error("Erreur lors de la publication :", error);
-        this.showErrorDialog("Une erreur est survenue lors de l'ajout du document.");
-      }
-    },
-    async updatePdf() {
-      const formData = new FormData();
-      if (this.pdfFile) {
-        formData.append("pdf", this.pdfFile);
-      }
-      formData.append("comment", this.comment);
-      formData.append("title", this.title);
-      formData.append("typededemande", this.selectedTypeDeDemande);
-      formData.append("produit", this.selectedProduct);
-
-      try {
-        if (!this.editingPdf?._id) {
-          throw new Error('ID du PDF manquant');
-        }
-        
-        const response = await axios.put(`${API_URL}/pdfs/${this.editingPdf._id}`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        this.$emit('pdf-updated', response.data);
-        this.showSuccessDialog("Le document a été mis à jour avec succès !");
-      } catch (error) {
-        console.error("Erreur lors de la mise à jour :", error);
-        this.showErrorDialog("Une erreur est survenue lors de la mise à jour du document.");
+        this.showErrorDialog("Une erreur est survenue lors de l'ajout ou de la mise à jour du document.");
       }
     }
   }
 }
 </script>
+
+<style scoped>
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+}
+</style>

@@ -155,7 +155,7 @@
             <div class="flex justify-center">
               <button
                 type="submit"
-                class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 disabled:opacity-50 transition-all duration-200"
+                class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-green-500 rounded-lg hover:bg-green-600 focus:ring-4 focus:ring-green-300 disabled:opacity-50 transition-all duration-200"
                 :disabled="isLoading"
               >
                 {{ isEditing ? 'Modifier' : 'Ajouter' }} l'utilisateur

@@ -194,7 +194,7 @@ export default {
       required: true
     }
   },
-  emits: ['update:modelValue', 'video-updated', 'video-created'],
+  emits: ['update:modelValue', 'video-updated', 'video-created', 'reset-editing'],
   data() {
     return {
       title: '',
@@ -211,23 +211,39 @@ export default {
   },
   computed: {
     isFormValid() {
-      return this.title && this.selectedProduct && this.selectedTypeDeDemande && 
-             this.comment && (this.isEditing || this.videoFile);
+      if (this.isEditing) {
+        return this.title && this.selectedProduct && this.selectedTypeDeDemande && this.comment;
+      } else {
+        return this.title && this.selectedProduct && this.selectedTypeDeDemande && 
+               this.comment && this.videoFile;
+      }
     }
   },
   watch: {
-    editingVideo(newVal) {
-      if (newVal) {
-        this.isEditing = true;
-        this.title = newVal.title;
-        this.comment = newVal.comment;
-        this.selectedTypeDeDemande = newVal.typededemande?._id || newVal.TypeDeDemande;
-        this.selectedProduct = newVal.produit?._id || newVal.produit;
-      }
-    },
     modelValue(newVal) {
       if (!newVal) {
         this.resetForm();
+      }
+    },
+    editingVideo: {
+      immediate: true,
+      handler(newVal) {
+        if (newVal) {
+          this.isEditing = true;
+          this.title = newVal.title || '';
+          this.comment = newVal.comment || '';
+          if (newVal.TypeDeDemande) {
+            this.selectedTypeDeDemande = typeof newVal.TypeDeDemande === 'object' ? 
+              newVal.TypeDeDemande._id : newVal.TypeDeDemande;
+          } else if (newVal.typededemande) {
+            this.selectedTypeDeDemande = typeof newVal.typededemande === 'object' ? 
+              newVal.typededemande._id : newVal.typededemande;
+          }
+          this.selectedProduct = newVal.produit?._id || newVal.produit || '';
+        } else {
+          this.isEditing = false;
+          this.resetForm();
+        }
       }
     }
   },
@@ -235,6 +251,7 @@ export default {
     closeModal() {
       this.$emit('update:modelValue', false);
       this.resetForm();
+      this.$emit('reset-editing');
     },
     onFileChange(event) {
       this.videoFile = event.target.files[0];
@@ -297,13 +314,15 @@ export default {
     },
     async updateVideo() {
       const formData = new FormData();
+      
+      formData.append("title", this.title);
+      formData.append("comment", this.comment);
+      formData.append("typededemande", this.selectedTypeDeDemande);
+      formData.append("produit", this.selectedProduct);
+
       if (this.videoFile) {
         formData.append("video", this.videoFile);
       }
-      formData.append("comment", this.comment);
-      formData.append("title", this.title);
-      formData.append("typededemande", this.selectedTypeDeDemande);
-      formData.append("produit", this.selectedProduct);
 
       try {
         const response = await axios.put(`${API_URL}/videos/uploads/${this.editingVideo._id}`, formData, {

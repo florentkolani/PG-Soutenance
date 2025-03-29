@@ -129,7 +129,7 @@ exports.register = async (req, res) => {
                 <body style="font-family: Arial, sans-serif; line-height: 1.6;">
                     <p>Bonjour Cher partenaire ${name},</p>
 
-                    <p>Nous sommes ravis de vous accueillir sur la plateforme d'assistance de NOVA LEAD. Votre compte a été créé avec succès, et vous pouvez dès maintenant accéder à notre espace dédié au suivi et à la gestion de vos demandes d'assistance.</p>
+                        <p>Nous sommes ravis de vous accueillir sur la plateforme d'assistance de NOVA LEAD. Votre compte a été créé avec succès !</p>
 
                     <p><strong>Voici vos informations de connexion :</strong></p>
                     <ul>
@@ -194,19 +194,44 @@ exports.resetPasswordRequest = async (req, res) => {
         // Contenu de l'email
         const emailSubject = 'Nouveau mot de passe temporaire';
         const emailContent = `
-        <html>
-          <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-            <p>Bonjour ${user.name},</p>
-            <p>Suite à votre demande de réinitialisation, voici votre nouveau mot de passe temporaire :</p>
-            <p><strong>Mot de passe temporaire : ${newPassword}</strong></p>
-            <p>Pour des raisons de sécurité, vous devrez changer ce mot de passe lors de votre prochaine connexion.</p>
-            <p>Connectez-vous sur : <a href="http://localhost:5173/login">la plateforme</a></p>
-            <p style="text-align: right; margin-top: 20px;">Cordialement,</p>
-            <p style="text-align: right;">L'équipe de support</p>
-          </body>
-        </html>
-        `;
+<html>
+  <body class="font-sans bg-gray-50">
+    <div class="max-w-2xl mx-auto p-6 bg-white shadow-sm">
 
+      <!-- Content -->
+      <div class="py-6">
+        <p class="text-gray-700 mb-4">Bonjour ${user.name},</p>
+        
+        <p class="text-gray-700 mb-6">Suite à votre demande de réinitialisation, nous avons généré un nouveau mot de passe temporaire pour votre compte.</p>
+        
+        <!-- Password box -->
+        <div class="bg-gray-50 border border-dashed border-gray-300 p-4 my-6 text-center rounded">
+          <p class="text-gray-600 text-sm mb-1">Votre mot de passe temporaire :</p>
+          <p class="text-xl font-bold text-gray-800">${newPassword}</p>
+        </div>
+        
+        <p class="text-gray-700 mb-6"><strong class="font-semibold">Pour votre sécurité</strong>, vous serez invité à changer ce mot de passe lors de votre prochaine connexion.</p>
+        
+        <!-- Button -->
+        <div class="text-center my-8">
+          <a href="http://localhost:5173/login" 
+                        style="color: #3498db; text-decoration: none; font-weight: bold;">
+                        ➡️ Accéder à la plateforme
+                        </a>
+        </div>
+        
+        <p class="text-gray-700 text-sm">Si vous n'êtes pas à l'origine de cette demande, veuillez contacter immédiatement notre support.</p>
+      </div>
+
+      <!-- Signature -->
+      <div class="mt-8 text-right italic">
+        <p class="text-gray-700">Cordialement,</p>
+        <p class="text-gray-700">L'équipe de support</p>
+      </div>
+    </div>
+  </body>
+</html>
+`;
         // Envoyer l'email
         await sendEmail(user.email, emailSubject, emailContent);
 

@@ -4,7 +4,7 @@
     <Header 
       title="NOVA LEAD" 
       :primaryActionText="isAdmin || isAgentSupport ? 'Ajouter un document' : ''" 
-      @primaryAction="showPdfModal = true" 
+      @primaryAction="openAddModal"
       @goToDashboard="redirectToDashboard" 
       class="fixed top-0 left-0 w-full bg-green shadow z-10"
     />
@@ -256,7 +256,15 @@ export default {
       this.$router.push("/dashboard");
     },
     editPdf(pdf) {
-      this.editingPdf = pdf;
+      this.editingPdf = {
+        _id: pdf._id,
+        title: pdf.title,
+        comment: pdf.comment,
+        typededemande: pdf.typededemande?._id || pdf.typededemande,
+        produit: pdf.produit?._id || pdf.produit,
+        url: pdf.url,
+        name: pdf.name
+      };
       this.showPdfModal = true;
     },
     resetForm() {
@@ -291,6 +299,15 @@ export default {
         this.pdfList[index] = { ...updatedPdf, expanded: false };
         this.filterPdfs();
       }
+      this.editingPdf = null;
+    },
+    closePdfModal() {
+      this.showPdfModal = false;
+      this.editingPdf = null;
+    },
+    openAddModal() {
+      this.editingPdf = null;
+      this.showPdfModal = true;
     }
   },
   async created() {

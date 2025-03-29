@@ -22,7 +22,7 @@
             <th class="border border-gray-300 px-4 py-2">Actions</th>
           </tr>
         </thead>
-        <tbody class="text-gray-600 text-sm font-light">
+        <tbody class="text-gray-600 text-sm font-normal">
           <tr v-for="country in paginatedCountries" :key="country._id" class="border-b border-gray-200 hover:bg-gray-100">
             <td class="border px-4 py-2">{{ country.name }}</td>
             <td class="border px-4 py-2">{{ country.code }}</td>
@@ -114,14 +114,14 @@
           <div class="flex justify-center space-x-4">
             <button 
               type="submit" 
-              class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md shadow-md transition-all"
+              class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md shadow-md transition-all"
             >
               Enregistrer
             </button>
             <button 
               @click="closeEditModal" 
               type="button" 
-              class="bg-gray-500 hover:bg-gray-300 text-black px-6 py-2 rounded-md shadow-md transition-all"
+              class="bg-gray-300 hover:bg-gray-200 text-black px-6 py-2 rounded-md shadow-md transition-all"
             >
               Annuler
             </button>
@@ -139,7 +139,7 @@
           <button @click="confirmArchive" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md shadow-md transition-all">
             Oui, archiver
           </button>
-          <button @click="cancelArchive" class="bg-gray-500 hover:bg-gray-300 text-black px-6 py-2 rounded-md shadow-md transition-all">
+          <button @click="cancelArchive" class="bg-gray-300 hover:bg-gray-200 text-black px-6 py-2 rounded-md shadow-md transition-all">
             Annuler
           </button>
         </div>

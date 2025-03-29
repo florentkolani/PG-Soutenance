@@ -40,7 +40,7 @@
       <!-- Lien de téléchargement du fichier joint pour le message de description -->
 <div v-if="message.isDescription && ticket.file" class="mt-2">
   <a 
-    :href="`/uploads/${ticket.file}`" 
+    :href="`/uploads/documents/${ticket.file}`" 
     :download="ticket.file" 
     class="text-blue-500 hover:underline"
     @click.prevent="downloadFile"
@@ -53,7 +53,7 @@
 <!-- Ajout de l'input pour le fichier -->
 <div v-if="message.file" class="mt-2">
   <a 
-  :href="`/uploads/${message.file}`" 
+  :href="`/uploads/documents/${message.file}`" 
   :download="message.file"
     class="text-blue-500 hover:underline flex items-center"
     @click.prevent="downloadMessageFile(message.file)"
@@ -381,7 +381,7 @@ fetchTicket() {
     async downloadMessageFile(filename) {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/uploads/${filename}`, {
+        const response = await axios.get(`${API_URL}/uploads/documents/${filename}`, {
           responseType: 'blob',
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -457,7 +457,7 @@ fetchTicket() {
     async downloadFile() {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_URL}/uploads/${this.ticket.file}`, {
+            const response = await axios.get(`${API_URL}/uploads/documents/${this.ticket.file}`, {
                 responseType: 'blob',
                 headers: { Authorization: `Bearer ${token}` }
             });
