@@ -19,7 +19,7 @@
             <th class="border border-gray-300 px-4 py-2">Actions</th>
           </tr>
         </thead>
-        <tbody class="text-gray-600 text-sm font-light">
+        <tbody class="text-gray-600 text-sm font-normal">
           <tr v-for="type in types" :key="type._id" class="border-b border-gray-200 hover:bg-gray-100">
             <td class="border border-gray-300 px-4 py-2">{{ type.name }}</td>
             <td class="border border-gray-300 px-4 py-2">{{ truncateText(type.description, 50) }}</td>

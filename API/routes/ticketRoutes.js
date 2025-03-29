@@ -1,7 +1,7 @@
 const express = require('express');
 const { createTicket, updateTicket, updateTicketStatus, closeTicket, getTickets, getTicketById, getTicketStats } = require('../controllers/ticketController');
 const { protect, restrictToRoles } = require('../middleware/authMiddleware');
-const upload = require('../upload'); // Importer la configuration de `multer`
+const { documentUpload } = require('../upload');
 
 const router = express.Router();
 
@@ -9,8 +9,8 @@ const router = express.Router();
 router.get('/stats', protect, getTicketStats);
 router.get('/stats/:userId', protect, getTicketStats);
 
-router.post('/', protect, upload.single('file'), createTicket);
-router.put('/:id', protect, upload.single('file'), updateTicket);
+router.post('/', protect, documentUpload.single('file'), createTicket);
+router.put('/:id', protect, documentUpload.single('file'), updateTicket);
 router.put('/:ticketId/statut', protect, updateTicketStatus);
 router.put('/:ticketId/close', protect, restrictToRoles('Client'), closeTicket);
 router.get('/', protect, getTickets);

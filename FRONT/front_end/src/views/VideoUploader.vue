@@ -4,7 +4,7 @@
     <Header 
       title="NOVA LEAD" 
       :primaryActionText="isAdmin || isAgentSupport ? 'Ajouter une vidéo' : ''" 
-      @primaryAction="showVideoModal = true" 
+      @primaryAction="showAddVideoModal" 
       @goToDashboard="redirectToDashboard" 
       class="fixed top-0 left-0 w-full bg-green shadow z-10"
     />
@@ -93,6 +93,7 @@
       :typeDeDemandes="typeDeDemandes"
       @video-created="onVideoCreated"
       @video-updated="onVideoUpdated"
+      @reset-editing="onResetEditing"
     />
   </div>
 </template>
@@ -227,8 +228,12 @@ export default {
     redirectToDashboard() {
       this.$router.push("/dashboard");
     },
+    showAddVideoModal() {
+      this.editingVideo = null;
+      this.showVideoModal = true;
+    },
     editVideo(video) {
-      this.editingVideo = video;
+      this.editingVideo = { ...video };
       this.showVideoModal = true;
     },
     resetForm() {
@@ -263,6 +268,9 @@ export default {
         this.videoList[index] = { ...updatedVideo, expanded: false };
         this.filtervideos();
       }
+    },
+    onResetEditing() {
+      this.editingVideo = null;
     }
   },
   async created() {

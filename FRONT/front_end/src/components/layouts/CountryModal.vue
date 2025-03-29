@@ -32,13 +32,13 @@
         </div>
         <!-- Boutons -->
         <div class="flex justify-center space-x-4">
-          <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md shadow-md transition-all">
+          <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md shadow-md transition-all">
             Enregistrer
           </button>
           <button 
             @click.prevent="$emit('close')" 
             type="button" 
-            class="bg-gray-500 hover:bg-gray-300 text-black px-6 py-2 rounded-md shadow-md transition-all">
+            class="bg-gray-300 hover:bg-gray-200 text-black px-6 py-2 rounded-md shadow-md transition-all">
             Annuler
           </button>
         </div>

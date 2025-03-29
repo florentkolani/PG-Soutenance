@@ -28,7 +28,7 @@
             <th class="py-3 px-6 text-center">Actions</th>
           </tr>
         </thead>
-        <tbody class="text-gray-600 text-sm font-light">
+        <tbody class="text-gray-600 text-sm font-normal">
           <tr v-for="user in filteredUsers" :key="user._id" class="border-b border-gray-200 hover:bg-gray-100">
             <td class="py-3 px-6 text-left">{{ user.name }}</td>
             <td class="py-3 px-6 text-left">{{ user.email }}</td>

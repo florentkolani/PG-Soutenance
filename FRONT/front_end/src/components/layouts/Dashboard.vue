@@ -4,15 +4,15 @@
   <aside
   :aria-expanded="sidebarVisible"
   :class="[
-    'bg-gray-200 w-54 p-4 border-r fixed md:relative h-screen z-20 transition-transform duration-300',
+    'bg-white w-64 p-6 border-r shadow-lg fixed md:relative h-screen z-20 transition-transform duration-300',
     sidebarVisible ? 'translate-x-0' : '-translate-x-full',
     'md:translate-x-0'
   ]"
     >
 
-      <div class="flex items-center mb-2">
-        <img src="@/assets/logo.png" alt="Logo" class="h-8 w-8 rounded-full" style="display: block;" />
-        <span class="ml-3 text-xl font-bold">NOVA Lead</span>
+      <div class="flex items-center mb-8">
+        <img src="@/assets/logo.png" alt="Logo" class="h-12 w-12 rounded-lg shadow-md" />
+        <span class="ml-3 text-2xl font-bold text-gray-800">NOVA Lead</span>
       </div>
       <!-- Bouton de fermeture sur petit écran -->
       <button @click="toggleSidebar" class="md:hidden text-gray-700 absolute top-2 right-2">
@@ -20,15 +20,17 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
-      <nav class="space-y-4">
-        <ul class="space-y-4 list-none p-0 m-0">
+      <nav class="space-y-2">
+        <ul class="space-y-1 list-none p-0">
           <!-- Utiliser filteredModules pour parcourir uniquement les modules autorisés -->
           <li v-for="module in filteredModules" :key="module.name">
             <router-link
             :to="module.route"
             :class="[
-              'block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100',
-              $route.path === module.route ? 'bg-blue-50 text-blue-700' : ''
+              'flex items-center px-4 py-3 rounded-lg transition-all duration-200',
+              $route.path === module.route 
+                ? 'bg-blue-50 text-blue-600 font-semibold shadow-sm' 
+                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
             ]"
             >
               {{ module.name }}
@@ -41,75 +43,76 @@
 <!-- Main content -->
  <div class="flex-1 flex flex-col">
   <!-- la Navbar -->
-   <header class="bg-gray-200 pl-10 border-b flex justify-between items-center">
-        <span class=" text-3xl font-bold p-2">Tableau de bord</span>
+   <header class="bg-white shadow-sm pl-10 border-b flex justify-between items-center h-16">
+        <span class="text-2xl font-bold text-gray-800">Tableau de bord</span>
         <button @click="toggleSidebar" class="md:hidden p-2 text-gray-600">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
         
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-6 pr-6">
           <!-- Placeholder for any content you might want to add on the left -->
-        </div>
-        <div class="flex items-center space-x-4">
-          <!-- User Welcome and Info moved to the right -->
-          <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer mt-4">
-
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-          </svg>
+          <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            </svg>
           </div>
           <div class="text-left">
-            <h3 class="text-lg font-semibold">{{ userInfo?.name || 'Utilisateur' }} ({{ userInfo?.role || 'Utilisateur' }}) </h3>
-            <p class="text-sm text-gray-600">{{ userInfo?.email || 'Non disponible' }}</p>
+            <h3 class="text-sm font-medium text-gray-900">{{ userInfo?.name || 'Utilisateur' }}</h3>
+            <p class="text-xs text-gray-500">{{ userInfo?.role || 'Utilisateur' }}</p>
           </div>
-<!-- Admin Image with Dropdown -->
-          <div class="relative pr-5">
-            <span class="text-lg font-semibold text-gray-900 text-center block">Déconnexion</span>
-            <div
-              class="h-10 w-10 rounded-full bg-red-500 flex items-center justify-center cursor-pointer mx-auto"
+          <!-- Admin Image with Dropdown -->
+          <div class="relative">
+            <button
               @click="logout"
+              class="flex items-center space-x-2 px-2 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 shadow-sm"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
+                class="h-5 w-5"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="black"
+                stroke="currentColor"
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="M12 2v10" />
-                <path d="M6.35 6.35a8 8 0 1 0 11.3 0" />
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
               </svg>
-            </div>
+              <span class="text-sm font-medium text-white">Déconnexion</span>
+            </button>
           </div>
-    </div>
-</header>
+        </div>
+    </header>
 
-<div class="flex space-x-4 p-6 bg-gray-100">
-  <div class="bg-white shadow-md rounded-lg p-4 w-1/5 text-center">
-    <h4 class="text-lg font-semibold text-gray-700">Total Tickets</h4>
-    <p class="text-2xl font-bold text-yellow-300">{{ ticketData.total }}</p>
+<div class="grid grid-cols-1 md:grid-cols-5 gap-6 p-6 bg-gray-50">
+  <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <h4 class="text-sm font-medium text-gray-600 mb-2">Total Tickets</h4>
+    <p class="text-2xl font-bold text-gray-900">{{ ticketData.total }}</p>
+    <div class="h-1 w-full bg-yellow-300 mt-4 rounded-full"></div>
   </div>
-  <div class="bg-white shadow-md rounded-lg p-4 w-1/5 text-center">
-    <h4 class="text-lg font-semibold text-gray-700">En attente</h4>
-    <p class="text-2xl font-bold text-yellow-500">{{ ticketData.waiting }}</p>
+  <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <h4 class="text-sm font-medium text-gray-600 mb-2">En attente</h4>
+    <p class="text-2xl font-bold text-gray-900">{{ ticketData.waiting }}</p>
+    <div class="h-1 w-full bg-yellow-500 mt-4 rounded-full"></div>
   </div>
-  <div class="bg-white shadow-md rounded-lg p-4 w-1/5 text-center">
-    <h4 class="text-lg font-semibold text-gray-700">Ouverts</h4>
-    <p class="text-2xl font-bold text-blue-500">{{ ticketData.open }}</p>
+  <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <h4 class="text-sm font-medium text-gray-600 mb-2">Ouverts</h4>
+    <p class="text-2xl font-bold text-gray-900">{{ ticketData.open }}</p>
+    <div class="h-1 w-full bg-blue-500 mt-4 rounded-full"></div>
   </div>
-  <div class="bg-white shadow-md rounded-lg p-4 w-1/5 text-center">
-    <h4 class="text-lg font-semibold text-gray-700">En Cours</h4>
-    <p class="text-2xl font-bold text-orange-500">{{ ticketData.inProgress }}</p>
+  <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <h4 class="text-sm font-medium text-gray-600 mb-2">En Cours</h4>
+    <p class="text-2xl font-bold text-gray-900">{{ ticketData.inProgress }}</p>
+    <div class="h-1 w-full bg-orange-500 mt-4 rounded-full"></div>
   </div>
-  <div class="bg-white shadow-md rounded-lg p-4 w-1/5 text-center">
-    <h4 class="text-lg font-semibold text-gray-700">Clôturés</h4>
-    <p class="text-2xl font-bold text-green-500">{{ ticketData.resolved }}</p>
+  <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <h4 class="text-sm font-medium text-gray-600 mb-2">Clôturés</h4>
+    <p class="text-2xl font-bold text-gray-900">{{ ticketData.resolved }}</p>
+    <div class="h-1 w-full bg-green-500 mt-4 rounded-full"></div>
   </div>
 </div>
 <!-- Main View with Transition -->
@@ -156,7 +159,7 @@ export default {
           role: ['Admin', 'AgentSupport']
         },
          {
-           name: 'SendEmail',
+           name: 'Notifications',
            route: '/SendEmail',
            role: ['Admin', 'AgentSupport']
          },

@@ -131,7 +131,7 @@
             </div>
             <div class="flex justify-center mt-3">
               <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                <div class="w-12 h-12 border-4 border-green-400 border-t-transparent rounded-full animate-spin"></div>
+                <div class="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
               </div>
                 <button
                   type="submit"

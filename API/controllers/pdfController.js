@@ -29,7 +29,7 @@ exports.uploadPdf = async (req, res) => {
       return res.status(400).json({ message: "Seuls les fichiers PDF, Word et PowerPoint sont autorisés" });
     }
 
-    const pdfUrl = `/uploads/${pdfFile.filename}`; // Chemin du fichier dans le serveur
+    const pdfUrl = `/uploads/documents/${pdfFile.filename}`; // Mise à jour du chemin
 
     // Création et sauvegarde dans la base de données
     const newPdf = new Pdf({
@@ -70,8 +70,8 @@ exports.getAllPdfs = async (req, res) => {
 exports.downloadPdf = async (req, res) => {
   try {
     const { filename } = req.params;
-    const decodedFilename = decodeURIComponent(filename); // Décodage pour gérer les espaces et caractères spéciaux
-    const filePath = path.join(__dirname, "../uploads", decodedFilename); // Construction du chemin complet
+    const decodedFilename = decodeURIComponent(filename);
+    const filePath = path.join(__dirname, "../uploads/documents", decodedFilename); // Mise à jour du chemin
 
     // Vérification de l'existence du fichier
     if (!fs.existsSync(filePath)) {
@@ -95,6 +95,12 @@ exports.updatePdf = async (req, res) => {
     const { comment, title, typededemande, produit } = req.body;
     const pdfFile = req.file;
 
+    // Récupérer l'ancien PDF
+    const oldPdf = await Pdf.findById(id);
+    if (!oldPdf) {
+      return res.status(404).json({ message: "PDF non trouvé" });
+    }
+
     const updateData = {
       comment,
       title,
@@ -117,22 +123,26 @@ exports.updatePdf = async (req, res) => {
         return res.status(400).json({ message: "Seuls les fichiers PDF, Word et PowerPoint sont autorisés" });
       }
 
-      const pdfUrl = `/uploads/${pdfFile.filename}`; // Chemin du fichier dans le serveur
+      // Supprimer l'ancien fichier
+      const oldFilePath = path.join(__dirname, "..", oldPdf.url);
+      if (fs.existsSync(oldFilePath)) {
+        fs.unlinkSync(oldFilePath);
+      }
+
+      const pdfUrl = `/uploads/documents/${pdfFile.filename}`;
       updateData.url = pdfUrl;
       updateData.name = pdfFile.originalname;
     }
 
-    const updatedPdf = await Pdf.findByIdAndUpdate(id, updateData, { new: true });
-
-    if (!updatedPdf) {
-      return res.status(404).json({ message: "PDF non trouvé" });
-    }
+    const updatedPdf = await Pdf.findByIdAndUpdate(id, updateData, { new: true })
+      .populate('typededemande')
+      .populate('produit');
 
     res.status(200).json(updatedPdf);
   } catch (error) {
     console.error("Erreur lors de la mise à jour du PDF :", error);
 
-    // Suppression du fichier en cas d'erreur
+    // Suppression du nouveau fichier en cas d'erreur
     if (req.file && req.file.path) {
       fs.unlinkSync(req.file.path);
     }

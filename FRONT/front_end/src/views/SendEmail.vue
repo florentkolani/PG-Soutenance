@@ -22,7 +22,7 @@
             <th class="border border-gray-300 px-4 py-2">Date d'envoi</th>
           </tr>
         </thead>
-        <tbody class="text-gray-600 text-sm font-light">
+        <tbody class="text-gray-600 text-sm font-normal">
           <tr v-for="email in sentEmails" :key="email._id" class="border-b border-gray-200 hover:bg-gray-100">
             <td class="border px-4 py-2">{{ email.senderName || email.sender }}</td> <!-- Fallback to sender if senderName is missing -->
             <td class="border px-4 py-2">
