@@ -30,9 +30,19 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    paysId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Country',
+        required: true
+    },
     ville: {
         type: String,
         required: true,
+    },
+    villeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'City',
+        required: true
     },
     isArchived: {
         type: Boolean,

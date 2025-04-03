@@ -7,15 +7,15 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/75 backdrop-blur-sm"
       @click.self="closeDropdowns"
     >
-      <div class="relative w-full max-w-2xl transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all">
-        <div class="p-6">
-          <div class="flex justify-between items-center pb-4 mb-4 border-b border-gray-200">
-            <h3 class="text-xl font-bold text-gray-900">
+      <div class="relative w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white shadow-lg transition-all">
+        <div class="p-8">
+          <div class="flex justify-between items-center pb-6 mb-6 border-b border-gray-300">
+            <h3 class="text-2xl font-semibold text-gray-800">
               {{ isEditing ? 'Modifier' : 'Ajouter' }} un utilisateur
             </h3>
             <button
               @click="$emit('close')"
-              class="rounded-lg p-1.5 hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-colors"
+              class="rounded-full p-2 hover:bg-gray-200 text-gray-500 hover:text-gray-800 transition-colors"
               :disabled="isLoading"
             >
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -26,86 +26,71 @@
 
           <!-- Form -->
           <form @submit.prevent="submitForm">
-            <div class="grid gap-4 mb-4 sm:grid-cols-2">
+            <div class="grid gap-6 mb-6 sm:grid-cols-2">
               <div>
-                <label for="name" class="block mb-2 text-sm font-medium text-gray-900">
+                <label for="name" class="block mb-2 text-sm font-medium text-gray-700">
                   Nom <span class="text-red-500">*</span>
                 </label>
                 <input
                   v-model="user.name"
                   type="text"
                   id="name"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
+                  class="bg-gray-100 border border-gray-300 text-gray-800 rounded-lg block w-full p-3 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Entrez votre nom"
                   required
                   :disabled="isLoading"
                 />
               </div>
               <div>
-                <label for="email" class="block mb-2 text-sm font-medium text-gray-900">
+                <label for="email" class="block mb-2 text-sm font-medium text-gray-700">
                   Email <span class="text-red-500">*</span>
                 </label>
                 <input
                   v-model="user.email"
                   type="email"
                   id="email"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
+                  class="bg-gray-100 border border-gray-300 text-gray-800 rounded-lg block w-full p-3 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Entrez votre email"
                   required
                   :disabled="isLoading"
                 />
               </div>
-              <!-- Sélecteur de pays avec recherche -->
-              <div class="mb-4 relative">
-                <label for="pays" class="block text-sm font-medium text-gray-900 mb-2">
+              <!-- Sélecteur de pays -->
+              <div>
+                <label for="pays" class="block mb-2 text-sm font-medium text-gray-700">
                   Pays <span class="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  v-model="countrySearch"
-                  placeholder="Rechercher ou sélectionner un pays"
-                  class="bg-white border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5 mb-2"
-                  @input="filterCountries"
-                  @focus="showCountryDropdown = true"
+                <select
+                  v-model="selectedCountryCode"
+                  id="pays"
                   required
-                />
-                <ul v-if="showCountryDropdown && filteredCountries.length" class="absolute z-10 bg-white border border-gray-300 rounded-lg w-full mt-1 max-h-60 overflow-auto">
-                  <li
-                    v-for="country in filteredCountries"
-                    :key="country.code"
-                    @click="selectCountry(country)"
-                    class="p-2 cursor-pointer hover:bg-gray-200"
-                  >
+                  class="bg-gray-100 border border-gray-300 text-gray-800 rounded-lg block w-full p-3 focus:ring-blue-500 focus:border-blue-500"
+                  @change="onCountryChange"
+                >
+                  <option value="">Sélectionnez un pays</option>
+                  <option v-for="country in countries" :key="country.code" :value="country.code">
                     {{ country.name }}
-                  </li>
-                </ul>
+                  </option>
+                </select>
               </div>
 
-              <!-- Sélecteur de villes avec recherche -->
-              <div class="mb-4 relative">
-                <label for="ville" class="block text-sm font-medium text-gray-900 mb-2">
+              <!-- Sélecteur de villes -->
+              <div>
+                <label for="ville" class="block mb-2 text-sm font-medium text-gray-700">
                   Ville <span class="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  v-model="citySearch"
-                  placeholder="Rechercher ou sélectionner une ville"
-                  class="bg-white border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5 mb-2"
-                  @input="filterCities"
-                  @focus="showCityDropdown = true"
-                  :disabled="isLoadingCities || !cities.length"
+                <select
+                  v-model="user.ville"
+                  id="ville"
                   required
-                />
-                <ul v-if="showCityDropdown && filteredCities.length" class="absolute z-10 bg-white border border-gray-300 rounded-lg w-full mt-1 max-h-60 overflow-auto">
-                  <li
-                    v-for="city in filteredCities"
-                    :key="city"
-                    @click="selectCity(city)"
-                    class="p-2 cursor-pointer hover:bg-gray-200"
-                  >
-                    {{ city }}
-                  </li>
-                </ul>
+                  class="bg-gray-100 border border-gray-300 text-gray-800 rounded-lg block w-full p-3 focus:ring-blue-500 focus:border-blue-500"
+                  :disabled="isLoadingCities || !cities.length"
+                >
+                  <option value="">Sélectionnez une ville</option>
+                  <option v-for="city in cityObjects" :key="city._id" :value="city.name">
+                    {{ city.name }}
+                  </option>
+                </select>
                 <div v-if="isLoadingCities" class="mt-2 flex items-center space-x-2">
                   <div class="w-5 h-5 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                   <span class="text-sm text-gray-500">En cours de chargement, veuillez patienter.</span>
@@ -113,7 +98,7 @@
               </div>
 
               <div>
-                <label for="contact" class="block mb-2 text-sm font-medium text-gray-900">
+                <label for="contact" class="block mb-2 text-sm font-medium text-gray-700">
                   Contact <span class="text-red-500">*</span>
                 </label>
                 <div class="flex">
@@ -121,7 +106,7 @@
                   <input
                     type="text"
                     :value="selectedCountryDialCode"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 rounded-l-lg block w-1/4 p-2.5"
+                    class="bg-gray-100 border border-gray-300 text-gray-800 rounded-l-lg block w-1/4 p-3"
                     disabled
                   />
                   <!-- Input pour le contact -->
@@ -129,7 +114,7 @@
                     v-model="user.contact"
                     type="text"
                     id="contact"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 rounded-r-lg block w-3/4 p-2.5"
+                    class="bg-gray-100 border border-gray-300 text-gray-800 rounded-r-lg block w-3/4 p-3 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Entrez votre contact"
                     required
                     :disabled="isLoading"
@@ -137,13 +122,13 @@
                 </div>
               </div>
               <div>
-                <label for="role" class="block mb-2 text-sm font-medium text-gray-900">
+                <label for="role" class="block mb-2 text-sm font-medium text-gray-700">
                   Role <span class="text-red-500">*</span>
                 </label>
                 <select
                   v-model="user.role"
                   id="role"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
+                  class="bg-gray-100 border border-gray-300 text-gray-800 rounded-lg block w-full p-3 focus:ring-blue-500 focus:border-blue-500"
                   :disabled="isLoading"
                 >
                   <option value="Client">Client</option>
@@ -155,7 +140,7 @@
             <div class="flex justify-center">
               <button
                 type="submit"
-                class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-green-500 rounded-lg hover:bg-green-600 focus:ring-4 focus:ring-green-300 disabled:opacity-50 transition-all duration-200"
+                class="inline-flex items-center px-8 py-3 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-blue-300 disabled:opacity-50 transition-all duration-200"
                 :disabled="isLoading"
               >
                 {{ isEditing ? 'Modifier' : 'Ajouter' }} l'utilisateur
@@ -206,13 +191,16 @@ export default {
         email: '',
         contact: '',
         pays: '',
+        paysId: '',
         ville: '',
+        villeId: '',
         role: 'Client',
       },
       countries: [],
       cities: [],
+      cityObjects: [],
       isLoadingCities: false,
-      selectedCountryCode: "default",
+      selectedCountryCode: "",
       selectedCountryDialCode: "",
       isLoading: false,
       showDialog: false,
@@ -256,7 +244,7 @@ export default {
           if (country) {
             this.selectedCountryCode = country.code;
             this.selectedCountryDialCode = country.dialCode;
-            this.loadCities(country.code);
+            this.loadCities(country._id);
           }
         }
       }
@@ -271,9 +259,11 @@ export default {
         .map((country) => ({
           name: country.name,
           code: country.code,
+          _id: country._id,
           dialCode: country.code,
         }))
-        .sort((a, b) => a.name.localeCompare(b.name)); // Sort countries alphabetically
+        .sort((a, b) => a.name.localeCompare(b.name));
+      console.log("Countries loaded:", this.countries);
     } catch (error) {
       console.error("Erreur lors du chargement des pays :", error);
       this.countries = [];
@@ -282,21 +272,39 @@ export default {
 
   methods: {
     async loadCities(countryId) {
-      console.log("Country ID:", countryId); // Vérification de l'ID envoyé
+      console.log("Country ID:", countryId);
 
       this.isLoadingCities = true;
       this.cities = [];
+      this.cityObjects = [];
+      this.user.ville = ''; // Réinitialiser la sélection de la ville
 
       try {
-        const url = countryId ? `${API_URL}/cities?country=${countryId}&limit=0` : `${API_URL}/cities?limit=0`;
-        const response = await axios.get(url);
-        this.cities = response.data.cities
-          .map((city) => city.name)
-          .sort((a, b) => a.localeCompare(b)); // Sort cities alphabetically
-        console.log("Cities loaded:", this.cities); // Vérification des villes chargées
+        if (!countryId) {
+          throw new Error('ID de pays manquant');
+        }
+
+        // Utiliser le paramètre countryId pour filtrer les villes
+        const response = await axios.get(`${API_URL}/cities`, {
+          params: {
+            countryId: countryId,
+            limit: 0
+          }
+        });
+
+        if (response.data && response.data.cities) {
+          this.cityObjects = response.data.cities;
+          this.cities = response.data.cities.map(city => city.name);
+          console.log("Villes chargées pour le pays:", countryId, this.cityObjects);
+        } else {
+          console.warn("Aucune ville trouvée pour ce pays");
+          this.cityObjects = [];
+          this.cities = [];
+        }
       } catch (error) {
         console.error("Erreur lors de la récupération des villes :", error);
         this.cities = [];
+        this.cityObjects = [];
       } finally {
         this.isLoadingCities = false;
       }
@@ -306,8 +314,8 @@ export default {
       const country = this.countries.find(c => c.name.toLowerCase() === this.countrySearch.toLowerCase());
       if (country) {
         this.selectedCountryCode = country.code;
-        this.updateCountryName(country.code);
-        this.loadCities(country.code);
+        this.updateCountryName(country._id);
+        this.loadCities(country._id);
       }
     },
 
@@ -320,10 +328,10 @@ export default {
 
     // Mettre à jour le nom du pays sélectionné et son code d'appel
     updateCountryName(countryId) {
-      const country = this.countries.find((c) => c.code === countryId);
+      const country = this.countries.find((c) => c._id === countryId);
       if (country) {
         this.user.pays = country.name;
-        this.selectedCountryDialCode = country.dialCode || ''; // Pré-remplir le code pays
+        this.selectedCountryDialCode = country.dialCode;
       } else {
         this.user.pays = '';
         this.selectedCountryDialCode = '';
@@ -334,6 +342,30 @@ export default {
       this.isLoading = true;
 
       try {
+        // Vérifier que tous les champs requis sont présents
+        if (!this.user.name || !this.user.email || !this.user.contact || !this.user.pays || !this.user.ville) {
+          throw new Error('Tous les champs sont requis');
+        }
+
+        // Vérifier que les IDs sont présents
+if (!this.user.paysId || !this.user.villeId) {
+          const country = this.countries.find(c => c.name === this.user.pays);
+          if (country) {
+            this.user.paysId = country._id;
+          } else {
+            throw new Error('Pays invalide');
+          }
+        }
+
+        if (!this.user.villeId) {
+          const selectedCity = this.cityObjects.find(city => city.name === this.user.ville);
+          if (selectedCity) {
+            this.user.villeId = selectedCity._id;
+          } else {
+            throw new Error('Ville invalide');
+          }
+        }
+
         const token = localStorage.getItem('token');
         if (!token) throw new Error('Token non trouvé');
 
@@ -343,14 +375,12 @@ export default {
 
         let response;
         if (this.isEditing) {
-          // Mise à jour
           response = await axios.put(
             `${API_URL}/users/${this.userToEdit._id}`,
             this.user,
             { headers }
           );
         } else {
-          // Création
           response = await axios.post(
             `${API_URL}/auth/register`,
             this.user,
@@ -365,8 +395,9 @@ export default {
           this.$emit('user-updated');
         }
       } catch (error) {
+        console.error('Erreur lors de la soumission du formulaire:', error);
         this.dialogType = 'error';
-        this.dialogMessage = `Erreur lors de ${this.isEditing ? 'la modification' : "l'ajout"} de l'utilisateur`;
+        this.dialogMessage = `Erreur lors de ${this.isEditing ? 'la modification' : "l'ajout"} de l'utilisateur: ${error.message}`;
         this.showDialog = true;
       } finally {
         this.isLoading = false;
@@ -384,7 +415,9 @@ export default {
         email: '',
         contact: '',
         pays: '',
+        paysId: '',
         ville: '',
+        villeId: '',
         role: 'Client',
       };
       this.selectedCountryDialCode = '';
@@ -397,18 +430,32 @@ export default {
     selectCountry(country) {
       this.countrySearch = country.name;
       this.selectedCountryCode = country.code;
-      this.updateCountryName(country.code);
-      this.loadCities(country.code);
+      this.updateCountryName(country._id);
+      this.loadCities(country._id);
       this.showCountryDropdown = false;
     },
     selectCity(city) {
-      this.citySearch = city;
-      this.user.ville = city;
+      this.citySearch = city.name;
+      this.user.ville = city.name;
+      this.user.villeId = city._id;
       this.showCityDropdown = false;
     },
     closeDropdowns() {
       this.showCountryDropdown = false;
       this.showCityDropdown = false;
+    },
+    onCountryChange(event) {
+      const country = this.countries.find(c => c.code === this.selectedCountryCode);
+      if (country) {
+        console.log("Pays trouvé:", country);
+        this.user.pays = country.name;
+        this.user.paysId = country._id;
+        this.selectedCountryDialCode = country.dialCode;
+        this.user.ville = ''; // Réinitialiser la sélection de la ville
+        this.loadCities(country._id);
+      } else {
+        console.warn("Pays non trouvé pour le code:", this.selectedCountryCode);
+      }
     },
   },
 };

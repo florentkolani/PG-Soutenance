@@ -13,9 +13,9 @@ const {getCitiesByCountryId} = require('../controllers/cityController');
 const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
 
-// Routes publiques
-router.post('/register', registerUser);
-router.post('/login', loginUser);
+// // Routes publiques
+// router.post('/register', registerUser);
+// router.post('/login', loginUser);
 
 // Routes spécifiques protégées
 router.get('/profile', protect, getUserProfile);

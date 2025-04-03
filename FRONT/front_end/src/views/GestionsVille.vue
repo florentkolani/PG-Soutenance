@@ -61,14 +61,15 @@
         <button @click="goBack" class="text-blue-500 mt-3 hover:text-blue-600">
           <span class="material-icons">arrow_back</span>
         </button>
-        <h1 class="text-2xl font-bold text-gray-800 ml-2">Liste des villes</h1>
+        <h1 class="text-2xl font-bold text-gray-800 ml-2">
+          LISTES DES VILLES {{ cities[0]?.country ? `: ${cities[0].country.name}` : '' }}
+        </h1>
       </div>
 
       <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
         <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
           <tr>
             <th class="border border-gray-300 px-4 py-2">Villes</th>
-            <th class="border border-gray-300 px-4 py-2">Pays</th>
             <th class="border border-gray-300 px-4 py-2">Date de création</th>
             <th class="border border-gray-300 px-4 py-2">Actions</th>
           </tr>
@@ -76,7 +77,6 @@
         <tbody class="text-gray-600 text-sm font-normal">
           <tr v-for="city in paginatedCities" :key="city._id" class="border-b border-gray-200 hover:bg-gray-100">
             <td class="border px-4 py-2">{{ city.name }}</td>
-            <td class="border px-4 py-2">{{ city.country ? city.country.name : 'N/A' }}</td>
             <td class="border px-4 py-2 text-center">
               {{ new Date(city.createdAt).toLocaleString('fr-FR', { 
                   day: '2-digit', 
@@ -120,7 +120,7 @@
         <table class="table-auto w-full border-collapse border border-gray-300">
           <thead>
             <tr class="bg-gray-200 text-left">
-              <th class="border border-gray-300 px-4 py-2">Champ</th>
+              <th class="border border-gray-300 px-4 py-2">Libellé</th>
               <th class="border border-gray-300 px-4 py-2">Valeur</th>
             </tr>
           </thead>
@@ -227,6 +227,7 @@ export default {
       totalItems: 0,
       successMessage: '',
       errorMessage: '',
+      selectedCountry: null,
     };
   },
   computed: {
@@ -354,10 +355,22 @@ export default {
     goBack() {
       this.$router.push('/gestionspays');
     },
+    async fetchSelectedCountry() {
+      try {
+        const countryId = this.$route.query.countryId;
+        if (countryId) {
+          const response = await axios.get(`${API_URL}/countries/${countryId}`);
+          this.selectedCountry = response.data;
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération du pays:', error);
+      }
+    }
   },
   created() {
     this.fetchCities();
     this.fetchCountries();
+    this.fetchSelectedCountry();
   }
 };
 </script>

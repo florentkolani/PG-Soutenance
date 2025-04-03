@@ -2,15 +2,18 @@ import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
-import vueDevTools from 'vite-plugin-vue-devtools';
+// import vueDevTools from 'vite-plugin-vue-devtools';
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
     vueJsx(),
-    vueDevTools(), // Plugin pour les devtools Vue.js
+    // vueDevTools(), // Plugin pour les devtools Vue.js
   ],
+  define: {
+    __VUE_PROD_DEVTOOLS__: false
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)) // Alias pour accéder facilement au dossier src

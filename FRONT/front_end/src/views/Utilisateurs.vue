@@ -5,16 +5,33 @@
       title="NOVA LEAD" 
       primaryActionText="Nouvel utilisateur" 
       @primaryAction="showModal = true" 
-      @filterChanged="onFilterChanged"
-       @goToDashboard="redirectToDashboard"
-      :filterAction="true" 
-      :filterOptions="userFilterOptions" 
+      @goToDashboard="redirectToDashboard"
     />
 
     <main class="container mx-auto p-4">
       <div class="flex justify-between items-center mb-4">
         <h1 class="text-2xl font-bold">Liste des utilisateurs</h1>
+        <div class="flex justify-between items-center mb-4">
+        <div>
+          <select id="filterRole" v-model="selectedRole" @change="applyFilters" class="border rounded px-2 py-1">
+            <option value="">Tous les rôles</option>
+            <option v-for="option in userFilterOptions" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <select id="filterPays" v-model="selectedPays" @change="applyFilters" class="border rounded px-2 py-1">
+            <option value="">Tous les pays</option>
+            <option v-for="pays in uniquePays" :key="pays" :value="pays">
+              {{ pays }}
+            </option>
+          </select>
+        </div>
       </div>
+      </div>
+
+      
 
       <!-- Table des utilisateurs -->
       <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
@@ -69,7 +86,7 @@
           <table class="table-auto w-full border-collapse border border-gray-300">
             <thead>
               <tr class="bg-gray-200 text-left">
-                <th class="border border-gray-300 px-4 py-2">Champ</th>
+                <th class="border border-gray-300 px-4 py-2">Libellé</th>
                 <th class="border border-gray-300 px-4 py-2">Valeur</th>
               </tr>
             </thead>
@@ -184,16 +201,29 @@ export default {
       itemsPerPage: 10,
       totalItems: 0, 
       totalPages: 0, 
+      selectedPays: '', // New state for country filter
     };
   },
   computed: {
-    filteredUsers() {
-      if (this.selectedRole === '') {
-        return this.users;
-      }
-      return this.users.filter(user => user.role === this.selectedRole);
+    uniquePays() {
+      // Extract unique countries from the users list
+      return [...new Set(this.users.map(user => user.pays).filter(Boolean))];
     },
+    filteredUsers() {
+      let users = this.users;
 
+      // Apply role filter
+      if (this.selectedRole) {
+        users = users.filter(user => user.role === this.selectedRole);
+      }
+
+      // Apply country filter
+      if (this.selectedPays) {
+        users = users.filter(user => user.pays === this.selectedPays);
+      }
+
+      return users;
+    },
   },
   methods: {
     redirectToDashboard() {
@@ -344,6 +374,10 @@ export default {
       this.fetchUsers();
       this.closeUserModal();
       this.showAlert('Utilisateur mis à jour avec succès.', 'success');
+    },
+    applyFilters() {
+      // Triggered when filters are changed
+      this.fetchUsers();
     },
   },
 

@@ -66,6 +66,18 @@
               <i class="fas fa-check-circle mr-2"></i>
               Minimum 6 caractères
             </li>
+            <li class="flex items-center">
+              <i class="fas fa-check-circle mr-2"></i>
+              Au moins une lettre majuscule
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-check-circle mr-2"></i>
+              Au moins une lettre minuscule
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-check-circle mr-2"></i>
+              Au moins un caractère spécial (!@#$%^&*(),.?":{}|<>)
+            </li>
           </ul>
         </div>
 
@@ -97,7 +109,7 @@
         </h3>
         
         <p class="text-gray-600 mb-8 leading-relaxed">
-          Votre mot de passe a été modifié avec succès. Pour des raisons de sécurité, vous allez être redirigé vers la page de connexion dans quelques secondes.
+          Votre mot de passe a été modifié avec succès. Vous allez être redirigé vers la page de connexion dans quelques secondes.
         </p>
         
         <button 
@@ -169,8 +181,14 @@ export default {
         return;
       }
 
-      if (this.newPassword.length < 6) {
-        this.error = 'Le mot de passe doit contenir au moins 6 caractères.';
+      // Validation du mot de passe avec regex
+      const minLength = this.newPassword.length >= 6;
+      const hasUpperCase = /[A-Z]/.test(this.newPassword);
+      const hasLowerCase = /[a-z]/.test(this.newPassword);
+      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(this.newPassword);
+
+      if (!minLength || !hasUpperCase || !hasLowerCase || !hasSpecialChar) {
+        this.error = 'Le mot de passe doit contenir au moins 6 caractères, une majuscule, une minuscule et un caractère spécial.';
         return;
       }
 
