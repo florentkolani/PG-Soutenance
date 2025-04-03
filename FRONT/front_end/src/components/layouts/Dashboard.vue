@@ -12,7 +12,7 @@
 
       <div class="flex items-center mb-8">
         <img src="@/assets/logo.png" alt="Logo" class="h-12 w-12 rounded-lg shadow-md" />
-        <span class="ml-3 text-2xl font-bold text-gray-800">NOVA Lead</span>
+        <span class="ml-3 text-2xl font-bold text-gray-800">NOVA LEAD</span>
       </div>
       <!-- Bouton de fermeture sur petit écran -->
       <button @click="toggleSidebar" class="md:hidden text-gray-700 absolute top-2 right-2">

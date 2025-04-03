@@ -57,7 +57,7 @@
     <table class="table-auto w-full border-collapse border border-gray-300">
       <thead>
         <tr class="bg-gray-200 text-left">
-          <th class="border border-gray-300 px-4 py-2">Champ</th>
+          <th class="border border-gray-300 px-4 py-2">Libellé</th>
           <th class="border border-gray-300 px-4 py-2">Valeur</th>
         </tr>
       </thead>

@@ -60,6 +60,7 @@
             <th class="py-2 text-center">Urgence</th>
             <th class="py-2 text-center">Statut</th>
             <th class="py-2 text-center">Date de création</th>
+            <th class="py-2 text-center">Durée</th>
             <th class="py-2 text-center">Note</th>
             <th class="py-2 text-center">Actions</th>
           </tr>
@@ -90,8 +91,14 @@
                   minute: '2-digit' 
               }) }}
             </td>
-
-
+            <td class="border px-4 py-2 text-center">
+              <span :class="{
+                'text-green-600': ticket.statut === 'cloturé',
+                'text-blue-600': ticket.statut !== 'cloturé'
+              }">
+                {{ getResolutionTime(ticket) }}
+              </span>
+            </td>
             <td class="border px-4 py-2 text-center">
   <div class="flex justify-center space-x-1">
     <template v-for="index in 4" :key="index"> 
@@ -248,10 +255,12 @@ export default {
   },
   computed: {
     filteredTickets() {
-      if (this.selectedStatus === '') {
-        return this.tickets;
-      }
-      return this.tickets.filter(ticket => ticket.statut === this.selectedStatus);
+      let tickets = this.selectedStatus === '' 
+        ? [...this.tickets]
+        : this.tickets.filter(ticket => ticket.statut === this.selectedStatus);
+      
+      // Sort tickets by creation date (newest first)
+      return tickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     },
   },
 
@@ -547,6 +556,44 @@ closeTicket(ticketId) {
     goToPage(page) {
       this.currentPage = page;
       this.fetchTickets(); 
+    },
+    getResolutionTime(ticket) {
+      if (!ticket) return null;
+      
+      if (ticket.statut !== 'cloturé') {
+        return 'En cours';
+      }
+
+      // Vérifier si closedAt existe
+      if (!ticket.closedAt) {
+        return 'Date non disponible';
+      }
+
+      // On récupère la date de création du ticket
+      const createdAt = new Date(ticket.createdAt);
+      // On récupère la date de clôture
+      const closedAt = new Date(ticket.closedAt);
+      
+      // Calcul de la différence en millisecondes
+      const diffTime = closedAt.getTime() - createdAt.getTime();
+      
+      // Conversion en jours, heures, minutes
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      const diffHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const diffMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+
+      // Construction de la chaîne de temps
+      let resolution = [];
+      if (diffDays > 0) resolution.push(`${diffDays}j`);
+      if (diffHours > 0) resolution.push(`${diffHours}h`);
+      if (diffMinutes > 0) resolution.push(`${diffMinutes}min`);
+      
+      // Si le temps est inférieur à une minute
+      if (resolution.length === 0) {
+        return 'Moins d\'une minute';
+      }
+      
+      return resolution.join(' ');
     },
   },
 };

@@ -2,22 +2,39 @@
   <div>
     <!-- Email Modal -->
     <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
-      <div class="relative p-4 w-full max-w-2xl bg-white rounded-lg shadow">
+      <div class="relative p-4 w-full max-w-2xl bg-white h-auto rounded-2xl shadow">
         <div class="relative p-4">
-          <div class="flex justify-between items-center pb-4 mb-4 border-b">
+          <div class="flex justify-between items-center pb-2 mb-2 border-b">
             <h3 class="text-lg font-semibold text-gray-900">Envoyer un Email</h3>
             <button @click="closeModal" class="text-red-600 hover:text-red-800 text-2xl">&times;</button>
           </div>
 
           <form @submit.prevent="sendEmail">
             <!-- Liste des utilisateurs avec dropdown -->
-            <div class="mb-6">
-              <h2 class="text-lg font-semibold mb-2">À :</h2>
+            <div class="mb-4">
+              
+              <!-- Sélecteur de pays -->
+              <div class="mb-3">
+                <label for="country" class="block text-lg font-semibold mb-1">Pays :</label>
+                <select
+                  id="country"
+                  v-model="selectedCountry"
+                  @change="fetchUsers"
+                  class="w-full border border-gray-300 rounded-lg p-2 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200"
+                >
+                  <option value="">Tous les pays</option>
+                  <option v-for="country in countries" :key="country._id" :value="country._id">
+                    {{ country.name }}
+                  </option>
+                </select>
+              </div>
+
               <div class="relative w-full">
+                <h2 class="text-lg font-semibold mb-1">Clients :</h2>
                 <button
                   type="button"
                   @click="toggleDropdown"
-                  class="w-full border border-gray-300 rounded-lg p-3 text-left hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200 text-base flex items-center justify-between"
+                  class="w-full border border-gray-300 rounded-lg p-2 text-left hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200 text-base flex items-center justify-between"
                 >
                   <span class="truncate">
                     {{ selectedEmails.length > 0 ? selectedEmails.join(", ") : "Sélectionnez les utilisateurs" }}
@@ -27,37 +44,48 @@
                   </svg>
                 </button>
                 <div v-if="isDropdownOpen" class="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 w-full max-h-60 overflow-y-auto shadow-lg">
-                  <div v-for="user in users" :key="user._id" class="flex items-center p-3 hover:bg-gray-50">
+                  <!-- Checkbox Tout sélectionner -->
+                  <div class="p-2 border-b">
+                    <label class="flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        :checked="isAllSelected"
+                        @change="toggleSelectAll"
+                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <span class="ml-2 font-semibold">Tout sélectionner</span>
+                    </label>
+                  </div>
+                  <div v-for="user in users" :key="user._id" class="flex items-center p-2 hover:bg-gray-50">
                     <input
                       type="checkbox"
                       :value="user.email"
                       v-model="selectedEmails"
                       class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
-                    <label class="ml-3 cursor-pointer">{{ user.name }}</label>
+                    <label class="ml-2 cursor-pointer">{{ user.name }}</label>
                   </div>
-                  <p v-if="users.length === 0" class="text-gray-500 p-3">Aucun utilisateur disponible.</p>
+                  <p v-if="users.length === 0" class="text-gray-500 p-2">Aucun utilisateur disponible.</p>
                 </div>
               </div>
             </div>
 
             <!-- Sujet de l'email -->
-            <div class="mb-4">
-              <label for="subject" class="block text-sm font-semibold mb-2">Objet :</label>
+            <div class="mb-3">
+              <label for="subject" class="block text-lg font-semibold mb-1">Objet :</label>
               <input
                 type="text"
                 id="subject"
                 v-model="emailSubject"
-                class="block w-full border border-gray-300 rounded-lg p-3 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200"
+                class="block w-full border border-gray-300 rounded-lg p-2 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200"
                 placeholder="Entrez le sujet de l'email"
                 required
               />
             </div>
 
             <!-- Contenu de l'email -->
-            <div class="mb-4">
-              <!-- <label for="message" class="block text-sm font-medium text-gray-700 mb-2">Rédigez votre message</label> -->
-              <div id="editor" class="block w-full border border-gray-300 rounded-lg p-2" style="min-height: 300px;"></div>
+            <div class="mb-3">
+              <div id="editor" class="block w-full border border-gray-300 rounded-lg p-2" style="min-height: 200px;"></div>
             </div>
 
             <!-- Bouton d'envoi -->
@@ -158,23 +186,54 @@ export default {
       isSending: false,
       isDropdownOpen: false,
       quill: null,
-      showSuccessPopup: false, // New state for success popup
-      showErrorPopup: false, // New state for error popup
+      showSuccessPopup: false,
+      showErrorPopup: false,
+      selectedCountry: "",
+      countries: [],
     };
+  },
+  computed: {
+    isAllSelected() {
+      return this.users.length > 0 && this.selectedEmails.length === this.users.length;
+    }
   },
   methods: {
     async fetchUsers() {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(`${API_URL}/users/all`, {
+        const url = `${API_URL}/users/all`;
+        
+        const response = await axios.get(url, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        this.users = response.data.data || [];
+        const allUsers = response.data.data || [];
+        // Filter users based on selected country's _id
+        this.users = this.selectedCountry
+          ? allUsers.filter(user => user.paysId === this.selectedCountry)
+          : allUsers;
         console.log("Utilisateurs récupérés :", this.users);
       } catch (error) {
         console.error("Erreur lors de la récupération des utilisateurs :", error);
         alert("Impossible de récupérer les utilisateurs. Veuillez réessayer plus tard.");
       }
+    },
+    async fetchCountries() {
+      // charger les pays depuis la base de données
+    try {
+      const response = await axios.get(`${API_URL}/countries?limit=0`);
+      this.countries = response.data.countries
+        .map((country) => ({
+          name: country.name,
+          code: country.code,
+          _id: country._id,
+          dialCode: country.code,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+      console.log("Countries loaded:", this.countries);
+    } catch (error) {
+      console.error("Erreur lors du chargement des pays :", error);
+      this.countries = [];
+    }
     },
     async sendEmail() {
       if (this.selectedEmails.length === 0) {
@@ -234,9 +293,17 @@ export default {
         },
       });
     },
+    toggleSelectAll() {
+      if (this.isAllSelected) {
+        this.selectedEmails = [];
+      } else {
+        this.selectedEmails = this.users.map(user => user.email);
+      }
+    },
   },
   mounted() {
     this.fetchUsers();
+    this.fetchCountries();
     this.$nextTick(() => {
       if (this.showModal) {
         this.initializeQuill();

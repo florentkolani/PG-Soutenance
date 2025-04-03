@@ -261,8 +261,15 @@ exports.closeTicket = async (req, res) => {
     const ticketId = req.params.ticketId;
 
     try {
-        // Fermer le ticket en mettant à jour son statut
-        const updatedTicket = await Ticket.findByIdAndUpdate(ticketId, { statut: 'cloturé' }, { new: true });
+        // Ajouter closedAt lors de la fermeture du ticket
+        const updatedTicket = await Ticket.findByIdAndUpdate(
+            ticketId, 
+            { 
+                statut: 'cloturé',
+                closedAt: new Date() // Ajout de la date de clôture
+            }, 
+            { new: true }
+        );
         
         if (!updatedTicket) {
             return res.status(404).send('Ticket non trouvé');
@@ -396,7 +403,7 @@ exports.addMessageToTicket = async (req, res) => {
     }
 };
 
-// Ajouter cette nouvelle fonction dans le contrôleur
+// fonction pour la récupération des statut des tickets pour le dashboard
 exports.getTicketStats = async (req, res) => {
     try {
         let filter = {};

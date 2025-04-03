@@ -42,9 +42,12 @@
   <a 
     :href="`/uploads/documents/${ticket.file}`" 
     :download="ticket.file" 
-    class="text-blue-500 hover:underline"
+    class="text-blue-500 hover:underline flex items-center"
     @click.prevent="downloadFile"
   >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+    </svg>
     Télécharger le fichier
   </a>
   <p v-if="fileDownloadError" class="text-red-500">{{ fileDownloadError }}</p>
@@ -68,7 +71,7 @@
 <div class="flex items-center justify-end">
   <!-- Bouton Répondre -->
   <button 
-    v-if="message.userId?._id !== currentUserId" 
+    v-if="message.isDescription || message.userId?._id !== currentUserId" 
     @click="toggleReply(message._id)" 
     class="text-white text-sm mt-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 transition duration-200 flex items-center space-x-2"
   >
@@ -405,12 +408,21 @@ fetchTicket() {
 
     updateTicketStatus(ticketId, statusData) {
         const token = localStorage.getItem('token');
+        // Si le statut est "cloturé", on ajoute la date de clôture
+        if (statusData.statut === 'cloturé') {
+            statusData.closedAt = new Date().toISOString();
+        }
+        
         console.log('Mise à jour du statut pour le ticket ID:', ticketId, 'avec les données:', statusData);
         return axios.put(`${API_URL}/tickets/${ticketId}/statut`, statusData, {
             headers: { Authorization: `Bearer ${token}` },
         })
         .then(response => {
             console.log('Réponse du serveur pour la mise à jour du statut:', response.data);
+            // Mettre à jour le ticket local avec les nouvelles données
+            if (response.data) {
+                this.ticket = { ...this.ticket, ...response.data };
+            }
             return response;
         })
         .catch(error => {

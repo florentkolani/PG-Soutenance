@@ -4,66 +4,121 @@ const bcrypt = require('bcryptjs');
 const Country = require('../models/Country');
 const City = require('../models/City');
 
-// Générer un token JWT
-const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
-};
+// // Générer un token JWT
+// const generateToken = (id) => {
+//     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+// };
 
-// Inscription
-exports.registerUser = async (req, res) => {
-    const { name, email, password, contact, role, pays, ville } = req.body;
+// // Inscription
+// exports.registerUser = async (req, res) => {
+//     const { name, email, password, contact, role, pays, ville, paysId, villeId } = req.body;
 
-    try {
-        // Vérifier si l'utilisateur existe déjà
-        const userExists = await User.findOne({ email });
-        if (userExists) {
-            return res.status(400).json({ message: 'Cet utilisateur existe déjà' });
-        }
+//     try {
+//         // Log des données reçues
+//         console.log('Données reçues:', { name, email, contact, role, pays, ville, paysId, villeId });
 
-        // Créer un nouvel utilisateur
-        const user = new User({ name, email, password, contact, role, pays, ville });
-        await user.save();
+//         // Vérification des champs requis
+//         if (!name || !email || !password || !contact || !pays || !ville || !paysId || !villeId) {
+//             return res.status(400).json({ 
+//                 message: 'Tous les champs sont requis',
+//                 missingFields: {
+//                     name: !name,
+//                     email: !email,
+//                     password: !password,
+//                     contact: !contact,
+//                     pays: !pays,
+//                     ville: !ville,
+//                     paysId: !paysId,
+//                     villeId: !villeId
+//                 }
+//             });
+//         }
 
-        // Répondre avec le token et les infos utilisateur
-        res.status(201).json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            pays: user.pays,
-            ville: user.ville,
-            role: user.role,
-            token: generateToken(user._id)
-        });
-    } catch (error) {
-        res.status(400).json({ message: 'Erreur lors de l\'inscription', error });
-    }
-};
+//         // Vérifier si l'utilisateur existe déjà
+//         const userExists = await User.findOne({ email });
+//         if (userExists) {
+//             return res.status(400).json({ message: 'Cet utilisateur existe déjà' });
+//         }
 
-// Connexion
-exports.loginUser = async (req, res) => {
-    const { email, password } = req.body;
+//         try {
+//             // Vérifier si le pays et la ville existent
+//             const countryExists = await Country.findById(paysId);
+//             const cityExists = await City.findById(villeId);
 
-    try {
-        const user = await User.findOne({ email });
+//             if (!countryExists) {
+//                 return res.status(400).json({ message: 'Pays invalide ou non trouvé' });
+//             }
+//             if (!cityExists) {
+//                 return res.status(400).json({ message: 'Ville invalide ou non trouvée' });
+//             }
 
-        // Vérifier l'utilisateur et le mot de passe
-        if (user && (await user.matchPassword(password))) {
-            res.json({
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                pays: user.pays,
-                ville: user.ville,
-                role: user.role,
-                token: generateToken(user._id)
-            });
-        } else {
-            res.status(401).json({ message: 'Identifiants invalides' });
-        }
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur lors de la connexion', error });
-    }
-};
+//             // Créer un nouvel utilisateur
+//             const user = new User({ 
+//                 name, 
+//                 email, 
+//                 password, 
+//                 contact, 
+//                 role, 
+//                 pays, 
+//                 paysId,
+//                 ville, 
+//                 villeId 
+//             });
+//             await user.save();
+
+//             // Répondre avec le token et les infos utilisateur
+//             res.status(201).json({
+//                 _id: user._id,
+//                 name: user.name,
+//                 email: user.email,
+//                 pays: user.pays,
+//                 paysId: user.paysId,
+//                 ville: user.ville,
+//                 villeId: user.villeId,
+//                 role: user.role,
+//                 token: generateToken(user._id)
+//             });
+//         } catch (error) {
+//             console.error('Erreur lors de la vérification pays/ville:', error);
+//             return res.status(400).json({ 
+//                 message: 'Erreur lors de la vérification du pays ou de la ville',
+//                 error: error.message 
+//             });
+//         }
+//     } catch (error) {
+//         console.error('Erreur lors de l\'inscription:', error);
+//         res.status(500).json({ 
+//             message: 'Erreur lors de l\'inscription', 
+//             error: error.message 
+//         });
+//     }
+// };
+
+// // Connexion
+// exports.loginUser = async (req, res) => {
+//     const { email, password } = req.body;
+
+//     try {
+//         const user = await User.findOne({ email });
+
+//         // Vérifier l'utilisateur et le mot de passe
+//         if (user && (await user.matchPassword(password))) {
+//             res.json({
+//                 _id: user._id,
+//                 name: user.name,
+//                 email: user.email,
+//                 pays: user.pays,
+//                 ville: user.ville,
+//                 role: user.role,
+//                 token: generateToken(user._id)
+//             });
+//         } else {
+//             res.status(401).json({ message: 'Identifiants invalides' });
+//         }
+//     } catch (error) {
+//         res.status(500).json({ message: 'Erreur lors de la connexion', error });
+//     }
+// };
 
 // Obtenir les infos utilisateur (route protégée)
 exports.getUserProfile = async (req, res) => {
