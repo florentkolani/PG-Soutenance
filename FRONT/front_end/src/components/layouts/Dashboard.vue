@@ -178,6 +178,11 @@ export default {
           route: '/Archives',
           role: ['Admin', 'AgentSupport'] 
         },
+        { 
+          name: 'Reporting',
+          route: '/Reporting',
+          role: ['Admin', 'AgentSupport'] 
+        },
         {
           name: 'À propos',
           route: '/Apropos',

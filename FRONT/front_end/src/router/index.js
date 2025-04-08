@@ -14,6 +14,7 @@ import GestionsVille from '@/views/GestionsVille.vue';
 import Apropos from '@/views/Apropos.vue';
 import VideoUploader from '@/views/VideoUploader.vue';
 import sendEmail from '@/views/sendEmail.vue';
+import Reporting from '../views/Reporting.vue';
 
 const routes = [
   { path: '/login', component: LoginView },
@@ -33,7 +34,8 @@ const routes = [
   { path: '/Apropos', name: 'Apropos', component: Apropos },
   { path: '/videos', name: 'VideoUploader', component: VideoUploader },
   { path: '/gestionsville', name: 'GestionsVille', component: GestionsVille },
-  { path: '/sendEmail', name: 'sendEmail', component: sendEmail }
+  { path: '/sendEmail', name: 'sendEmail', component: sendEmail },
+  { path: '/Reporting', name: 'Reporting', component: Reporting },
 ];
 
 const router = createRouter({

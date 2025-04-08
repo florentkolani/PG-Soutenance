@@ -57,7 +57,7 @@
     <div v-if="showRecipientModal" class="fixed inset-0 bg-gray-900/70 flex items-center justify-center z-50 backdrop-blur-sm">
       <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-2xl mx-4 border border-gray-200">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-bold text-gray-800">Détails du message</h2>
+          <h2 class="text-2xl font-bold text-gray-800">Détails du Mail</h2>
           <button @click="closeRecipientModal" class="text-gray-500 hover:text-gray-700 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -69,7 +69,7 @@
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Champ</th>
+                <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Libellé</th>
                 <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Valeur</th>
               </tr>
             </thead>
