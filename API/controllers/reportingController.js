@@ -1,130 +1,146 @@
-const Ticket = require('../models/ticketModel');
-const User = require('../models/userModel');
 const Product = require('../models/productModel');
-const type = require('../models/typeDeDemandeModel');
-const rating = require('../models/ratingModel');
-const { Parser } = require('json2csv');
-const PDFDocument = require('pdfkit');
+const mongoose = require('mongoose');
+const Rating = require('../models/ratingModel');
+const User = require('../models/userModel');
+const Ticket = require('../models/ticketModel');
+const TypeDeDemande = require('../models/typeDeDemandeModel');
+const Country = require('../models/Country');
 
-const buildFilters = (query) => {
-  const filters = {};
-  if (query.startDate) filters.createdAt = { $gte: new Date(query.startDate) };
-  if (query.endDate) filters.createdAt = { ...filters.createdAt, $lte: new Date(query.endDate) };
-  if (query.user) filters.user = query.user; // Ensure user filter is applied
-  if (query.role) filters.role = query.role;
-  if (query.status) filters.status = query.status;
-    return filters;
-};
-
-// Tickets par mois
-exports.getTicketsParMois = async (req, res) => {
+// Obtenir tous les produits avec pagination
+exports.getProducts = async (req, res) => {
   try {
-    const filters = buildFilters(req.query);
-    const result = await Ticket.aggregate([
-      { $match: filters },
-      {
-        $group: {
-          _id: { $month: '$createdAt' },
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { _id: 1 } }
-    ]);
-    res.setHeader('Content-Type', 'application/json');
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+      const { page = 1, limit = 10 } = req.query;
 
-// Satisfaction globale (moyenne des notes)
-exports.getSatisfactionGlobale = async (req, res) => {
-  try {
-    const filters = buildFilters(req.query);
-    const result = await Ticket.aggregate([
-      { $match: { ...filters, rating: { $ne: null } } },
-      {
-        $group: {
-          _id: null,
-          satisfaction: { $avg: '$rating' }
-        }
-      }
-    ]);
-    res.setHeader('Content-Type', 'application/json');
-    res.json({ satisfaction: result[0]?.satisfaction || 0 });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+      const products = await Product.find()
+          .skip((page - 1) * limit)
+          .limit(parseInt(limit));
 
-// Totaux : utilisateurs, tickets, produits, types de demande, notes
-exports.getTotaux = async (req, res) => {
-  try {
-    const filters = buildFilters(req.query);
-    const [totalTickets, totalUsers, totalProduits] = await Promise.all([
-      Ticket.countDocuments(filters),
-      User.countDocuments(),
-      Product.countDocuments(),
-      type.countDocuments(),
-      rating.countDocuments()
+      const totalProducts = await Product.countDocuments();
+      const totalPages = Math.ceil(totalProducts / limit);
 
-    ]);
-    res.setHeader('Content-Type', 'application/json');
-    res.json({ totalTickets, totalUsers, totalProduits });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// Total types de demande
-exports.getTotalTypesDeDemande = async (req, res) => {
-  try {
-    const totalTypesDeDemande = await type.countDocuments();
-    res.setHeader('Content-Type', 'application/json');
-    res.json({ totalTypesDeDemande });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// Total notes
-exports.getTotalNotes = async (req, res) => {
-  try {
-    const totalNotes = await rating.countDocuments();
-    res.setHeader('Content-Type', 'application/json');
-    res.json({ totalNotes });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// Export data
-exports.exportData = async (req, res) => {
-  try {
-    const filters = buildFilters(req.query);
-    const tickets = await Ticket.find(filters).lean();
-
-    if (req.query.format === 'excel') {
-      const fields = ['_id', 'title', 'status', 'createdAt', 'user', 'role'];
-      const parser = new Parser({ fields });
-      const csv = parser.parse(tickets);
-      res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', 'attachment; filename="reporting.csv"');
-      res.send(csv);
-    } else if (req.query.format === 'pdf') {
-      const doc = new PDFDocument();
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename="reporting.pdf"');
-      doc.pipe(res);
-      doc.fontSize(16).text('Reporting Data', { align: 'center' });
-      tickets.forEach(ticket => {
-        doc.fontSize(12).text(`ID: ${ticket._id}, Title: ${ticket.title}, Status: ${ticket.status}, Created At: ${ticket.createdAt}`);
+      res.status(200).json({
+          products,
+          pagination: {
+              currentPage: parseInt(page),
+              totalPages,
+              totalProducts,
+              pageSize: parseInt(limit),
+          },
       });
-      doc.end();
-    } else {
-      res.status(400).json({ error: 'Invalid format' });
-    }
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+      res.status(500).json({ message: 'Erreur lors de la récupération des produits', error });
   }
 };
+
+//obténir tout les notes des tickets
+
+exports.getAllRatings = async (req, res) => {
+  try {
+      const ratings = await Rating.find(); // Récupère toutes les notes
+      res.status(200).json(ratings);
+  } catch (error) {
+      res.status(500).json({ message: 'Erreur lors de la récupération des notes', error });
+  }
+};
+
+// Récupérer tous les utilisateurs non archivés avec pagination
+exports.getAllUsers = async (req, res) => {
+  // console.log('getAllUsers called');
+
+  const page = parseInt(req.query.page) || 1; 
+  const limit = parseInt(req.query.limit) || 10;
+
+  try {
+      
+      const skip = (page - 1) * limit;
+
+      const users = await User.find({ isArchived: false }).skip(skip).limit(limit);
+
+      const totalUsers = await User.countDocuments({ isArchived: false });
+      res.json({
+          data: users,
+          totalItems: totalUsers,
+          totalPages: Math.ceil(totalUsers / limit),
+          currentPage: page
+      });
+  } catch (error) {
+      res.status(500).json({ message: 'Erreur lors de la récupération des utilisateurs', error });
+  }
+};
+
+// Obtenir tous les tickets avec pagination
+exports.getTickets = async (req, res) => {
+  try {
+      const filter = req.user.role === 'Client' ? { userId: req.user._id } : {};
+      // Récupération des paramètres de pagination
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const skip = (page - 1) * limit;
+
+      // Compter le nombre total de tickets correspondant au filtre
+      const total = await Ticket.countDocuments(filter);
+
+      // Récupérer les tickets avec pagination
+      const tickets = await Ticket.find(filter)
+          .populate('userId productId typeDeDemandeId')
+          .skip(skip)
+          .limit(limit);
+
+      // Retourner les tickets et le total
+      res.status(200).json({
+          tickets,
+          total, // Retourner le total pour la pagination
+      });
+  } catch (error) {
+      res.status(500).json({ message: 'Erreur lors de la récupération des tickets', error: error.message });
+  }
+};
+
+// Obtenir tous les types de demande avec pagination
+exports.getTypesDeDemande = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+
+    const types = await TypeDeDemande.find({ isArchived: false }) // Exclut les archivés
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const totalItems = await TypeDeDemande.countDocuments({ isArchived: false }); // Compte uniquement les non-archivés
+
+    res.status(200).json({
+      types,
+      totalItems,
+      totalPages: Math.ceil(totalItems / limit),
+      currentPage: parseInt(page),
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des types de demande :', error);
+    res.status(500).json({ message: 'Erreur interne du serveur', error: error.message });
+  }
+};
+
+// ... existing code ...
+
+exports.getCountries = async (req, res) => {
+  try {
+    const { sortBy = 'name', sortOrder = 'asc' } = req.query;
+
+    // Options de tri
+    const sortOptions = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+
+    // Récupérer tous les pays non archivés et triés
+    const countries = await Country.find({ isarchived: false })
+      .sort(sortOptions);
+
+    // Renvoyer les résultats
+    res.status(200).json({
+      message: 'Pays récupérés avec succès',
+      countries,
+      totalItems: countries.length
+    });
+  } catch (error) {
+    res.status(400).json({ message: 'Erreur lors de la récupération des pays', error: error.message });
+  }
+};
+

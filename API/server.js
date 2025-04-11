@@ -29,7 +29,7 @@ const countryRoutes = require('./routes/countryRoutes');
 const cityRoutes = require('./routes/cityRoutes');
 const videoRoutes = require('./routes/videoRoutes');
 const emailRoutes = require("./routes/emailRoutes");
-const reportingRoutes = require('./routes/reportingRoutes');
+const reportingRoutes = require('./routes/ReportingRoutes');
 
 // Utilisation des routes
 app.use('/api/auth', authRoutes);

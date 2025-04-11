@@ -51,6 +51,13 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Remplacer l'ancien système de pagination par le composant Pagination -->
+      <Pagination
+        :total-items="totalItems" 
+        :items-per-page="itemsPerPage" 
+        @page-changed="goToPage" 
+      />
     </main>
 
     <!-- Recipient Details Modal -->
@@ -134,12 +141,14 @@
 import axios from 'axios';
 import Header from "@/components/layouts/Header.vue";
 import EmailModal from '@/components/layouts/EmailModal.vue';
+import Pagination from '@/components/layouts/Pagination.vue';
 import { API_URL } from '@/services/config';
 
 export default {
   components: {
     Header,
-    EmailModal
+    EmailModal,
+    Pagination
   },
   data() {
     return {
@@ -147,6 +156,9 @@ export default {
       showEmailModal: false,
       showRecipientModal: false,
       selectedEmail: null,
+      currentPage: 1,
+      itemsPerPage: 10,
+      totalItems: 0,
     };
   },
   methods: {
@@ -154,11 +166,18 @@ export default {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(`${API_URL}/emails/sent`, {
-          headers: { Authorization: `Bearer ${token}` },
+          params: {
+            page: this.currentPage,
+            limit: this.itemsPerPage
+          },
+          headers: { Authorization: `Bearer ${token}` }
         });
-        this.sentEmails = response.data.emails || [];
+        
+        this.sentEmails = response.data.emails;
+        this.totalItems = response.data.totalEmails || 0;
       } catch (error) {
         console.error("Erreur lors de la récupération des emails envoyés :", error);
+        this.totalItems = 0;
       }
     },
     openEmailModal() {
@@ -181,6 +200,10 @@ export default {
       this.showRecipientModal = false;
       this.selectedEmail = null;
     },
+    goToPage(page) {
+      this.currentPage = page;
+      this.fetchSentEmails();
+    }
   },
   created() {
     this.fetchSentEmails();

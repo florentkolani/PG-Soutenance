@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const reportingController = require('../controllers/reportingController');
+const { protect } = require('../middleware/authMiddleware');
+const { getProducts, getAllRatings, getAllUsers, getTickets, getTypesDeDemande, getCountries } = require('../controllers/reportingController');
 
-// Routes
-router.get('/tickets-par-mois', reportingController.getTicketsParMois);
-router.get('/satisfaction', reportingController.getSatisfactionGlobale);
-router.get('/totaux', reportingController.getTotaux);
-router.get('/types-de-demande', reportingController.getTotalTypesDeDemande);
-router.get('/notes', reportingController.getTotalNotes);
-router.get('/export', reportingController.exportData);
+router.get('/products', protect, getProducts);
+router.get('/ratings', protect, getAllRatings);
+router.get('/users', protect, getAllUsers);
+router.get('/tickets', protect, getTickets);
+router.get('/Types', protect, getTypesDeDemande);
+router.get('/countries', protect, getCountries);
 
 module.exports = router;

@@ -27,3 +27,28 @@ exports.sendBulkEmail = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de l'envoi des emails." });
   }
 };
+
+exports.getSentEmails = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const emails = await Email.find({ sender: req.user.email })
+      .sort({ sentAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Email.countDocuments({ sender: req.user.email });
+
+    res.status(200).json({
+      emails,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalEmails: total
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des emails :", error);
+    res.status(500).json({ message: "Erreur lors de la récupération des emails." });
+  }
+};

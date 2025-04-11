@@ -59,6 +59,7 @@
                   required
                   class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 transition duration-200"
                   :disabled="isLoadingCities || !cities.length"
+                  @change="onCityChange"
                 >
                   <option value="" class="text-gray-400">Sélectionnez une ville</option>
                   <option v-for="city in cityObjects" :key="city._id" :value="city.name" class="text-gray-800">
@@ -245,19 +246,61 @@ export default {
   watch: {
     userToEdit: {
       immediate: true,
-      handler(newValue) {
+      async handler(newValue) {
         if (newValue) {
+          // console.log("Données reçues dans userToEdit:", newValue);
+          
+          // Attendre que les pays soient chargés si ce n'est pas déjà fait
+          if (this.countries.length === 0) {
+            try {
+              const response = await axios.get(`${API_URL}/countries?limit=0`);
+              this.countries = response.data.countries
+                .map((country) => ({
+                  name: country.name,
+                  code: country.code,
+                  _id: country._id,
+                  dialCode: country.code,
+                }))
+                .sort((a, b) => a.name.localeCompare(b.name));
+            } catch (error) {
+              console.error("Erreur lors du chargement des pays :", error);
+            }
+          }
+
+          // console.log("Liste des pays disponibles:", this.countries);
+          
           // Pré-remplir le formulaire avec les données de l'utilisateur
           this.user = { ...newValue };
-          this.countrySearch = newValue.pays;
-          this.citySearch = newValue.ville;
+          // console.log("Données copiées dans this.user:", this.user);
           
-          // Trouver et sélectionner le pays
-          const country = this.countries.find(c => c.name === newValue.pays);
+          // Trouver le pays correspondant dans la liste des pays
+          const country = this.countries.find(c => c._id === newValue.paysId);
+          // console.log("Pays trouvé:", country);
+          
           if (country) {
             this.selectedCountryCode = country.code;
             this.selectedCountryDialCode = country.dialCode;
-            this.loadCities(country._id);
+            this.user.pays = country.name;
+            // console.log("Données pays mises à jour:", {
+            //   selectedCountryCode: this.selectedCountryCode,
+            //   selectedCountryDialCode: this.selectedCountryDialCode,
+            //   userPays: this.user.pays
+            // });
+            
+            // Charger les villes du pays sélectionné
+            await this.loadCities(country._id);
+            // console.log("Villes chargées:", this.cityObjects);
+            
+            // Sélectionner la ville
+            const selectedCity = this.cityObjects.find(city => city._id === newValue.villeId);
+            // console.log("Ville trouvée:", selectedCity);
+            
+            if (selectedCity) {
+              this.user.ville = selectedCity.name;
+              // console.log("Ville sélectionnée:", this.user.ville);
+            }
+          } else {
+            // console.warn("Pays non trouvé pour l'ID:", newValue.paysId);
           }
         }
       }
@@ -276,7 +319,7 @@ export default {
           dialCode: country.code,
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
-      console.log("Countries loaded:", this.countries);
+      // console.log("Countries loaded:", this.countries);
     } catch (error) {
       console.error("Erreur lors du chargement des pays :", error);
       this.countries = [];
@@ -285,7 +328,7 @@ export default {
 
   methods: {
     async loadCities(countryId) {
-      console.log("Country ID:", countryId);
+      // console.log("Country ID:", countryId);
 
       this.isLoadingCities = true;
       this.cities = [];
@@ -308,9 +351,9 @@ export default {
         if (response.data && response.data.cities) {
           this.cityObjects = response.data.cities;
           this.cities = response.data.cities.map(city => city.name);
-          console.log("Villes chargées pour le pays:", countryId, this.cityObjects);
+          // console.log("Villes chargées pour le pays:", countryId, this.cityObjects);
         } else {
-          console.warn("Aucune ville trouvée pour ce pays");
+          // console.warn("Aucune ville trouvée pour ce pays");
           this.cityObjects = [];
           this.cities = [];
         }
@@ -457,14 +500,22 @@ if (!this.user.paysId || !this.user.villeId) {
       this.showCountryDropdown = false;
       this.showCityDropdown = false;
     },
+    onCityChange(event) {
+      const selectedCity = this.cityObjects.find(city => city.name === this.user.ville);
+      if (selectedCity) {
+        // console.log("Ville sélectionnée:", selectedCity);
+        this.user.villeId = selectedCity._id;
+      }
+    },
     onCountryChange(event) {
       const country = this.countries.find(c => c.code === this.selectedCountryCode);
       if (country) {
-        console.log("Pays trouvé:", country);
+        // console.log("Pays trouvé:", country);
         this.user.pays = country.name;
         this.user.paysId = country._id;
         this.selectedCountryDialCode = country.dialCode;
-        this.user.ville = ''; // Réinitialiser la sélection de la ville
+        this.user.ville = '';
+        this.user.villeId = '';
         this.loadCities(country._id);
       } else {
         console.warn("Pays non trouvé pour le code:", this.selectedCountryCode);
