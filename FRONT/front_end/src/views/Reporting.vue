@@ -1,241 +1,937 @@
 <template>
-    <div class="container mx-auto">
-    <!-- Header Component -->
+  <div >
     <Header 
       title="NOVA LEAD" 
-      @goToDashboard="redirectToDashboard"
+       @goToDashboard="redirectToDashboard"
     />
   </div>
+  <div class="reporting-container p-6">
+    <h1 class="text-3xl font-bold mb-8">Tableau de bord - Reporting</h1>
 
-    <div class="p-6 space-y-8">
-      <h1 class="text-2xl font-bold text-gray-800">📊 Tableau de bord - Statistiques</h1>
-  
-      <!-- Filters -->
-      <div class="flex flex-col md:flex-row gap-4 items-center">
-        <div>
-          <label for="startDate" class="block text-sm font-medium text-gray-700">Date de début</label>
-          <input type="date" id="startDate" v-model="filters.startDate" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+    <!-- Loading State -->
+    <div v-if="loading" class="flex justify-center items-center h-64">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+      {{ error }}
+    </div>
+
+    <!-- Content -->
+    <template v-else>
+      <!-- Cards Section -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <!-- Products Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-700">Produits</h3>
+            <span class="text-2xl font-bold text-blue-600">{{ products?.length || 0 }}</span>
+          </div>
+          <p class="text-gray-500 mt-2">Total des produits</p>
         </div>
-        <div>
-          <label for="endDate" class="block text-sm font-medium text-gray-700">Date de fin</label>
-          <input type="date" id="endDate" v-model="filters.endDate" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+
+        <!-- Users Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-700">Utilisateurs</h3>
+            <span class="text-2xl font-bold text-green-600">{{ users?.length || 0 }}</span>
+          </div>
+          <p class="text-gray-500 mt-2">Total des utilisateurs</p>
         </div>
-        <div>
-          <label for="user" class="block text-sm font-medium text-gray-700">Utilisateur</label>
-          <select id="user" v-model="filters.user" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            <option value="">Tous</option>
-            <option v-for="user in users" :key="user._id" :value="user._id">{{ user.name }}</option>
-          </select>
+
+        <!-- Tickets Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-700">Tickets</h3>
+            <span class="text-2xl font-bold text-purple-600">{{ tickets?.length || 0 }}</span>
+          </div>
+          <p class="text-gray-500 mt-2">Total des tickets</p>
         </div>
-        <div>
-          <label for="role" class="block text-sm font-medium text-gray-700">Rôle</label>
-          <select id="role" v-model="filters.role" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            <option value="">Tous</option>
-            <option value="agentsupport">Agent Support</option>
-            <option value="admin">Admin</option>
-          </select>
+
+        <!-- Types Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-700">Types de demande</h3>
+            <span class="text-2xl font-bold text-orange-600">{{ types?.length || 0 }}</span>
+          </div>
+          <p class="text-gray-500 mt-2">Total des types</p>
         </div>
-        <div>
-          <label for="status" class="block text-sm font-medium text-gray-700">Statut</label>
-          <select id="status" v-model="filters.status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            <option value="">Tous</option>
-            <option value="open">Ouvert</option>
-            <option value="closed">Fermé</option>
-          </select>
+
+        <!-- Ratings Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-700">Notes</h3>
+            <span class="text-2xl font-bold text-orange-600">{{ ratings?.length || 0 }}</span>
+          </div>
+          <p class="text-gray-500 mt-2">Total des notes</p>
         </div>
-        <button @click="applyFilters" class="px-4 py-2 bg-blue-600 text-white rounded-md shadow">Filtrer</button>
+      </div>
+      
+
+      <!-- Filters Section -->
+      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4">Filtres</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Data Type Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Type de données</label>
+            <select v-model="tempSelectedDataType" class="w-full p-2 border rounded-md">
+              <option value="">Tous</option>
+              <option value="products">Produits</option>
+              <option value="users">Utilisateurs</option>
+              <option value="tickets">Tickets</option>
+              <option value="types">Types de demande</option>
+              <option value="ratings">Notes</option>
+            </select>
+          </div>
+           <!-- Date Range Filter -->
+           <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Date de début</label>
+            <input 
+              v-model="tempStartDate" 
+              type="date" 
+              class="w-full p-2 border rounded-md"
+            >
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Date de fin</label>
+            <input 
+              v-model="tempEndDate" 
+              type="date" 
+              class="w-full p-2 border rounded-md"
+            >
+          </div>
+
+          <!-- Conditional Filters -->
+          <!-- Ticket Filters -->
+          <template v-if="tempSelectedDataType === 'tickets'">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+              <select v-model="tempFilters.ticketStatus" class="w-full p-2 border rounded-md">
+                <option value="">Tous les statuts</option>
+                <option value="en attente">En attente</option>
+                <option value="Ouvert">Ouvert</option>
+                <option value="en cours">En cours</option>
+                <option value="cloturé">Cloturé</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Produit</label>
+              <select v-model="tempFilters.ticketProduct" class="w-full p-2 border rounded-md">
+                <option value="">Tous les produits</option>
+                <option v-for="product in products" :key="product._id" :value="product._id">
+                  {{ product.name }}
+                </option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Utilisateur</label>
+              <select v-model="tempFilters.ticketUser" class="w-full p-2 border rounded-md">
+                <option value="">Tous les utilisateurs</option>
+                <option v-for="user in users" :key="user._id" :value="user._id">
+                  {{ user.name }}
+                </option>
+              </select>
+            </div>
+          </template>
+
+          <!-- User Filters -->
+          <template v-if="tempSelectedDataType === 'users'">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Rôle</label>
+              <select v-model="tempFilters.userRole" class="w-full p-2 border rounded-md">
+                <option value="">Tous les rôles</option>
+                <option value="Admin">Admin</option>
+                <option value="Client">Client</option>
+                <option value="AgentSupport">Agent Support</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Pays</label>
+              <select v-model="tempFilters.userCountry" class="w-full p-2 border rounded-md">
+                <option value="">Tous les pays</option>
+                <option v-for="country in countries" :key="country._id" :value="country._id">
+                  {{ country.name }}
+                </option>
+              </select>
+            </div>
+          </template>
+
+          <!-- Rating Filters -->
+          <template v-if="tempSelectedDataType === 'ratings'">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Niveau de satisfaction</label>
+              <select v-model="tempFilters.ratingsLevel" class="w-full p-2 border rounded-md">
+                <option value="">Tous les niveaux</option>
+                <option value="Médiocre">Médiocre</option>
+                <option value="Passable">Passable</option>
+                <option value="Satisfait">Satisfait</option>
+                <option value="Très Satisfait">Très Satisfait</option>
+              </select>
+            </div>
+          </template>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="mt-4 flex justify-end space-x-4">
+          <button 
+            @click="resetFilters" 
+            class="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600"
+          >
+            Réinitialiser
+          </button>
+          <button 
+            @click="applyFilters" 
+            class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+          >
+            Filtrer
+          </button>
+        </div>
       </div>
 
-      <!-- Export Buttons -->
-      <div class="flex gap-4 mt-4">
-        <button @click="exportData('pdf')" class="px-4 py-2 bg-red-600 text-white rounded-md shadow">Exporter en PDF</button>
-        <button @click="exportData('excel')" class="px-4 py-2 bg-green-600 text-white rounded-md shadow">Exporter en Excel</button>
+      <!-- Data Table Section -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold">Résultats</h2>
+           <!-- Search Filter -->
+           <div class="whitespace-nowrap ml-auto mr-5">
+            <!-- <label class="block text-sm font-medium text-gray-700 mb-2">Recherche</label> -->
+            <input 
+              v-model="tempSearchQuery" 
+              type="text" 
+              class="w-full p-2 border rounded-md"
+              :placeholder="'Rechercher dans ' + tempSelectedDataType"
+            >
+          </div>
+          <button 
+            @click="showExportModal = true" 
+            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            :disabled="!filteredData.length"
+          >
+            Exporter
+          </button>
+        </div>
+
+        <div v-if="!filteredData.length" class="text-center py-8 text-gray-500">
+          Aucun résultat trouvé
+        </div>
+
+        <div v-else class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead>
+              <tr class="bg-gray-50">
+                <th 
+                  v-for="header in tableHeaders" 
+                  :key="header.key"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  {{ header.label }}
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-for="item in paginatedData" :key="item._id">
+                <td 
+                  v-for="header in tableHeaders" 
+                  :key="header.key"
+                  class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                >
+                  {{ formatValue(getNestedValue(item, header.key)) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="filteredData.length" class="mt-4 flex justify-between items-center">
+          <div class="text-sm text-gray-700">
+            Affichage de {{ paginatedData.length }} sur {{ filteredData.length }} résultats
+          </div>
+          <div class="flex space-x-2">
+            <button 
+              @click="currentPage--" 
+              :disabled="currentPage === 1"
+              class="px-3 py-1 border rounded-md"
+              :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }"
+            >
+              Précédent
+            </button>
+            <button 
+              @click="currentPage++" 
+              :disabled="currentPage >= totalPages"
+              class="px-3 py-1 border rounded-md"
+              :class="{ 'opacity-50 cursor-not-allowed': currentPage >= totalPages }"
+            >
+              Suivant
+            </button>
+          </div>
+        </div>
       </div>
-  
-      <!-- Cartes Résumées -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white rounded-2xl shadow p-4 text-center">
-          <p class="text-gray-500">Utilisateurs</p>
-          <h2 class="text-3xl font-bold text-green-600">{{ stats.totalUsers }}</h2>
+    </template>
+
+    <!-- Export Modal -->
+    <div v-if="showExportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div class="bg-white p-6 rounded-lg">
+        <h3 class="text-lg font-semibold mb-4 text-center">Format d'export</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="inline-flex items-center">
+              <input type="radio" v-model="exportFormat" value="excel" class="form-radio">
+              <span class="ml-2">Excel</span>
+            </label>
+          </div>
+          <div>
+            <label class="inline-flex items-center">
+              <input type="radio" v-model="exportFormat" value="pdf" class="form-radio">
+              <span class="ml-2">PDF</span>
+            </label>
+          </div>
         </div>
-        <div class="bg-white rounded-2xl shadow p-4 text-center">
-          <p class="text-gray-500">Tickets</p>
-          <h2 class="text-3xl font-bold text-green-600">{{ stats.totalTickets }}</h2>
+        <div class="mt-6 flex justify-end space-x-4">
+          <button 
+            @click="showExportModal = false" 
+            class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
+          >
+            Annuler
+          </button>
+          <button 
+            @click="exportData" 
+            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+          >
+            Exporter
+          </button>
         </div>
-        <div class="bg-white rounded-2xl shadow p-4 text-center">
-          <p class="text-gray-500">Produits</p>
-          <h2 class="text-3xl font-bold text-green-600">{{ stats.totalProduits }}</h2>
-        </div>
-        <div class="bg-white rounded-2xl shadow p-4 text-center">
-          <p class="text-gray-500">Type de demande</p>
-          <h2 class="text-3xl font-bold text-green-600">{{ stats.totalTypesDeDemande }}</h2>
-        </div>
-        <div class="bg-white rounded-2xl shadow p-4 text-center">
-          <p class="text-gray-500">Notes</p>
-          <h2 class="text-3xl font-bold text-green-600">{{ stats.totalNotes }}</h2>
-        </div>
-      </div>
-  
-      <!-- Graphique tickets par mois -->
-      <div class="bg-white p-4 rounded-3xl shadow">
-        <h2 class="text-xl font-semibold mb-4">📅 Tickets créés par mois</h2>
-        <Bar :data="ticketsData" />
-      </div>
-  
-      <!-- Graphique satisfaction -->
-      <div class="bg-white p-4 rounded-2xl shadow w-full md:w-1/4">
-        <h2 class="text-xl font-semibold mb-4">😊 Taux de satisfaction</h2>
-        <Doughnut :data="satisfactionData" />
       </div>
     </div>
-  </template>
-  
+  </div>
+</template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-import { Bar, Doughnut } from 'vue-chartjs'
+<script>
+import axios from 'axios';
 import { API_URL } from '@/services/config';
-import Header from '@/components/layouts/Header.vue'
+import Header from '@/components/layouts/Header.vue';
+import * as XLSX from 'xlsx';
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+import vfsFonts from "pdfmake/build/vfs_fonts";
 
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  BarElement,
-  CategoryScale,
-  LinearScale
-} from 'chart.js'
+export default {
+  name: 'Reporting',
+  data() {
+    return {
+      // Data arrays
+      products: [],
+      users: [],
+      tickets: [],
+      types: [],
+      ratings: [],
+      countries: [],
 
-ChartJS.register(Title, Tooltip, Legend, ArcElement, BarElement, CategoryScale, LinearScale)
+      // Filters
+      selectedDataType: 'products',
+      searchQuery: '',
+      startDate: '',
+      endDate: '',
+      filters: {
+        ticketStatus: '',
+        ticketProduct: '',
+        ticketUser: '',
+        userRole: '',
+        userCountry: '',
+        ratingsLevel: ''
+      },
 
-const ticketsData = ref({
-  labels: [],
-  datasets: [{
-    label: 'Tickets par mois',
-    data: [],
-    backgroundColor: '#22c55e' // Vert
-  }]
-})
-const satisfactionData = ref({
-  labels: ['Satisfaction', 'Manque'],
-  datasets: [{
-    data: [0, 100],
-    backgroundColor: ['#10b981', '#e5e7eb']
-  }]
-})
+      // Pagination
+      currentPage: 1,
+      itemsPerPage: 10,
 
-const stats = ref({
-  totalUsers: 0,
-  totalTickets: 0,
-  totalProduits: 0,
-  totalTypesDeDemande: 0,
-  totalNotes: 0
-})
+      // Loading state
+      loading: true,
+      error: null,
 
-const filters = ref({
-  startDate: '',
-  endDate: '',
-  user: '',
-  role: '',
-  status: ''
-})
+      // Ajout des filtres temporaires
+      tempFilters: {
+        ticketStatus: '',
+        ticketProduct: '',
+        ticketUser: '',
+        userRole: '',
+        userCountry: '',
+        ratingsLevel: ''
+      },
+      tempSearchQuery: '',
+      tempStartDate: '',
+      tempEndDate: '',
+      tempSelectedDataType: 'products',
+      
+      // Ajout pour le modal d'export
+      showExportModal: false,
+      exportFormat: 'excel'
+    };
+  },
+  components: {
+    Header
+  },
+  computed: {
+    tableHeaders() {
+      const headers = {
+        products: [
+          { key: 'name', label: 'Nom' },
+          { key: 'description', label: 'Description' }
+        ],
+        users: [
+          { key: 'name', label: 'Nom' },
+          { key: 'email', label: 'Email' },
+          { key: 'role', label: 'Rôle' },
+          { key: 'pays', label: 'Pays' },
+          { key: 'contact', label: 'Contact' }
+        ],
+        tickets: [
+          { key: 'NumeroTicket', label: 'NumeroTicket' },
+          { key: 'userId.name', label: 'Utilisateur' },
+          { key: 'typeDeDemandeId.name', label: 'Type de Demande' },
+          { key: 'productId.name', label: 'Produit' },
+          { key: 'statut', label: 'Statut' }
+        ],
+        types: [
+          { key: 'name', label: 'Nom' },
+          { key: 'description', label: 'Description' }
+        ],
+        ratings: [
+          { key: 'note', label: 'Note' },
+          { key: 'commentaire', label: 'Commentaire' },
+        ]
+      };
+      return headers[this.selectedDataType] || [];
+    },
+    filteredData() {
+      if (!this.selectedDataType) return [];
+      
+      let data = this[this.selectedDataType] || [];
+      
+      // Apply search filter
+      if (this.searchQuery) {
+        const query = this.searchQuery.toLowerCase();
+        data = data.filter(item => {
+          return Object.values(item).some(value => 
+            String(value).toLowerCase().includes(query)
+          );
+        });
+      }
 
-const users = ref([])
+      // Apply date filter if applicable
+      if (this.startDate && this.endDate) {
+        data = data.filter(item => {
+          if (item.createdAt) {
+            const itemDate = new Date(item.createdAt);
+            
+            // Créer les objets Date pour le début et la fin
+            const start = new Date(this.startDate);
+            start.setHours(0, 0, 0, 0); // Début de journée
+            
+            const end = new Date(this.endDate);
+            end.setHours(23, 59, 59, 999); // Fin de journée
+            
+            return itemDate >= start && itemDate <= end;
+          }
+          return true;
+        });
+      }
 
-const applyFilters = async () => {
-  try {
-    const token = localStorage.getItem('authToken');
-    const headers = { Authorization: `Bearer ${token}` };
+      // Apply specific filters based on data type
+      if (this.selectedDataType === 'tickets') {
+        if (this.filters.ticketStatus) {
+          data = data.filter(item => item.statut === this.filters.ticketStatus);
+        }
+        if (this.filters.ticketProduct) {
+          data = data.filter(item => item.productId?._id === this.filters.ticketProduct);
+        }
+        if (this.filters.ticketUser) {
+          data = data.filter(item => item.userId?._id === this.filters.ticketUser);
+        }
+      } else if (this.selectedDataType === 'users') {
+        if (this.filters.userRole) {
+          data = data.filter(item => item.role === this.filters.userRole);
+        }
+        if (this.filters.userCountry) {
+          data = data.filter(item => item.paysId === this.filters.userCountry);
+        }
+      } else if (this.selectedDataType === 'ratings') {
+        if (this.filters.ratingsLevel) {
+          data = data.filter(item => {
+            return item.note === this.filters.ratingsLevel;
+          });
+        }
+      }
 
-    const queryParams = new URLSearchParams(filters.value).toString();
-    const [ticketsRes, satisfactionRes, statsRes, typesRes, notesRes] = await Promise.all([
-      fetch(`${API_URL}/reporting/tickets-par-mois?${queryParams}`, { headers }),
-      fetch(`${API_URL}/reporting/satisfaction?${queryParams}`, { headers }),
-      fetch(`${API_URL}/reporting/totaux?${queryParams}`, { headers }),
-      fetch(`${API_URL}/reporting/types-de-demande?${queryParams}`, { headers }),
-      fetch(`${API_URL}/reporting/notes?${queryParams}`, { headers })
-    ]);
-    
+      return data;
+    },
+    paginatedData() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.filteredData.slice(start, end);
+    },
+    totalPages() {
+      return Math.ceil(this.filteredData.length / this.itemsPerPage);
+    }
+  },
+  methods: {
+    async fetchData() {
+      this.loading = true;
+      this.error = null;
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('Non authentifié');
+        }
 
-    // ...existing code for processing responses...
-  } catch (error) {
-    console.error('Error applying filters:', error);
+        // Decode le token pour récupérer les informations de l'utilisateur
+        const tokenParts = token.split('.');
+        if (tokenParts.length === 3) {
+          const payload = JSON.parse(atob(tokenParts[1]));
+          console.log('Decoded token payload:', payload);
+          // Stocker le nom de l'utilisateur dans localStorage pour une utilisation ultérieure
+          if (payload.name) {
+            localStorage.setItem('userName', payload.name);
+          }
+        }
+
+        const headers = {
+          Authorization: `Bearer ${token}`
+        };
+
+        const [productsRes, usersRes, ticketsRes, typesRes, ratingsRes, countriesRes] = await Promise.all([
+          axios.get(`${API_URL}/reporting/products`, { headers }),
+          axios.get(`${API_URL}/reporting/users`, { headers }),
+          axios.get(`${API_URL}/reporting/tickets`, { headers }),
+          axios.get(`${API_URL}/reporting/Types`, { headers }),
+          axios.get(`${API_URL}/reporting/ratings`, { headers }),
+          axios.get(`${API_URL}/reporting/countries`, { headers })
+        ]);
+
+        console.log('Raw API Responses:');
+        console.log('Products:', productsRes);
+        console.log('Users:', usersRes);
+        console.log('Tickets:', ticketsRes);
+        console.log('Types:', typesRes);
+        console.log('Ratings:', ratingsRes);
+        console.log('Countries:', countriesRes);
+        
+
+        // Ajustement selon la structure de la réponse
+        this.products = productsRes.data.products || [];
+        this.users = usersRes.data.data || [];
+        this.tickets = ticketsRes.data.tickets || [];
+        this.types = typesRes.data.types || [];
+        this.countries = countriesRes.data.countries || [];
+
+        // Gestion plus flexible des données de ratings
+        if (ratingsRes.data) {
+          if (Array.isArray(ratingsRes.data)) {
+            this.ratings = ratingsRes.data;
+          } else if (ratingsRes.data.ratings) {
+            this.ratings = ratingsRes.data.ratings;
+          } else if (ratingsRes.data.data) {
+            this.ratings = ratingsRes.data.data;
+          } else {
+            this.ratings = [];
+          }
+        } else {
+          this.ratings = [];
+        }
+
+        console.log('Processed Data:');
+        console.log('Products:', this.products);
+        console.log('Users:', this.users);
+        console.log('Tickets:', this.tickets);
+        console.log('Types:', this.types);
+        console.log('Ratings:', this.ratings);
+
+        // Vérification des données
+        if (!this.products.length && !this.users.length && !this.tickets.length && !this.types.length && !this.ratings.length) {
+          this.error = 'Aucune donnée disponible';
+        }
+      } catch (error) {
+        console.error('Error details:', error);
+        if (error.response?.status === 401) {
+          this.error = 'Session expirée. Veuillez vous reconnecter.';
+          // Redirection vers la page de connexion
+          this.$router.push('/login');
+        } else {
+          this.error = 'Erreur lors du chargement des données: ' + (error.response?.data?.message || error.message);
+        }
+      } finally {
+        this.loading = false;
+      }
+    },
+    formatValue(value) {
+      if (value === null || value === undefined) return '-';
+      if (typeof value === 'object') return JSON.stringify(value);
+      return value;
+    },
+    getNestedValue(obj, path) {
+      return path.split('.').reduce((current, key) => {
+        return current ? current[key] : null;
+      }, obj);
+    },
+    exportData() {
+      if (!this.filteredData.length) return;
+      
+      if (this.exportFormat === 'excel') {
+        this.exportToExcel();
+      } else if (this.exportFormat === 'pdf') {
+        this.exportToPDF();
+      }
+      
+      this.showExportModal = false;
+    },
+    async exportToExcel() {
+      // const XLSX = await import('xlsx');
+      const ws = XLSX.utils.json_to_sheet(this.filteredData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Data');
+      XLSX.writeFile(wb, `${this.selectedDataType}_export.xlsx`);
+    },
+    async exportToPDF() {
+      try {
+        const headers = this.tableHeaders.map(h => h.label);
+        
+        // Fonction améliorée pour calculer la largeur dynamique des colonnes
+        const calculateColumnWidths = () => {
+          const pageWidth = 595.28; // Largeur d'une page A4 en points (21cm)
+          const margins = 40; // 20px de chaque côté
+          const availableWidth = pageWidth - (margins * 2);
+          const minColumnWidth = 50; // Largeur minimum d'une colonne
+          
+          // Calculer d'abord les largeurs proportionnelles
+          const widths = headers.map((header, index) => {
+            let maxLength = header.length;
+            
+            // Vérifier la longueur maximale du contenu dans chaque colonne
+            this.filteredData.forEach(row => {
+              const cellContent = this.formatValue(this.getNestedValue(row, this.tableHeaders[index].key));
+              const contentLength = String(cellContent).length;
+              maxLength = Math.max(maxLength, contentLength);
+            });
+            
+            return maxLength;
+          });
+
+          // Calculer la somme totale des largeurs
+          const totalWidth = widths.reduce((sum, width) => sum + width, 0);
+          
+          // Ajuster les largeurs proportionnellement à l'espace disponible
+          return widths.map(width => {
+            const proportion = width / totalWidth;
+            const calculatedWidth = Math.max(
+              minColumnWidth,
+              Math.floor(availableWidth * proportion)
+            );
+            return calculatedWidth;
+          });
+        };
+
+        const columnWidths = calculateColumnWidths();
+
+        // Récupérer le nom de l'utilisateur dans le token
+        const userName = localStorage.getItem('userName') || 'Utilisateur';
+        
+        const docDefinition = {
+          pageMargins: [20, 80, 20, 80],
+          pageSize: 'A4',
+          
+          header: {
+            margin: [40, 20, 40, 0],
+            columns: [
+              { 
+                width: '*', 
+                text: '' 
+              },
+            ]
+          },
+          footer: function(currentPage, pageCount) {
+            return {
+              margin: [40, 10, 40, 20],
+              columns: [
+                { 
+                  text: `Édité par: ${userName}`,
+                  alignment: 'left', 
+                  color: '#6b7280',
+                  fontSize: 8
+                },
+                { 
+                  text: `Page ${currentPage} sur ${pageCount}`, 
+                  alignment: 'right', 
+                  color: '#6b7280',
+                  fontSize: 8
+                }
+              ]
+            };
+          },
+          content: [
+            // En-tête avec info société et date
+            {
+              margin: [0, 0, 0, 20],
+              columns: [
+                {
+                  width: '50%',
+                  stack: [
+                    { 
+                      text: 'NOVA LEAD', 
+                      style: 'companyName',
+                      margin: [0, 0, 0, 8]
+                    },
+                    { 
+                      text: 'Rue 186 AFG', 
+                      style: 'companyInfo' 
+                    },
+                    { 
+                      text: 'Lomé, Togo', 
+                      style: 'companyInfo' 
+                    },
+                    { 
+                      text: 'Tél: +228 90 32 79 21', 
+                      style: 'companyInfo' 
+                    },
+                    { 
+                      text: 'Email: novalead@gmail.dev', 
+                      style: 'companyInfo' 
+                    }
+                  ]
+                },
+                {
+                  width: '50%',
+                  stack: [
+                    { 
+                      text: `Date d'édition: ${new Date().toLocaleDateString('fr-FR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}`, 
+                      alignment: 'right', 
+                      style: 'documentInfo' 
+                    },
+                    { 
+                      text: `Rapport généré par: ${userName}`,
+                      alignment: 'right', 
+                      style: 'documentInfo' 
+                    },
+                    { 
+                      text: `Type de rapport: ${this.selectedDataType}`, 
+                      alignment: 'right',
+                      style: 'documentInfo'
+                    }
+                  ]
+                }
+              ]
+            },
+            
+            // Titre principal
+            { 
+              text: `Statistiques sur les ${this.selectedDataType.charAt(0).toUpperCase() + this.selectedDataType.slice(1)}`,
+              style: 'mainHeader',
+              margin: [0, 0, 0, 15]
+            },
+            
+            // Tableau principal avec nouvelles largeurs dynamiques
+            {
+              margin: [0, 0, 0, 20],
+              table: {
+                headerRows: 1,
+                widths: columnWidths,
+                body: [
+                  headers.map(header => ({
+                    text: header,
+                    style: 'tableHeader',
+                    margin: [0, 5, 0, 5]
+                  })),
+                  ...this.filteredData.map(item => 
+                    this.tableHeaders.map(h => ({
+                      text: this.formatValue(this.getNestedValue(item, h.key)),
+                      style: 'tableContent',
+                      noWrap: false
+                    }))
+                  )
+                ]
+              },
+              layout: {
+                fillColor: function(rowIndex) {
+                  return (rowIndex % 2 === 0) ? '#f9fafb' : null;
+                },
+                hLineWidth: function(i, node) { 
+                  return (i === 0 || i === node.table.body.length) ? 1 : 0.5; 
+                },
+                vLineWidth: function() { return 0.5; },
+                hLineColor: function() { return '#e5e7eb'; },
+                vLineColor: function() { return '#e5e7eb'; },
+                paddingTop: function() { return 4; }, // Réduit le padding
+                paddingBottom: function() { return 4; }, // Réduit le padding
+                paddingLeft: function() { return 4; }, // Réduit le padding
+                paddingRight: function() { return 4; } // Réduit le padding
+              }
+            },
+            
+            // Résumé
+            ...(this.filteredData.length > 0 ? [
+              {
+                margin: [0, 0, 0, 20],
+                text: `${this.filteredData.length}  Données récupérées`,
+                style: {
+                  fontSize: 10,
+                  bold: true,
+                  color: '#1f2937',
+                  alignment: 'right'
+                }
+              }
+            ] : [])
+          ],
+          styles: {
+            companyName: {
+              fontSize: 18,
+              bold: true,
+              color: 'black'
+            },
+            companyInfo: {
+              fontSize: 9,
+              color: '#1f2937',
+              margin: [0, 2]
+            },
+            documentInfo: {
+              fontSize: 9,
+              color: '#1f2937',
+              margin: [0, 0]
+            },
+            mainHeader: {
+              fontSize: 16,
+              bold: true,
+              alignment: 'center',
+              color: '#1f2937'
+            },
+            tableHeader: {
+              bold: true,
+              fontSize: 9, // Réduit la taille de la police
+              color: 'black',
+              fillColor: '#C8E6C9',
+              alignment: 'left'
+            },
+            tableContent: {
+              fontSize: 8, // Réduit la taille de la police
+              color: '#1f2937',
+              margin: [2, 2, 2, 2], // Réduit les marges
+              lineHeight: 1.1, // Réduit l'interligne
+              alignment: 'left'
+            },
+            summaryLabel: {
+              fontSize: 10,
+              bold: true,
+              color: '#ffffff'
+            },
+            summaryValue: {
+              fontSize: 10,
+              bold: true,
+              color: '#ffffff',
+              alignment: 'right'
+            }
+          },
+          defaultStyle: {
+            font: 'Roboto',
+            fontSize: 10,
+            lineHeight: 1.2
+          },
+          fonts: {
+            Roboto: {
+              normal: 'Roboto-Regular.ttf',
+              bold: 'Roboto-Medium.ttf',
+              italics: 'Roboto-Italic.ttf',
+              bolditalics: 'Roboto-MediumItalic.ttf'
+            }
+          }
+        };
+        //construire le pdf
+        const pdfDoc = pdfMake.createPdf(docDefinition);
+        pdfDoc.download(`${this.selectedDataType}_export_${new Date().toLocaleDateString('fr-FR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }).replace(/[/: ]/g, '-')}.pdf`);
+      } catch (error) {
+        console.error('Erreur lors de la génération du PDF:', error);
+        this.$toast.error('Une erreur est survenue lors de la génération du PDF');
+      }
+    },
+    redirectToDashboard() {
+      this.$router.push('/dashboard');
+    },
+    applyFilters() {
+      this.selectedDataType = this.tempSelectedDataType;
+      this.searchQuery = this.tempSearchQuery;
+      this.startDate = this.tempStartDate;
+      this.endDate = this.tempEndDate;
+      Object.assign(this.filters, this.tempFilters);
+      this.currentPage = 1;
+    },
+    resetFilters() {
+      this.tempSelectedDataType = 'products';
+      this.tempSearchQuery = '';
+      this.tempStartDate = '';
+      this.tempEndDate = '';
+      Object.assign(this.tempFilters, {
+        ticketStatus: '',
+        ticketProduct: '',
+        ticketUser: '',
+        userRole: '',
+        userCountry: '',
+        ratingsLevel: ''
+      });
+    }
+  },
+  watch: {
+    selectedDataType() {
+      this.currentPage = 1;
+    }
+  },
+  mounted() {
+    this.fetchData();
   }
-}
-
-const exportData = async (format) => {
-  try {
-    const token = localStorage.getItem('authToken');
-    const headers = { Authorization: `Bearer ${token}` };
-
-    const queryParams = new URLSearchParams(filters.value).toString();
-    const response = await fetch(`${API_URL}/reporting/export?format=${format}&${queryParams}`, { headers });
-
-    if (!response.ok) throw new Error('Failed to export data');
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `reporting.${format}`;
-    link.click();
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error('Error exporting data:', error);
-  }
-}
-
-const redirectToDashboard = () => {
-  this.$router.push("/dashboard");
 };
-
-onMounted(async () => {
-  try {
-    const token = localStorage.getItem('authToken'); // Retrieve token from localStorage
-    const headers = { Authorization: `Bearer ${token}` };
-
-    const [ticketsRes, satisfactionRes, statsRes, typesRes, notesRes] = await Promise.all([
-      fetch(`${API_URL}/reporting/tickets-par-mois`, { headers }),
-      fetch(`${API_URL}/reporting/satisfaction`, { headers }),
-      fetch(`${API_URL}/reporting/totaux`, { headers }),
-      fetch(`${API_URL}/reporting/types-de-demande`, { headers }),
-      fetch(`${API_URL}/reporting/notes`, { headers })
-    ]);
-
-    if (!ticketsRes.ok || !satisfactionRes.ok || !statsRes.ok || !typesRes.ok || !notesRes.ok) {
-      throw new Error('Failed to fetch one or more API endpoints');
-    }
-
-    const tickets = await ticketsRes.json();
-    ticketsData.value.labels = tickets.map(d => `M${d._id}`);
-    ticketsData.value.datasets[0].data = tickets.map(d => d.count);
-
-    const satisfaction = await satisfactionRes.json();
-    satisfactionData.value.datasets[0].data = [
-      Math.round(satisfaction.satisfaction * 20), // Ex: 4/5 * 100%
-      100 - Math.round(satisfaction.satisfaction * 20)
-    ];
-
-    stats.value = await statsRes.json();
-    stats.value.totalTypesDeDemande = (await typesRes.json()).totalTypesDeDemande;
-    stats.value.totalNotes = (await notesRes.json()).totalNotes;
-  } catch (error) {
-    console.error('Error fetching reporting data:', error);
-  }
-
-  try {
-    const token = localStorage.getItem('authToken');
-    const headers = { Authorization: `Bearer ${token}` };
-    const usersRes = await fetch(`${API_URL}/users/all`, { headers });
-    if (usersRes.ok) {
-      users.value = await usersRes.json();
-    }
-  } catch (error) {
-    console.error('Error fetching users:', error);
-  }
-})
-
 </script>
 
+<style scoped>
+.reporting-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Add smooth transitions */
+.card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+/* Add loading animation */
+.loading {
+  position: relative;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>

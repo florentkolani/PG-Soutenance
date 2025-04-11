@@ -63,7 +63,7 @@ exports.getUserById = async (req, res) => {
 }
 // Mettre à jour un utilisateur
 exports.updateUser = async (req, res) => {
-    const { name, email, password, contact, role, pays, ville } = req.body;
+    const { name, email, password, contact, role, pays, ville, paysId, villeId } = req.body;
 
     try {
         // Vérifier si l'utilisateur existe
@@ -79,6 +79,8 @@ exports.updateUser = async (req, res) => {
         user.ville = ville || user.ville;
         user.contact = contact || user.contact;
         user.role = role || user.role;
+        user.paysId = paysId || user.paysId;
+        user.villeId = villeId || user.villeId;
 
         // Si un nouveau mot de passe est fourni, le hacher et l'appliquer
         if (password) {
@@ -94,6 +96,8 @@ exports.updateUser = async (req, res) => {
             pays: updatedUser.pays,
             ville: updatedUser.ville,
             role: updatedUser.role,
+            paysId: updatedUser.paysId,
+            villeId: updatedUser.villeId,
         });
     } catch (error) {
         res.status(500).json({ message: 'Erreur lors de la mise à jour de l\'utilisateur', error });
@@ -141,5 +145,25 @@ exports.getArchivedUsers = async (req, res) => {
       res.status(500).json({ message: 'Erreur serveur.' });
     }
   };
+
+// // Filtrer les utilisateurs
+// exports.filterUsers = async (req, res) => {
+//   try {
+//     const filters = {};
+    
+//     // Appliquer les filtres en fonction des paramètres de requête
+//     if (req.query.role) filters.role = req.query.role;
+//     if (req.query.startDate) filters.createdAt = { $gte: new Date(req.query.startDate) };
+//     if (req.query.endDate) filters.createdAt = { ...filters.createdAt, $lte: new Date(req.query.endDate) };
+    
+//     const users = await User.find(filters)
+//       .select('name email role createdAt')
+//       .lean();
+    
+//     res.status(200).json(users);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
  
