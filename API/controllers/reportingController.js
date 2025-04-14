@@ -36,10 +36,41 @@ exports.getProducts = async (req, res) => {
 
 exports.getAllRatings = async (req, res) => {
   try {
-      const ratings = await Rating.find(); // Récupère toutes les notes
-      res.status(200).json(ratings);
+    const ratings = await Rating.find()
+      .populate({
+        path: 'ticketId',
+        select: 'NumeroTicket userId createdAt closedAt',
+        populate: {
+          path: 'userId',
+          select: 'name'
+        }
+      })
+      .lean(); // Utilisation de lean() pour de meilleures performances
+
+    // Vérification et nettoyage des données
+    const cleanedRatings = ratings.map(rating => {
+      if (!rating.ticketId) {
+        // Si le ticket n'existe pas, on met des valeurs par défaut
+        return {
+          ...rating,
+          ticketId: {
+            NumeroTicket: 'Ticket supprimé',
+            userId: {
+              name: 'Utilisateur inconnu'
+            }
+          }
+        };
+      }
+      return rating;
+    });
+
+    res.status(200).json(cleanedRatings);
   } catch (error) {
-      res.status(500).json({ message: 'Erreur lors de la récupération des notes', error });
+    console.error('Erreur dans getAllRatings:', error);
+    res.status(500).json({ 
+      message: 'Erreur lors de la récupération des notes', 
+      error: error.message 
+    });
   }
 };
 
@@ -82,6 +113,7 @@ exports.getTickets = async (req, res) => {
 
       // Récupérer les tickets avec pagination
       const tickets = await Ticket.find(filter)
+          .select('NumeroTicket userId productId typeDeDemandeId statut createdAt closedAt')
           .populate('userId productId typeDeDemandeId')
           .skip(skip)
           .limit(limit);

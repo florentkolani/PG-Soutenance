@@ -393,7 +393,8 @@ export default {
           { key: 'userId.name', label: 'Utilisateur' },
           { key: 'typeDeDemandeId.name', label: 'Type de Demande' },
           { key: 'productId.name', label: 'Produit' },
-          { key: 'statut', label: 'Statut' }
+          { key: 'statut', label: 'Statut' },
+          { key: 'processingTime', label: 'Durée' }
         ],
         types: [
           { key: 'name', label: 'Nom' },
@@ -402,6 +403,9 @@ export default {
         ratings: [
           { key: 'note', label: 'Note' },
           { key: 'commentaire', label: 'Commentaire' },
+          { key: 'ticketId.NumeroTicket', label: 'Ticket' },
+          { key: 'processingTime', label: 'Durée' },
+          { key: 'ticketId.userId.name', label: 'Utilisateur' }
         ]
       };
       return headers[this.selectedDataType] || [];
@@ -571,7 +575,57 @@ export default {
       if (typeof value === 'object') return JSON.stringify(value);
       return value;
     },
+    calculateProcessingTime(item) {
+      // Pour les tickets
+      if (item.createdAt && item.closedAt) {
+        const created = new Date(item.createdAt);
+        const closed = new Date(item.closedAt);
+        return this.calculateDuration(created, closed);
+      }
+      // Pour les tickets dans les ratings
+      if (item.ticketId && item.ticketId.createdAt && item.ticketId.closedAt) {
+        const created = new Date(item.ticketId.createdAt);
+        const closed = new Date(item.ticketId.closedAt);
+        return this.calculateDuration(created, closed);
+      }
+
+      // Si le ticket est ouvert mais pas clôturé
+      if ((item.createdAt && !item.closedAt) || 
+          (item.ticketId?.createdAt && !item.ticketId?.closedAt)) {
+        return 'En cours';
+      }
+
+      return 'Non disponible';
+    },
+    calculateDuration(created, closed) {
+      if (isNaN(created.getTime()) || isNaN(closed.getTime())) {
+        return 'Date invalide';
+      }
+
+      const diffInMilliseconds = closed - created;
+      
+      // Si la différence est négative, le ticket est toujours en cours
+      if (diffInMilliseconds < 0) {
+        return 'En cours';
+      }
+      
+      // Convertir en jours, heures, minutes
+      const days = Math.floor(diffInMilliseconds / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diffInMilliseconds % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diffInMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
+      
+      let duration = '';
+      if (days > 0) duration += `${days}j `;
+      if (hours > 0) duration += `${hours}h `;
+      if (minutes > 0) duration += `${minutes}m`;
+      
+      return duration.trim() || '< 1m';
+    },
     getNestedValue(obj, path) {
+      if (path === 'processingTime') {
+        return this.calculateProcessingTime(obj);
+      }
+      // Pour les autres chemins
       return path.split('.').reduce((current, key) => {
         return current ? current[key] : null;
       }, obj);
@@ -588,28 +642,48 @@ export default {
       this.showExportModal = false;
     },
     async exportToExcel() {
-      // const XLSX = await import('xlsx');
-      const ws = XLSX.utils.json_to_sheet(this.filteredData);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Data');
-      XLSX.writeFile(wb, `${this.selectedDataType}_export.xlsx`);
-    },
+  // Créer une copie des données filtrées pour ne pas modifier les originales
+  const dataToExport = this.filteredData.map(item => {
+    // Créer un nouvel objet sans les champs sensibles
+    const cleanItem = { ...item };
+    
+    // Supprimer les champs sensibles
+    delete cleanItem.password;
+    delete cleanItem.__v;
+    delete cleanItem._id;
+    delete cleanItem.paysId;
+    delete cleanItem.villeId;
+    
+    // Supprimer les champs imbriqués
+    if (cleanItem.user) {
+      delete cleanItem.user.password;
+      delete cleanItem.user.id;
+    }
+    
+    return cleanItem;
+  });
+  
+  // Utilise les données nettoyées pour créer la feuille Excel
+  const ws = XLSX.utils.json_to_sheet(dataToExport);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Data');
+  XLSX.writeFile(wb, `${this.selectedDataType}_export.xlsx`);
+},
     async exportToPDF() {
       try {
         const headers = this.tableHeaders.map(h => h.label);
         
-        // Fonction améliorée pour calculer la largeur dynamique des colonnes
         const calculateColumnWidths = () => {
-          const pageWidth = 595.28; // Largeur d'une page A4 en points (21cm)
-          const margins = 40; // 20px de chaque côté
+          const pageWidth = 595.28;
+          const margins = 40;
           const availableWidth = pageWidth - (margins * 2);
-          const minColumnWidth = 50; // Largeur minimum d'une colonne
+          const minColumnWidth = 50;
           
-          // Calculer d'abord les largeurs proportionnelles
+          // Calcul des largeurs proportionnelles
           const widths = headers.map((header, index) => {
             let maxLength = header.length;
             
-            // Vérifier la longueur maximale du contenu dans chaque colonne
+            // Vérifie la longueur maximale du contenu dans chaque colonne
             this.filteredData.forEach(row => {
               const cellContent = this.formatValue(this.getNestedValue(row, this.tableHeaders[index].key));
               const contentLength = String(cellContent).length;
@@ -619,10 +693,10 @@ export default {
             return maxLength;
           });
 
-          // Calculer la somme totale des largeurs
+          // Calcule la somme totale des largeurs
           const totalWidth = widths.reduce((sum, width) => sum + width, 0);
           
-          // Ajuster les largeurs proportionnellement à l'espace disponible
+          // Ajuste les largeurs proportionnellement à l'espace disponible
           return widths.map(width => {
             const proportion = width / totalWidth;
             const calculatedWidth = Math.max(
@@ -635,7 +709,7 @@ export default {
 
         const columnWidths = calculateColumnWidths();
 
-        // Récupérer le nom de l'utilisateur dans le token
+        // Récupére le nom de l'utilisateur dans le token
         const userName = localStorage.getItem('userName') || 'Utilisateur';
         
         const docDefinition = {

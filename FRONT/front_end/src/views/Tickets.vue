@@ -54,7 +54,7 @@
       <table class="min-w-full bg-white">
         <thead>
           <tr>
-            <th class="py-2 pl-4 text-left">Identité</th>
+            <th class="py-2 pl-4 text-left">Client</th>
             <th class="py-2 pl-4 text-left">Type de demande</th>
             <th class="py-2 pl-4 text-left">Produit</th>
             <th class="py-2 text-center">Urgence</th>

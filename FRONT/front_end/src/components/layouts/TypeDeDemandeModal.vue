@@ -4,7 +4,7 @@
       <div class="p-6">
         <!-- Header -->
         <div class="flex justify-between items-center pb-4 mb-6 border-b border-gray-200">
-          <h3 class="text-2xl font-bold text-gray-900">
+          <h3 class="text-2xl font-bold text-black pl-4">
             {{ isEditing ? 'Modifier' : 'Ajouter' }} un type de demande
           </h3>
           <button

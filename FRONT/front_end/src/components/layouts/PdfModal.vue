@@ -8,7 +8,7 @@
 
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-4 sm:align-middle sm:max-w-lg sm:w-full">
           <div class="bg-gray-100 px-3 py-2 flex justify-between items-center">
-            <h3 class="text-lg font-medium text-gray-900">
+            <h3 class="text-2xl font-bold text-black pl-4">
               {{ modalTitle }}
             </h3>
             <button
