@@ -3,7 +3,7 @@
     <div class="relative w-full max-w-2xl transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all mx-4">
       <div class="p-6">
         <div class="flex justify-between items-center pb-4 mb-6 border-b border-gray-200">
-          <h3 class="text-2xl font-bold text-gray-900">
+          <h3 class="text-2xl font-bold text-black pl-4">
             {{ isEditing ? 'Modifier' : 'Ajouter' }} un produit
           </h3>
           <button

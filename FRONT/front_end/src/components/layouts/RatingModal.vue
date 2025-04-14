@@ -8,7 +8,7 @@
           <i class="fas fa-times text-xl"></i>
         </button>
         
-        <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">Noter le ticket</h2>
+        <h3 class="text-2xl font-bold mb-6 text-gray-800 text-center">Noter le ticket</h3>
         <p class="text-sm text-gray-600 text-center mb-6">En notant ce ticket, vous le clôturez automatiquement.</p>
         
         <form @submit.prevent="submitRating" class="space-y-6">

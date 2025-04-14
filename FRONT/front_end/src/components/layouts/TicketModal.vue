@@ -6,9 +6,9 @@
         class="absolute top-2 right-4 text-red-600 hover:text-gray-700 text-2xl w-8 h-8 flex items-center justify-center">&times;</button>
 
         <div class="py-2 px-4">
-          <h2 class="mb-2 text-xl font-bold text-gray-900 text-center">
+          <h3 class="text-2xl font-bold text-black pl-4 mb-4">
             {{ isEdit ? "Modifier le ticket" : "Créer un ticket" }}
-          </h2>
+          </h3>
           <form @submit.prevent="handleSubmit">
             <div class="grid gap-2 sm:grid-cols-2 sm:gap-3">
               <!-- Product Select -->
@@ -225,9 +225,9 @@ export default {
       status: 'ouvert',
       file: null,
       isLoading: false,
-      showLimitModal: false, // Affichage de la boîte de dialogue de limite
-      showSuccessMessage: false, // Affichage de la boîte de dialogue de succès
-      errorMessage: "", // Message d'erreur pour la boîte de dialogue
+      showLimitModal: false,
+      showSuccessMessage: false,
+      errorMessage: "",
     };
   },
   computed: {
@@ -239,17 +239,16 @@ export default {
   ticket: {
     immediate: true,
     handler(ticket) {
-      console.log("Ticket reçu :", ticket); // Ajoutez ce log pour déboguer
       this.loadProductsAndTypes();
       if (ticket) {
         this.selectedProduct = ticket.productId?._id || ticket.productId || '';
         this.selectedTypeDeDemande = ticket.typeDeDemandeId?._id || ticket.typeDeDemandeId || '';
         this.urgence = ticket.urgence;
         this.description = ticket.description;
-        this.status = ticket.status; // Assurez-vous de récupérer le statut
+        this.status = ticket.status; 
         if (ticket.file) {
-          this.file = ticket.file; // Assigner le fichier à une variable
-          console.log("Fichier récupéré :", this.file); // Log pour déboguer
+          this.file = ticket.file; 
+          console.log("Fichier récupéré :", this.file);
         } else {
           this.file = null; // Réinitialiser le fichier s'il n'existe pas
         }
