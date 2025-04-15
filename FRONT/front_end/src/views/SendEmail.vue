@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto">
+  <div class="w-full px-4 py-3">
     <!-- Header Component -->
     <Header 
       title="NOVA LEAD" 
@@ -10,7 +10,7 @@
     />
 
     <!-- List of sent emails -->
-    <main class="container mx-auto px-4 py-4">
+    <main class="w-full px-4 py-3">
       <h1 class="text-2xl font-bold text-gray-800">Emails envoyés</h1>
 
       <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
@@ -51,8 +51,7 @@
           </tr>
         </tbody>
       </table>
-
-      <!-- Remplacer l'ancien système de pagination par le composant Pagination -->
+      
       <Pagination
         :total-items="totalItems" 
         :items-per-page="itemsPerPage" 

@@ -8,7 +8,7 @@
        @goToDashboard="redirectToDashboard"
     />
 
-    <main class="container mx-auto p-4">
+    <main class="w-full px-4 py-3">
       <h1 class="text-2xl font-bold mb-4">Liste des types de demande</h1>
       <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
         <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">

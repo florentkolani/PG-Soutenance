@@ -5,7 +5,7 @@
        @goToDashboard="redirectToDashboard"
     />
   </div>
-  <div class="reporting-container p-6">
+  <div class="w-full px-4 py-3">
     <h1 class="text-3xl font-bold mb-8">Tableau de bord - Reporting</h1>
 
     <!-- Loading State -->

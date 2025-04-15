@@ -74,8 +74,22 @@
               type="submit" 
               class="w-full bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 focus:ring-4 focus:ring-green-200 font-medium transition-all duration-200 flex items-center justify-center space-x-2"
             >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+              <polyline points="10 17 15 12 10 7"/>
+              <line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
               <span>Se connecter</span>
-              <i class="fas fa-arrow-right"></i>
+              <!-- <i class="fas fa-arrow-right"></i> -->
             </button>
           </form>
         </div>

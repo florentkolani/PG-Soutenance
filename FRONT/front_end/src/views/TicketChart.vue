@@ -1,6 +1,6 @@
 <!-- TicketChart.vue -->
 <template>
-  <div class="chart-container">
+  <div class="w-full px-4 py-3 min-h-screen">
     <canvas ref="ticketChart"></canvas>
   </div>
 </template>

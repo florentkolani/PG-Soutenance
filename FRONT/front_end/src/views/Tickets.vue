@@ -10,7 +10,7 @@
       :filterOptions="ticketFilterOptions" 
     />
 
-    <main class="container mx-auto p-4">
+    <main class="w-full px-4 py-3">
 <!-- Titre et légende -->
 <div class="flex flex-row items-center justify-between space-x-4 mb-4">
   <h1 class="text-2xl font-bold">Liste des tickets</h1>
@@ -50,7 +50,7 @@
     </table>
   </div>
 </div>
-
+<div class="overflow-x-auto">
       <table class="min-w-full bg-white">
         <thead>
           <tr>
@@ -177,6 +177,7 @@
 </tr>
 </tbody>
 </table>
+</div>
  </main>
 
     <!-- Modals -->

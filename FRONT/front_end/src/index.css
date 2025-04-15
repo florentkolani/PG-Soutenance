@@ -1,4 +1,10 @@
-/* ./src/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Ajout pour que le html, body et #app occupent toute la hauteur */
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}

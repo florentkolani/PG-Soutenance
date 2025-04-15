@@ -8,7 +8,7 @@
       @goToDashboard="redirectToDashboard" 
       class="fixed top-0 left-0 w-full bg-green shadow z-10"
     />
-    <div class="container mx-auto px-4 mt-12">
+    <div class="mx-auto  mt-12 w-full">
       <div class="flex justify-between items-center">
         <!-- Barre de navigation (liens à gauche) -->
         <nav class="bg-white shadow rounded-lg p-3">
@@ -23,14 +23,14 @@
         </nav>
 
         <!-- Filtre par produit (à droite) -->
-        <div class="w-1/6">
+        <div class="w-1/4">
           <select
             v-model="filterProduct"
             id="filterProduct"
             class="block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             @change="filtervideos"
           >
-            <option value="">Tous les produits</option>
+            <option value="">Vidéo de tous les produits</option>
             <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}</option>
           </select>
         </div>
@@ -45,7 +45,7 @@
           <div v-for="(video, index) in filteredVideoList" :key="index" class="bg-white shadow rounded-lg p-4 flex">
             <div class="w-1/2">
               <video controls class="w-full h-48">
-                <source :src="`http://localhost:5000/api${video.url}`" type="video/mp4">
+                <source :src="`http://192.168.1.70:5000/api${video.url}`" type="video/mp4">
                 Votre navigateur ne supporte pas la lecture de vidéos.
               </video>
               <div>
