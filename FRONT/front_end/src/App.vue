@@ -1,13 +1,16 @@
 <script setup>
-
 </script>
 
 <template>
-  <header>
+  <div class="flex flex-col min-h-screen">
+    <header class="bg-white shadow-md">
+     
+    </header>
 
-  </header>
-
-  <RouterView />
+    <main class="flex-grow">
+      <RouterView />
+    </main>
+  </div>
 </template>
 
 <style scoped>
@@ -67,11 +70,8 @@ nav a:first-of-type {
     text-align: start;
     margin-inline-start: -1rem;
     font-size: 1rem;
-
     padding: 1rem 0;
     margin-block-start: 1rem;
   }
 }
 </style>
-
-

@@ -9,12 +9,13 @@
         :filterOptions="userFilterOptions" 
       />
   
-      <main class="container mx-auto p-4">
+      <main class="w-full px-4 py-3">
         <div class="flex justify-between items-center mb-4">
           <h1 class="text-2xl font-bold">Liste des Utilisateurs Archivés</h1>
         </div>
   
         <!-- Table des utilisateurs archivés -->
+      <div class="overflow-x-auto">
         <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
           <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
             <tr>
@@ -38,6 +39,7 @@
             </tr>
           </tbody>
         </table>
+      </div>
   
         <!-- Modal de détails -->
         <div v-if="showDetailsModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center text-center">

@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto">
+  <div class="w-full px-4 py-3">
     <!-- Header Component -->
     <Header 
       title="NOVA LEAD" 
@@ -56,7 +56,7 @@
     </div>
 
     <!-- List of cities -->
-    <main class="container mx-auto px-4 py-4">
+    <main class="w-full px-4 py-3">
       <div class="flex items-center mb-4">
         <button @click="goBack" class="text-blue-500 mt-3 hover:text-blue-600">
           <span class="material-icons">arrow_back</span>

@@ -4,7 +4,7 @@
       title=" NOVA LEAD" 
       @primaryAction="redirectToDashboard"
     />
-    <div class="container mx-auto p-4 bg-white shadow-lg rounded-lg">
+    <div class="mx-auto max-w-6xl p-4 bg-white shadow-lg rounded-lg">
       <h1 class="text-3xl font-bold mb-4 text-center text-gray-800">À propos de NOVA LEAD</h1>
       <p class="mb-4 text-gray-600"> 
         NOVA LEAD est une entreprise innovante spécialisée dans la fourniture de solutions technologiques avancées. Depuis sa création, elle s'engage à fournir des solutions financières

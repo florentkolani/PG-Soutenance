@@ -1,6 +1,6 @@
 <template>
   <header class="bg-white border-b shadow-sm">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+    <div class="w-full px-4 py-3 flex justify-between items-center">
       <!-- Logo avec redirection vers le Dashboard -->
       <div class="flex items-center space-x-3 cursor-pointer" @click="goToDashboard">
         <img :src="logo" alt="Logo" class="h-10 w-10 rounded-lg shadow-sm" />

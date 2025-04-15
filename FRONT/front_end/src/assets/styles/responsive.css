@@ -1,0 +1,88 @@
+/* Responsive utility classes */
+
+/* Container responsive */
+.responsive-container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .responsive-container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .responsive-container {
+    max-width: 1280px;
+  }
+}
+
+/* Grid responsive */
+.responsive-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(1, 1fr);
+}
+
+@media (min-width: 640px) {
+  .responsive-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Flex responsive */
+.responsive-flex {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .responsive-flex {
+    flex-direction: row;
+  }
+}
+
+/* Text responsive */
+.responsive-text {
+  font-size: 1rem;
+}
+
+@media (min-width: 768px) {
+  .responsive-text {
+    font-size: 1.125rem;
+  }
+}
+
+/* Spacing responsive */
+.responsive-spacing {
+  padding: 1rem;
+  margin: 1rem;
+}
+
+@media (min-width: 768px) {
+  .responsive-spacing {
+    padding: 2rem;
+    margin: 2rem;
+  }
+} 
