@@ -100,26 +100,26 @@
               </span>
             </td>
             <td class="border px-4 py-2 text-center">
-  <div class="flex justify-center space-x-1">
-    <template v-for="index in 4" :key="index"> 
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        :class="{
-          'text-gray-300': index > getStarCount(ticket.note), 
-          'text-yellow-400': index <= getStarCount(ticket.note)  
-        }"
-        class="h-5 w-5"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path d="M12 .587l3.668 7.568 8.332 1.151-6.083 5.911 1.437 8.324L12 18.897l-7.354 4.644 1.437-8.324-6.083-5.911 8.332-1.151z" />
-      </svg>
-    </template>
-  </div>
-</td>
+              <div class="flex justify-center space-x-1">
+                <template v-for="index in 4" :key="index"> 
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    :class="{
+                      'text-gray-300': index > getStarCount(ticket.note), 
+                      'text-yellow-400': index <= getStarCount(ticket.note)  
+                    }"
+                    class="h-5 w-5"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 .587l3.668 7.568 8.332 1.151-6.083 5.911 1.437 8.324L12 18.897l-7.354 4.644 1.437-8.324-6.083-5.911 8.332-1.151z" />
+                  </svg>
+                </template>
+              </div>
+            </td>
 
             
-            <td class="border px-4 py-2 text-center">
+<td class="border px-4 py-2 text-center">
   <div class="relative inline-block text-left">
     <!-- Bouton des trois points pour ouvrir le dropdown -->
     <button @click="toggleDropdown(ticket._id)" class="text-gray-700 hover:text-gray-500 focus:outline-none">

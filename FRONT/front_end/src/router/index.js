@@ -15,6 +15,8 @@ import Apropos from '@/views/Apropos.vue';
 import VideoUploader from '@/views/VideoUploader.vue';
 import sendEmail from '@/views/sendEmail.vue';
 import Reporting from '../views/Reporting.vue';
+import Tasks from '../views/Tasks.vue';
+import TaskDetails from '@/components/layouts/TaskDetails.vue';
 
 const routes = [
   { path: '/login', component: LoginView },
@@ -36,7 +38,9 @@ const routes = [
   { path: '/gestionsville', name: 'GestionsVille', component: GestionsVille },
   { path: '/sendEmail', name: 'sendEmail', component: sendEmail },
   { path: '/Reporting', name: 'Reporting', component: Reporting },
-];
+  { path: '/Tasks', name: 'Tasks', component: Tasks },
+  { path: '/tasks/:id', name: 'TaskDetails', component: TaskDetails, props: true
+  }];
 
 const router = createRouter({
   history: createWebHistory(),

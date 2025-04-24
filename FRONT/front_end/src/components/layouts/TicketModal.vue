@@ -3,7 +3,8 @@
     <section v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div class="bg-white p-0 rounded-lg shadow-lg max-w-lg w-full max-h-[100vh] overflow-y-auto relative">
         <button @click="$emit('close')" 
-        class="absolute top-2 right-4 text-red-600 hover:text-gray-700 text-2xl w-8 h-8 flex items-center justify-center">&times;</button>
+        class="absolute top-2 right-4 text-red-600 hover:text-gray-700 text-2xl w-8 h-8 flex items-center justify-center">
+        &times;</button>
 
         <div class="py-2 px-4">
           <h3 class="text-2xl font-bold text-black pl-4 mb-4">
