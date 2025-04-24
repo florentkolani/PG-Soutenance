@@ -34,12 +34,18 @@ exports.getSentEmails = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const emails = await Email.find({ sender: req.user.email })
+    // Aucun filtre - tous les utilisateurs peuvent voir tous les emails
+    const filter = {};
+    
+    // Récupérer tous les emails
+    const emails = await Email.find(filter)
+      .select("sender senderName recipients subject message sentAt")
       .sort({ sentAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const total = await Email.countDocuments({ sender: req.user.email });
+    // Compter le nombre total d'emails
+    const total = await Email.countDocuments(filter);
 
     res.status(200).json({
       emails,

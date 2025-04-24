@@ -30,6 +30,7 @@ const cityRoutes = require('./routes/cityRoutes');
 const videoRoutes = require('./routes/videoRoutes');
 const emailRoutes = require("./routes/emailRoutes");
 const reportingRoutes = require('./routes/ReportingRoutes');
+const TaskRoutes = require('./routes/TaskRoutes');
 
 // Utilisation des routes
 app.use('/api/auth', authRoutes);
@@ -44,6 +45,7 @@ app.use("/api/pdfs", pdfRoutes);
 app.use('/api/videos', videoRoutes);
 app.use("/api/emails", emailRoutes);
 app.use('/api/reporting', reportingRoutes);
+app.use('/api/tasks', TaskRoutes);
 // Gestion des fichiers statiques et des en-têtes pour les téléchargements
 app.use('/API/uploads', express.static(path.join(__dirname, 'uploads'), {
     setHeaders: (res, filePath) => {
