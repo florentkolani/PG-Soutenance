@@ -14,39 +14,39 @@ exports.createCity = async (req, res) => {
 
 exports.getCities = async (req, res) => {
     try {
-      const { page = 1, limit = 10, sortBy = 'name', sortOrder = 'asc', countryId } = req.query;
-  
-      // Options de tri
-      const sortOptions = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
-  
-      // Filtrer par pays si countryId est fourni
-      const filterOptions = { isarchived: false };
-      if (countryId) {
-        filterOptions.country = countryId;
-      }
-  
-      // Récupérer les villes non archivées, triées et paginées
-      const cities = await City.find(filterOptions)
-        .populate('country') // Remplir les informations du pays associé
-        .sort(sortOptions) // Appliquer le tri
-        .skip((page - 1) * limit)
-        .limit(parseInt(limit));
-  
-      // Compter le nombre total de villes non archivées
-      const totalItems = await City.countDocuments(filterOptions);
-  
-      // Renvoyer les résultats
-      res.status(200).json({
-        message: 'Villes récupérées avec succès',
-        cities,
-        totalItems,
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(totalItems / limit),
-      });
+        const { page = 1, limit = 10, sortBy = 'name', sortOrder = 'asc', countryId } = req.query;
+
+        // Options de tri
+        const sortOptions = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+
+        // Filtrer par pays si countryId est fourni
+        const filterOptions = { isarchived: false };
+        if (countryId) {
+            filterOptions.country = countryId;
+        }
+
+        // Récupérer les villes non archivées, triées et paginées
+        const cities = await City.find(filterOptions)
+            .populate('country') // Remplir les informations du pays associé
+            .sort(sortOptions) // Appliquer le tri
+            .skip((page - 1) * limit)
+            .limit(parseInt(limit));
+
+        // Compter le nombre total de villes non archivées
+        const totalItems = await City.countDocuments(filterOptions);
+
+        // Renvoyer les résultats
+        res.status(200).json({
+            message: 'Villes récupérées avec succès',
+            cities,
+            totalItems,
+            currentPage: parseInt(page),
+            totalPages: Math.ceil(totalItems / limit),
+        });
     } catch (error) {
-      res.status(400).json({ message: 'Erreur lors de la récupération des villes', error: error.message });
+        res.status(400).json({ message: 'Erreur lors de la récupération des villes', error: error.message });
     }
-  };
+};
 
 exports.getCityById = async (req, res) => {
     try {

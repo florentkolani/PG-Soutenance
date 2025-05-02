@@ -1,9 +1,6 @@
 <template>
-  <div >
-    <Header 
-      title="NOVA LEAD" 
-       @goToDashboard="redirectToDashboard"
-    />
+  <div>
+    <Header title="NOVA LEAD" @goToDashboard="redirectToDashboard" />
   </div>
   <div class="w-full px-4 py-3">
     <h1 class="text-3xl font-bold mb-8">Tableau de bord - Reporting</h1>
@@ -67,7 +64,7 @@
           <p class="text-gray-500 mt-2">Total des notes</p>
         </div>
       </div>
-      
+
 
       <!-- Filters Section -->
       <div class="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -85,23 +82,15 @@
               <option value="ratings">Notes</option>
             </select>
           </div>
-           <!-- Date Range Filter -->
-           <div>
+          <!-- Date Range Filter -->
+          <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Date de début</label>
-            <input 
-              v-model="tempStartDate" 
-              type="date" 
-              class="w-full p-2 border rounded-md"
-            >
+            <input v-model="tempStartDate" type="date" class="w-full p-2 border rounded-md">
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Date de fin</label>
-            <input 
-              v-model="tempEndDate" 
-              type="date" 
-              class="w-full p-2 border rounded-md"
-            >
+            <input v-model="tempEndDate" type="date" class="w-full p-2 border rounded-md">
           </div>
 
           <!-- Conditional Filters -->
@@ -176,16 +165,10 @@
 
         <!-- Filter Buttons -->
         <div class="mt-4 flex justify-end space-x-4">
-          <button 
-            @click="resetFilters" 
-            class="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600"
-          >
+          <button @click="resetFilters" class="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600">
             Réinitialiser
           </button>
-          <button 
-            @click="applyFilters" 
-            class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
-          >
+          <button @click="applyFilters" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
             Filtrer
           </button>
         </div>
@@ -195,21 +178,14 @@
       <div class="bg-white rounded-lg shadow-md p-6">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-xl font-semibold">Résultats</h2>
-           <!-- Search Filter -->
-           <div class="whitespace-nowrap ml-auto mr-5">
+          <!-- Search Filter -->
+          <div class="whitespace-nowrap ml-auto mr-5">
             <!-- <label class="block text-sm font-medium text-gray-700 mb-2">Recherche</label> -->
-            <input 
-              v-model="tempSearchQuery" 
-              type="text" 
-              class="w-full p-2 border rounded-md"
-              :placeholder="'Rechercher dans ' + tempSelectedDataType"
-            >
+            <input v-model="tempSearchQuery" type="text" class="w-full p-2 border rounded-md"
+              :placeholder="'Rechercher dans ' + tempSelectedDataType">
           </div>
-          <button 
-            @click="showExportModal = true" 
-            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-            :disabled="!filteredData.length"
-          >
+          <button @click="showExportModal = true" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            :disabled="!filteredData.length">
             Exporter
           </button>
         </div>
@@ -222,22 +198,16 @@
           <table class="min-w-full">
             <thead>
               <tr class="bg-gray-50">
-                <th 
-                  v-for="header in tableHeaders" 
-                  :key="header.key"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
+                <th v-for="header in tableHeaders" :key="header.key"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {{ header.label }}
                 </th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
               <tr v-for="item in paginatedData" :key="item._id">
-                <td 
-                  v-for="header in tableHeaders" 
-                  :key="header.key"
-                  class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
-                >
+                <td v-for="header in tableHeaders" :key="header.key"
+                  class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {{ formatValue(getNestedValue(item, header.key)) }}
                 </td>
               </tr>
@@ -251,20 +221,12 @@
             Affichage de {{ paginatedData.length }} sur {{ filteredData.length }} résultats
           </div>
           <div class="flex space-x-2">
-            <button 
-              @click="currentPage--" 
-              :disabled="currentPage === 1"
-              class="px-3 py-1 border rounded-md"
-              :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }"
-            >
+            <button @click="currentPage--" :disabled="currentPage === 1" class="px-3 py-1 border rounded-md"
+              :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }">
               Précédent
             </button>
-            <button 
-              @click="currentPage++" 
-              :disabled="currentPage >= totalPages"
-              class="px-3 py-1 border rounded-md"
-              :class="{ 'opacity-50 cursor-not-allowed': currentPage >= totalPages }"
-            >
+            <button @click="currentPage++" :disabled="currentPage >= totalPages" class="px-3 py-1 border rounded-md"
+              :class="{ 'opacity-50 cursor-not-allowed': currentPage >= totalPages }">
               Suivant
             </button>
           </div>
@@ -291,16 +253,11 @@
           </div>
         </div>
         <div class="mt-6 flex justify-end space-x-4">
-          <button 
-            @click="showExportModal = false" 
-            class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
-          >
+          <button @click="showExportModal = false"
+            class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
             Annuler
           </button>
-          <button 
-            @click="exportData" 
-            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          >
+          <button @click="exportData" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
             Exporter
           </button>
         </div>
@@ -365,7 +322,7 @@ export default {
       tempStartDate: '',
       tempEndDate: '',
       tempSelectedDataType: 'products',
-      
+
       // Ajout pour le modal d'export
       showExportModal: false,
       exportFormat: 'excel'
@@ -412,14 +369,14 @@ export default {
     },
     filteredData() {
       if (!this.selectedDataType) return [];
-      
+
       let data = this[this.selectedDataType] || [];
-      
+
       // Apply search filter
       if (this.searchQuery) {
         const query = this.searchQuery.toLowerCase();
         data = data.filter(item => {
-          return Object.values(item).some(value => 
+          return Object.values(item).some(value =>
             String(value).toLowerCase().includes(query)
           );
         });
@@ -430,14 +387,14 @@ export default {
         data = data.filter(item => {
           if (item.createdAt) {
             const itemDate = new Date(item.createdAt);
-            
+
             // Créer les objets Date pour le début et la fin
             const start = new Date(this.startDate);
             start.setHours(0, 0, 0, 0); // Début de journée
-            
+
             const end = new Date(this.endDate);
             end.setHours(23, 59, 59, 999); // Fin de journée
-            
+
             return itemDate >= start && itemDate <= end;
           }
           return true;
@@ -522,7 +479,7 @@ export default {
         console.log('Types:', typesRes);
         console.log('Ratings:', ratingsRes);
         console.log('Countries:', countriesRes);
-        
+
 
         // Ajustement selon la structure de la réponse
         this.products = productsRes.data.products || [];
@@ -590,8 +547,8 @@ export default {
       }
 
       // Si le ticket est ouvert mais pas clôturé
-      if ((item.createdAt && !item.closedAt) || 
-          (item.ticketId?.createdAt && !item.ticketId?.closedAt)) {
+      if ((item.createdAt && !item.closedAt) ||
+        (item.ticketId?.createdAt && !item.ticketId?.closedAt)) {
         return 'En cours';
       }
 
@@ -603,22 +560,22 @@ export default {
       }
 
       const diffInMilliseconds = closed - created;
-      
+
       // Si la différence est négative, le ticket est toujours en cours
       if (diffInMilliseconds < 0) {
         return 'En cours';
       }
-      
+
       // Convertir en jours, heures, minutes
       const days = Math.floor(diffInMilliseconds / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diffInMilliseconds % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((diffInMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
-      
+
       let duration = '';
       if (days > 0) duration += `${days}j `;
       if (hours > 0) duration += `${hours}h `;
       if (minutes > 0) duration += `${minutes}m`;
-      
+
       return duration.trim() || '< 1m';
     },
     getNestedValue(obj, path) {
@@ -632,70 +589,70 @@ export default {
     },
     exportData() {
       if (!this.filteredData.length) return;
-      
+
       if (this.exportFormat === 'excel') {
         this.exportToExcel();
       } else if (this.exportFormat === 'pdf') {
         this.exportToPDF();
       }
-      
+
       this.showExportModal = false;
     },
     async exportToExcel() {
-  // Créer une copie des données filtrées pour ne pas modifier les originales
-  const dataToExport = this.filteredData.map(item => {
-    // Créer un nouvel objet sans les champs sensibles
-    const cleanItem = { ...item };
-    
-    // Supprimer les champs sensibles
-    delete cleanItem.password;
-    delete cleanItem.__v;
-    delete cleanItem._id;
-    delete cleanItem.paysId;
-    delete cleanItem.villeId;
-    
-    // Supprimer les champs imbriqués
-    if (cleanItem.user) {
-      delete cleanItem.user.password;
-      delete cleanItem.user.id;
-    }
-    
-    return cleanItem;
-  });
-  
-  // Utilise les données nettoyées pour créer la feuille Excel
-  const ws = XLSX.utils.json_to_sheet(dataToExport);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Data');
-  XLSX.writeFile(wb, `${this.selectedDataType}_export.xlsx`);
-},
+      // Créer une copie des données filtrées pour ne pas modifier les originales
+      const dataToExport = this.filteredData.map(item => {
+        // Créer un nouvel objet sans les champs sensibles
+        const cleanItem = { ...item };
+
+        // Supprimer les champs sensibles
+        delete cleanItem.password;
+        delete cleanItem.__v;
+        delete cleanItem._id;
+        delete cleanItem.paysId;
+        delete cleanItem.villeId;
+
+        // Supprimer les champs imbriqués
+        if (cleanItem.user) {
+          delete cleanItem.user.password;
+          delete cleanItem.user.id;
+        }
+
+        return cleanItem;
+      });
+
+      // Utilise les données nettoyées pour créer la feuille Excel
+      const ws = XLSX.utils.json_to_sheet(dataToExport);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Data');
+      XLSX.writeFile(wb, `${this.selectedDataType}_export.xlsx`);
+    },
     async exportToPDF() {
       try {
         const headers = this.tableHeaders.map(h => h.label);
-        
+
         const calculateColumnWidths = () => {
           const pageWidth = 595.28;
           const margins = 40;
           const availableWidth = pageWidth - (margins * 2);
           const minColumnWidth = 50;
-          
+
           // Calcul des largeurs proportionnelles
           const widths = headers.map((header, index) => {
             let maxLength = header.length;
-            
+
             // Vérifie la longueur maximale du contenu dans chaque colonne
             this.filteredData.forEach(row => {
               const cellContent = this.formatValue(this.getNestedValue(row, this.tableHeaders[index].key));
               const contentLength = String(cellContent).length;
               maxLength = Math.max(maxLength, contentLength);
             });
-            
+
             return maxLength;
           });
 
           // Calcule la somme totale des largeurs
           const totalWidth = widths.reduce((sum, width) => sum + width, 0);
-          
+
           // Ajuste les largeurs proportionnellement à l'espace disponible
           return widths.map(width => {
             const proportion = width / totalWidth;
@@ -711,33 +668,33 @@ export default {
 
         // Récupére le nom de l'utilisateur dans le token
         const userName = localStorage.getItem('userName') || 'Utilisateur';
-        
+
         const docDefinition = {
           pageMargins: [20, 80, 20, 80],
           pageSize: 'A4',
-          
+
           header: {
             margin: [40, 20, 40, 0],
             columns: [
-              { 
-                width: '*', 
-                text: '' 
+              {
+                width: '*',
+                text: ''
               },
             ]
           },
-          footer: function(currentPage, pageCount) {
+          footer: function (currentPage, pageCount) {
             return {
               margin: [40, 10, 40, 20],
               columns: [
-                { 
+                {
                   text: `Édité par: ${userName}`,
-                  alignment: 'left', 
+                  alignment: 'left',
                   color: '#6b7280',
                   fontSize: 8
                 },
-                { 
-                  text: `Page ${currentPage} sur ${pageCount}`, 
-                  alignment: 'right', 
+                {
+                  text: `Page ${currentPage} sur ${pageCount}`,
+                  alignment: 'right',
                   color: '#6b7280',
                   fontSize: 8
                 }
@@ -752,50 +709,50 @@ export default {
                 {
                   width: '50%',
                   stack: [
-                    { 
-                      text: 'NOVA LEAD', 
+                    {
+                      text: 'NOVA LEAD',
                       style: 'companyName',
                       margin: [0, 0, 0, 8]
                     },
-                    { 
-                      text: 'Rue 186 AFG', 
-                      style: 'companyInfo' 
+                    {
+                      text: 'Rue 186 AFG',
+                      style: 'companyInfo'
                     },
-                    { 
-                      text: 'Lomé, Togo', 
-                      style: 'companyInfo' 
+                    {
+                      text: 'Lomé, Togo',
+                      style: 'companyInfo'
                     },
-                    { 
-                      text: 'Tél: +228 90 32 79 21', 
-                      style: 'companyInfo' 
+                    {
+                      text: 'Tél: +228 90 32 79 21',
+                      style: 'companyInfo'
                     },
-                    { 
-                      text: 'Email: novalead@gmail.dev', 
-                      style: 'companyInfo' 
+                    {
+                      text: 'Email: novalead@gmail.dev',
+                      style: 'companyInfo'
                     }
                   ]
                 },
                 {
                   width: '50%',
                   stack: [
-                    { 
+                    {
                       text: `Date d'édition: ${new Date().toLocaleDateString('fr-FR', {
                         day: '2-digit',
                         month: '2-digit',
                         year: 'numeric',
                         hour: '2-digit',
                         minute: '2-digit'
-                      })}`, 
-                      alignment: 'right', 
-                      style: 'documentInfo' 
+                      })}`,
+                      alignment: 'right',
+                      style: 'documentInfo'
                     },
-                    { 
+                    {
                       text: `Rapport généré par: ${userName}`,
-                      alignment: 'right', 
-                      style: 'documentInfo' 
+                      alignment: 'right',
+                      style: 'documentInfo'
                     },
-                    { 
-                      text: `Type de rapport: ${this.selectedDataType}`, 
+                    {
+                      text: `Type de rapport: ${this.selectedDataType}`,
                       alignment: 'right',
                       style: 'documentInfo'
                     }
@@ -803,14 +760,14 @@ export default {
                 }
               ]
             },
-            
+
             // Titre principal
-            { 
+            {
               text: `Statistiques sur les ${this.selectedDataType.charAt(0).toUpperCase() + this.selectedDataType.slice(1)}`,
               style: 'mainHeader',
               margin: [0, 0, 0, 15]
             },
-            
+
             // Tableau principal avec nouvelles largeurs dynamiques
             {
               margin: [0, 0, 0, 20],
@@ -823,7 +780,7 @@ export default {
                     style: 'tableHeader',
                     margin: [0, 5, 0, 5]
                   })),
-                  ...this.filteredData.map(item => 
+                  ...this.filteredData.map(item =>
                     this.tableHeaders.map(h => ({
                       text: this.formatValue(this.getNestedValue(item, h.key)),
                       style: 'tableContent',
@@ -833,22 +790,22 @@ export default {
                 ]
               },
               layout: {
-                fillColor: function(rowIndex) {
+                fillColor: function (rowIndex) {
                   return (rowIndex % 2 === 0) ? '#f9fafb' : null;
                 },
-                hLineWidth: function(i, node) { 
-                  return (i === 0 || i === node.table.body.length) ? 1 : 0.5; 
+                hLineWidth: function (i, node) {
+                  return (i === 0 || i === node.table.body.length) ? 1 : 0.5;
                 },
-                vLineWidth: function() { return 0.5; },
-                hLineColor: function() { return '#e5e7eb'; },
-                vLineColor: function() { return '#e5e7eb'; },
-                paddingTop: function() { return 4; }, // Réduit le padding
-                paddingBottom: function() { return 4; }, // Réduit le padding
-                paddingLeft: function() { return 4; }, // Réduit le padding
-                paddingRight: function() { return 4; } // Réduit le padding
+                vLineWidth: function () { return 0.5; },
+                hLineColor: function () { return '#e5e7eb'; },
+                vLineColor: function () { return '#e5e7eb'; },
+                paddingTop: function () { return 4; }, // Réduit le padding
+                paddingBottom: function () { return 4; }, // Réduit le padding
+                paddingLeft: function () { return 4; }, // Réduit le padding
+                paddingRight: function () { return 4; } // Réduit le padding
               }
             },
-            
+
             // Résumé
             ...(this.filteredData.length > 0 ? [
               {

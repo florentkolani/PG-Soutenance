@@ -4,7 +4,7 @@ const CountrySchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        set: (value) => value.toUpperCase(), 
+        set: (value) => value.toUpperCase(),
     },
     code: {
         type: String,
@@ -15,7 +15,7 @@ const CountrySchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-},{
+}, {
     timestamps: true,
 }
 );

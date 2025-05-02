@@ -1,12 +1,9 @@
 <template>
   <div>
     <!-- Modal Form -->
-    <div
-      v-if="!showDialog"
-      tabindex="-1"
+    <div v-if="!showDialog" tabindex="-1"
       class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/75 backdrop-blur-sm transition-opacity duration-300"
-      @click.self="closeDropdowns"
-    >
+      @click.self="closeDropdowns">
       <div class="relative w-full max-w-2xl mx-4 transform transition-all duration-300 ease-in-out">
         <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
           <div class="p-2 bg-gradient-to-r">
@@ -14,13 +11,11 @@
               <h3 class="text-2xl font-bold text-black pl-4">
                 {{ isEditing ? 'Modifier' : 'Ajouter' }} un utilisateur
               </h3>
-              <button
-                @click="$emit('close')"
+              <button @click="$emit('close')"
                 class="rounded-full p-2 hover:bg-gray-400 text-black transition-colors duration-200"
-                :disabled="isLoading"
-              >
+                :disabled="isLoading">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
@@ -34,13 +29,9 @@
                 <label for="pays" class="block mb-2 text-sm font-medium text-gray-700">
                   Pays <span class="text-red-500">*</span>
                 </label>
-                <select
-                  v-model="selectedCountryCode"
-                  id="pays"
-                  required
+                <select v-model="selectedCountryCode" id="pays" required
                   class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 transition duration-200"
-                  @change="onCountryChange"
-                >
+                  @change="onCountryChange">
                   <option value="" class="text-gray-400">Sélectionnez un pays</option>
                   <option v-for="country in countries" :key="country.code" :value="country.code" class="text-gray-800">
                     {{ country.name }}
@@ -53,14 +44,9 @@
                 <label for="ville" class="block mb-2 text-sm font-medium text-gray-700">
                   Ville <span class="text-red-500">*</span>
                 </label>
-                <select
-                  v-model="user.ville"
-                  id="ville"
-                  required
+                <select v-model="user.ville" id="ville" required
                   class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 transition duration-200"
-                  :disabled="isLoadingCities || !cities.length"
-                  @change="onCityChange"
-                >
+                  :disabled="isLoadingCities || !cities.length" @change="onCityChange">
                   <option value="" class="text-gray-400">Sélectionnez une ville</option>
                   <option v-for="city in cityObjects" :key="city._id" :value="city.name" class="text-gray-800">
                     {{ city.name }}
@@ -76,65 +62,41 @@
                 <label for="name" class="block mb-2 text-sm font-medium text-gray-700">
                   Nom <span class="text-red-500">*</span>
                 </label>
-                <input
-                  v-model="user.name"
-                  type="text"
-                  id="name"
+                <input v-model="user.name" type="text" id="name"
                   class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 transition duration-200"
-                  placeholder="Entrez votre nom"
-                  required
-                  :disabled="isLoading"
-                />
+                  placeholder="Entrez votre nom" required :disabled="isLoading" />
               </div>
               <div>
                 <label for="email" class="block mb-2 text-sm font-medium text-gray-700">
                   Email <span class="text-red-500">*</span>
                 </label>
-                <input
-                  v-model="user.email"
-                  type="email"
-                  id="email"
+                <input v-model="user.email" type="email" id="email"
                   class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 transition duration-200"
-                  placeholder="Entrez votre email"
-                  required
-                  :disabled="isLoading"
-                />
+                  placeholder="Entrez votre email" required :disabled="isLoading" />
               </div>
-              
+
               <div>
                 <label for="contact" class="block mb-2 text-sm font-medium text-gray-700">
                   Contact <span class="text-red-500">*</span>
                 </label>
                 <div class="flex">
                   <!-- Input pour l'indicatif, en lecture seule -->
-                  <input
-                    type="text"
-                    :value="selectedCountryDialCode"
+                  <input type="text" :value="selectedCountryDialCode"
                     class="bg-gray-100 border border-r-0 border-gray-300 text-gray-700 rounded-l-lg block w-1/4 p-2.5"
-                    disabled
-                  />
+                    disabled />
                   <!-- Input pour le contact -->
-                  <input
-                    v-model="user.contact"
-                    type="text"
-                    id="contact"
+                  <input v-model="user.contact" type="text" id="contact"
                     class="bg-gray-50 border border-gray-300 text-gray-900 rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-3/4 p-2.5 transition duration-200"
-                    placeholder="Entrez votre contact"
-                    required
-                    :disabled="isLoading"
-                  />
+                    placeholder="Entrez votre contact" required :disabled="isLoading" />
                 </div>
               </div>
               <div>
                 <label for="role" class="block mb-2 text-sm font-medium text-gray-700">
                   Role <span class="text-red-500">*</span>
                 </label>
-                <select
-                  v-model="user.role"
-                  id="role"
+                <select v-model="user.role" id="role"
                   class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 transition duration-200"
-                  :disabled="isLoading"
-                >
+                  :disabled="isLoading">
                   <option value="Client" class="text-gray-800">Client</option>
                   <option value="Admin" class="text-gray-800">Admin</option>
                   <option value="AgentSupport" class="text-gray-800">Agent Support</option>
@@ -142,14 +104,14 @@
               </div>
             </div>
             <div class="flex justify-center mt-6">
-              <button
-                type="submit"
+              <button type="submit"
                 class="inline-flex items-center px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg hover:from-green-600 hover:to-green-700 focus:ring-4 focus:ring-green-300 shadow-md transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50"
-                :disabled="isLoading"
-              >
+                :disabled="isLoading">
                 {{ isEditing ? 'Modifier' : 'Ajouter' }} l'utilisateur
-                <svg v-if="isLoading" class="w-4 h-4 ml-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                <svg v-if="isLoading" class="w-4 h-4 ml-2 animate-spin" fill="none" stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               </button>
             </div>
@@ -164,9 +126,12 @@
     </div>
 
     <!-- Dialog -->
-    <div v-if="showDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300">
-      <div class="bg-white rounded-xl shadow-2xl overflow-hidden w-full max-w-md mx-4 transform transition-all duration-300 ease-in-out">
-        <div :class="['p-6', dialogType === 'success' ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-red-500 to-red-600']">
+    <div v-if="showDialog"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300">
+      <div
+        class="bg-white rounded-xl shadow-2xl overflow-hidden w-full max-w-md mx-4 transform transition-all duration-300 ease-in-out">
+        <div
+          :class="['p-6', dialogType === 'success' ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-red-500 to-red-600']">
           <div class="text-6xl mb-4 text-white">
             <i v-if="dialogType === 'success'" class="fas fa-check-circle"></i>
             <i v-else class="fas fa-times-circle"></i>
@@ -174,10 +139,8 @@
           <p class="text-xl font-medium text-white mb-6">{{ dialogMessage }}</p>
         </div>
         <div class="p-4 bg-gray-50 flex justify-center">
-          <button 
-            @click="closeDialog" 
-            class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
+          <button @click="closeDialog"
+            class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
             Fermer
           </button>
         </div>
@@ -248,8 +211,7 @@ export default {
       immediate: true,
       async handler(newValue) {
         if (newValue) {
-          // console.log("Données reçues dans userToEdit:", newValue);
-          
+
           // Attendre que les pays soient chargés si ce n'est pas déjà fait
           if (this.countries.length === 0) {
             try {
@@ -267,37 +229,26 @@ export default {
             }
           }
 
-          // console.log("Liste des pays disponibles:", this.countries);
-          
+
           // Pré-remplir le formulaire avec les données de l'utilisateur
           this.user = { ...newValue };
-          // console.log("Données copiées dans this.user:", this.user);
-          
+
           // Trouver le pays correspondant dans la liste des pays
           const country = this.countries.find(c => c._id === newValue.paysId);
-          // console.log("Pays trouvé:", country);
-          
+
           if (country) {
             this.selectedCountryCode = country.code;
             this.selectedCountryDialCode = country.dialCode;
             this.user.pays = country.name;
-            // console.log("Données pays mises à jour:", {
-            //   selectedCountryCode: this.selectedCountryCode,
-            //   selectedCountryDialCode: this.selectedCountryDialCode,
-            //   userPays: this.user.pays
-            // });
-            
+
             // Charger les villes du pays sélectionné
             await this.loadCities(country._id);
-            // console.log("Villes chargées:", this.cityObjects);
-            
+
             // Sélectionner la ville
             const selectedCity = this.cityObjects.find(city => city._id === newValue.villeId);
-            // console.log("Ville trouvée:", selectedCity);
-            
+
             if (selectedCity) {
               this.user.ville = selectedCity.name;
-              // console.log("Ville sélectionnée:", this.user.ville);
             }
           } else {
             // console.warn("Pays non trouvé pour l'ID:", newValue.paysId);
@@ -404,7 +355,7 @@ export default {
         }
 
         // Vérifier que les IDs sont présents
-if (!this.user.paysId || !this.user.villeId) {
+        if (!this.user.paysId || !this.user.villeId) {
           const country = this.countries.find(c => c.name === this.user.pays);
           if (country) {
             this.user.paysId = country._id;

@@ -39,8 +39,7 @@ const routes = [
   { path: '/sendEmail', name: 'sendEmail', component: sendEmail },
   { path: '/Reporting', name: 'Reporting', component: Reporting },
   { path: '/Tasks', name: 'Tasks', component: Tasks },
-  { path: '/tasks/:id', name: 'TaskDetails', component: TaskDetails, props: true
-  }];
+  { path: '/tasks/:id', name: 'TaskDetails', component: TaskDetails, props: true }];
 
 const router = createRouter({
   history: createWebHistory(),

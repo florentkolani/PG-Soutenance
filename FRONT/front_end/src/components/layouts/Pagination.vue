@@ -1,16 +1,12 @@
 <template>
   <!-- Pagination -->
   <div class="flex justify-end mt-4">
-    <button 
-      @click="previousPage" 
-      :disabled="currentPage === 1" 
+    <button @click="previousPage" :disabled="currentPage === 1"
       class="px-4 py-2 bg-gray-300 text-gray-700 rounded-l hover:bg-gray-400 disabled:bg-gray-200">
       &laquo; <!-- Left double angle quote entity -->
     </button>
     <span class="px-4 py-2 bg-gray-100 text-gray-700">{{ currentPage }} / {{ totalPages }}</span>
-    <button 
-      @click="nextPage" 
-      :disabled="currentPage === totalPages" 
+    <button @click="nextPage" :disabled="currentPage === totalPages"
       class="px-4 py-2 bg-gray-300 text-gray-700 rounded-r hover:bg-gray-400 disabled:bg-gray-200">
       &raquo; <!-- Right double angle quote entity -->
     </button>

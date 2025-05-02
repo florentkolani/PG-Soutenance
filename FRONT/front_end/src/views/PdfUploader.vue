@@ -1,41 +1,34 @@
 <template>
   <div class="p-6 bg-gray-100 min-h-screen">
     <!-- Header intégré -->
-    <Header 
-      title="NOVA LEAD" 
-      :primaryActionText="isAdmin || isAgentSupport ? 'Ajouter un document' : ''" 
-      @primaryAction="openAddModal"
-      @goToDashboard="redirectToDashboard" 
-      class="fixed top-0 left-0 w-full bg-green shadow z-10"
-    />
-  <div class="mx-auto  mt-12 w-full">
-  <div class="flex justify-between items-center">
-    <!-- Barre de navigation (liens à gauche) -->
-    <nav class="bg-white shadow rounded-lg p-3">
-      <ul class="flex space-x-4">
-        <li>
-          <router-link to="/Pdfuploader" class="text-blue-500 hover:underline" replace>Documents</router-link>
-        </li>
-        <li>
-          <router-link to="/videos" class="text-blue-500 hover:underline">Vidéos</router-link>
-        </li>
-      </ul>
-    </nav>
+    <Header title="NOVA LEAD" :primaryActionText="isAdmin || isAgentSupport ? 'Ajouter un document' : ''"
+      @primaryAction="openAddModal" @goToDashboard="redirectToDashboard"
+      class="fixed top-0 left-0 w-full bg-green shadow z-10" />
+    <div class="mx-auto  mt-12 w-full">
+      <div class="flex justify-between items-center">
+        <!-- Barre de navigation (liens à gauche) -->
+        <nav class="bg-white shadow rounded-lg p-3">
+          <ul class="flex space-x-4">
+            <li>
+              <router-link to="/Pdfuploader" class="text-blue-500 hover:underline" replace>Documents</router-link>
+            </li>
+            <li>
+              <router-link to="/videos" class="text-blue-500 hover:underline">Vidéos</router-link>
+            </li>
+          </ul>
+        </nav>
 
-    <!-- Filtre par produit (à droite) -->
-    <div class="w-1/4" >
-      <select
-        v-model="filterProduct"
-        id="filterProduct"
-        class="block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        @change="filterPdfs"
-      >
-        <option value="">Document de tous les produits</option>
-        <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}</option>
-      </select>
+        <!-- Filtre par produit (à droite) -->
+        <div class="w-1/4">
+          <select v-model="filterProduct" id="filterProduct"
+            class="block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            @change="filterPdfs">
+            <option value="">Document de tous les produits</option>
+            <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}</option>
+          </select>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
     <div class="mt-4">
       <h1 class="text-2xl font-bold mb-6">MANUELS ET GUIDES</h1>
       <!-- Liste des PDF publiés -->
@@ -51,7 +44,8 @@
               </span>
               <span v-else>
                 {{ pdf.comment }}
-                <button v-if="pdf.comment.length > 100" @click="toggleComment(index)" class="text-blue-500 hover:underline">Réduire</button>
+                <button v-if="pdf.comment.length > 100" @click="toggleComment(index)"
+                  class="text-blue-500 hover:underline">Réduire</button>
               </span>
             </p>
             <div class="flex justify-between items-center mt-4">
@@ -60,18 +54,12 @@
                 <p class="text-gray-500 text-sm">Mis à jour le: {{ new Date(pdf.updatedAt).toLocaleString() }}</p>
               </div>
               <div>
-                <a
-                  :href="`http://192.168.1.70:5000/api/pdfs/download/${pdf.url.split('/').pop()}`"
-                  download
-                  class="inline-block bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 mr-2"
-                >
+                <a :href="`http://192.168.1.70:5000/api/pdfs/download/${pdf.url.split('/').pop()}`" download
+                  class="inline-block bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 mr-2">
                   Télécharger
                 </a>
-                <button
-                  v-if="isAdmin || isAgentSupport"
-                  @click="editPdf(pdf)"
-                  class="inline-block bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600"
-                >
+                <button v-if="isAdmin || isAgentSupport" @click="editPdf(pdf)"
+                  class="inline-block bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600">
                   Modifier
                 </button>
               </div>
@@ -83,14 +71,8 @@
     </div>
 
     <!-- Ajout du modal -->
-    <PdfModal
-      v-model="showPdfModal"
-      :editing-pdf="editingPdf"
-      :products="products"
-      :typeDeDemandes="typeDeDemandes"
-      @pdf-created="onPdfCreated"
-      @pdf-updated="onPdfUpdated"
-    />
+    <PdfModal v-model="showPdfModal" :editing-pdf="editingPdf" :products="products" :typeDeDemandes="typeDeDemandes"
+      @pdf-created="onPdfCreated" @pdf-updated="onPdfUpdated" />
   </div>
 </template>
 
@@ -101,7 +83,7 @@ import axios from "axios";
 import { API_URL } from '@/services/config';
 
 export default {
-  components: { 
+  components: {
     Header,
     PdfModal
   },
@@ -137,7 +119,7 @@ export default {
   },
   methods: {
     decodeToken() {
-      const token = localStorage.getItem("token"); 
+      const token = localStorage.getItem("token");
       if (token) {
         try {
           const payload = JSON.parse(atob(token.split(".")[1]));
@@ -180,36 +162,36 @@ export default {
       }
     },
     async updatePdf() {
-  if (!this.comment || !this.title || !this.selectedTypeDeDemande || !this.selectedProduct) return;
+      if (!this.comment || !this.title || !this.selectedTypeDeDemande || !this.selectedProduct) return;
 
-  const formData = new FormData();
-  if (this.pdfFile) {
-    formData.append("pdf", this.pdfFile);
-  }
-  formData.append("comment", this.comment);
-  formData.append("title", this.title);
-  formData.append("typededemande", this.selectedTypeDeDemande);
-  formData.append("produit", this.selectedProduct);
+      const formData = new FormData();
+      if (this.pdfFile) {
+        formData.append("pdf", this.pdfFile);
+      }
+      formData.append("comment", this.comment);
+      formData.append("title", this.title);
+      formData.append("typededemande", this.selectedTypeDeDemande);
+      formData.append("produit", this.selectedProduct);
 
-  try {
-    const response = await axios.put(`${API_URL}/pdfs/${this.editingPdfId}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+      try {
+        const response = await axios.put(`${API_URL}/pdfs/${this.editingPdfId}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
 
-    // Trouver l'index du PDF mis à jour
-    const index = this.pdfList.findIndex(pdf => pdf._id === this.editingPdfId);
-    if (index !== -1) {
-      // Mettre à jour directement l'élément dans la liste
-      this.pdfList[index] = { ...response.data, expanded: false };
+        // Trouver l'index du PDF mis à jour
+        const index = this.pdfList.findIndex(pdf => pdf._id === this.editingPdfId);
+        if (index !== -1) {
+          // Mettre à jour directement l'élément dans la liste
+          this.pdfList[index] = { ...response.data, expanded: false };
+        }
+        this.resetForm();
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour :", error);
+      }
     }
-    this.resetForm();
-  } catch (error) {
-    console.error("Erreur lors de la mise à jour :", error);
-  }
-}
-,
+    ,
     async fetchPdfList() {
       try {
         const response = await axios.get(`${API_URL}/pdfs`);
@@ -323,6 +305,7 @@ export default {
 body {
   font-family: Arial, sans-serif;
 }
+
 button[type="button"] {
   padding: 0;
   background: none;

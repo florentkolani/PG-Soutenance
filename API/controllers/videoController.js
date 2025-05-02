@@ -11,7 +11,7 @@ exports.uploadVideo = async (req, res) => {
     console.log("Fichier reçu:", req.file);
 
     const { title, comment, typededemande, produit } = req.body;
-    
+
     if (!req.file) {
       return res.status(400).json({ message: "Aucun fichier vidéo n'a été fourni" });
     }
@@ -34,15 +34,15 @@ exports.uploadVideo = async (req, res) => {
     res.status(201).json(video);
   } catch (error) {
     console.error("Erreur lors de l'upload de la vidéo:", error);
-    
+
     // Supprimer le fichier en cas d'erreur
     if (req.file && req.file.path) {
       fs.unlinkSync(req.file.path);
     }
-    
-    res.status(500).json({ 
-      message: 'Erreur lors de la publication de la vidéo', 
-      error: error.message 
+
+    res.status(500).json({
+      message: 'Erreur lors de la publication de la vidéo',
+      error: error.message
     });
   }
 };
@@ -104,7 +104,7 @@ exports.updateVideo = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, comment, typededemande, produit } = req.body;
-    
+
     const video = await Video.findById(id);
     if (!video) {
       return res.status(404).json({ message: "Vidéo non trouvée" });
@@ -120,7 +120,7 @@ exports.updateVideo = async (req, res) => {
     if (req.file) {
       // Récupérer le chemin complet de l'ancien fichier
       const oldVideoPath = path.join(__dirname, '..', video.url.replace('/uploads/videos/', '/uploads/videos/'));
-      
+
       // Supprimer l'ancien fichier s'il existe
       try {
         if (fs.existsSync(oldVideoPath)) {
@@ -151,9 +151,9 @@ exports.updateVideo = async (req, res) => {
         console.error('Erreur lors de la suppression du fichier temporaire:', err);
       }
     }
-    res.status(500).json({ 
-      message: 'Erreur lors de la mise à jour de la vidéo', 
-      error: error.message 
+    res.status(500).json({
+      message: 'Erreur lors de la mise à jour de la vidéo',
+      error: error.message
     });
   }
 };

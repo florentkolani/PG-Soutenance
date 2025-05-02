@@ -6,7 +6,7 @@ const emailSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    senderName: { 
+    senderName: {
       type: String,
       required: true,
     },

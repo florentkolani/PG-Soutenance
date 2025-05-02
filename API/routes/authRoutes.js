@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { login, register, changePassword, resetPassword, resetPasswordRequest} = require('../controllers/authController');
+const { login, register, changePassword, resetPassword, resetPasswordRequest } = require('../controllers/authController');
 
 // Route pour la connexion
 router.post('/login', login);
@@ -8,7 +8,7 @@ router.post('/login', login);
 //Route pour l'enregistrement
 router.post('/register', register);
 
-router.post('/resetPasswordRequest',resetPasswordRequest);
+router.post('/resetPasswordRequest', resetPasswordRequest);
 router.post('/resetPassword', resetPassword);
 
 //Route pour changement de mot de passe

@@ -6,12 +6,10 @@
           <h3 class="text-2xl font-bold text-black pl-4">
             {{ isEditing ? 'Modifier' : 'Ajouter' }} un produit
           </h3>
-          <button
-            @click="$emit('close')"
-            class="rounded-lg p-2 hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-colors"
-          >
+          <button @click="$emit('close')"
+            class="rounded-lg p-2 hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
@@ -22,34 +20,26 @@
               <label class="block text-sm font-semibold text-gray-700 mb-2">
                 Nom du produit <span class="text-red-500">*</span>
               </label>
-              <input 
-                v-model="product.name" 
-                type="text" 
+              <input v-model="product.name" type="text"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
-                placeholder="Entrez le nom du produit"
-                required
-              />
+                placeholder="Entrez le nom du produit" required />
             </div>
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">
                 Description du produit
               </label>
-              <textarea 
-                v-model="product.description" 
+              <textarea v-model="product.description"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors resize-none"
-                rows="4"
-                placeholder="Entrez une description"
-              ></textarea>
+                rows="4" placeholder="Entrez une description"></textarea>
             </div>
           </div>
 
           <div class="flex justify-center pt-4">
-            <button 
-              type="submit" 
+            <button type="submit"
               class="w-full sm:w-auto px-8 py-3 bg-green-500 text-white font-medium rounded-lg hover:bg-green-600 focus:ring-4 focus:ring-green-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-              :disabled="isLoading"
-            >
-              <span v-if="isLoading" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              :disabled="isLoading">
+              <span v-if="isLoading"
+                class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
               <span>{{ isEditing ? 'Modifier' : 'Ajouter' }} le produit</span>
             </button>
           </div>
@@ -152,7 +142,12 @@ export default {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>
