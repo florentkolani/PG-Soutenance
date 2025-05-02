@@ -2,7 +2,7 @@ const Message = require('../models/messageModel');
 const Ticket = require('../models/ticketModel');
 const type = require('../models/typeDeDemandeModel');
 const mongoose = require("mongoose");
-const { sendEmail } = require('../services/emailService'); 
+const { sendEmail } = require('../services/emailService');
 const User = require('../models/userModel');
 
 exports.sendMessage = async (req, res) => {
@@ -46,7 +46,7 @@ exports.sendMessage = async (req, res) => {
         const clientEmail = ticket.userId.email; // Email du client depuis le modèle User
         const supportEmails = [
             process.env.EMAIL_NOVA_LEAD
-          
+
         ]; // Emails des agents/admin depuis les variables d'environnement
 
         const recipients = isClient ? supportEmails : [clientEmail];
@@ -55,12 +55,12 @@ exports.sendMessage = async (req, res) => {
         const senderName = req.user.name;
 
         const subject = isClient
-        ? `Nouveau message de #${senderName} concernant le ticket #${ticket.NumeroTicket} (${typeDeDemande.name})`
-        : `Nouvelle réponse de  #${senderName} concernant votre ticket #${ticket.NumeroTicket} (${typeDeDemande.name})`;
+            ? `Nouveau message de #${senderName} concernant le ticket #${ticket.NumeroTicket} (${typeDeDemande.name})`
+            : `Nouvelle réponse de  #${senderName} concernant votre ticket #${ticket.NumeroTicket} (${typeDeDemande.name})`;
 
-        
-    
-    const htmlContent = `
+
+
+        const htmlContent = `
         <html>
             <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
                 <h3 style="color: #007BFF;">Mise à jour de votre demande d'assistance <strong>#${ticket.NumeroTicket} (${typeDeDemande.name})</strong></h3>
@@ -97,7 +97,7 @@ exports.sendMessage = async (req, res) => {
             </body>
         </html>
     `;
-    
+
 
         // Envoyer l'e-mail via la fonction sendEmail
         await sendEmail(recipients, subject, htmlContent);
@@ -107,9 +107,9 @@ exports.sendMessage = async (req, res) => {
         res.status(201).json(populatedMessage);
     } catch (error) {
         console.error("Erreur lors de l'envoi du message :", error);
-        res.status(500).json({ 
-            message: "Erreur lors de l'envoi du message", 
-            error: error.message 
+        res.status(500).json({
+            message: "Erreur lors de l'envoi du message",
+            error: error.message
         });
     }
 };

@@ -1,8 +1,8 @@
 const nodemailer = require('nodemailer');
-const user = require ('../models/userModel')
+const user = require('../models/userModel')
 
 const transporter = nodemailer.createTransport({
-    service: 'Gmail', 
+    service: 'Gmail',
     auth: {
         user: process.env.EMAIL_NOVA_LEAD,
         pass: process.env.EMAIL_PASS
@@ -11,10 +11,10 @@ const transporter = nodemailer.createTransport({
 
 exports.sendEmail = async (to, subject, html) => {
     const mailOptions = {
-        from: process.env.EMAIL_NOVA_LEAD, 
-        to,                          
-        subject,                      
-        html                          
+        from: process.env.EMAIL_NOVA_LEAD,
+        to,
+        subject,
+        html
     };
 
     try {

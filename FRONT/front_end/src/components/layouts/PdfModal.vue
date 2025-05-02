@@ -6,16 +6,13 @@
           <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
         </div>
 
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-4 sm:align-middle sm:max-w-lg sm:w-full">
+        <div
+          class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-4 sm:align-middle sm:max-w-lg sm:w-full">
           <div class="bg-gray-100 px-3 py-2 flex justify-between items-center">
             <h3 class="text-2xl font-bold text-black pl-4">
               {{ modalTitle }}
             </h3>
-            <button
-              type="button"
-              class="text-gray-400 hover:text-gray-500 focus:outline-none"
-              @click="closeModal"
-            >
+            <button type="button" class="text-gray-400 hover:text-gray-500 focus:outline-none" @click="closeModal">
               <span class="sr-only">Fermer</span>
               <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -30,25 +27,16 @@
                   <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
                     Titre <span class="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    id="title"
-                    v-model="form.title"
-                    class="block w-full border border-gray-300 rounded-lg p-2"
-                    placeholder="Titre du document"
-                  />
+                  <input type="text" id="title" v-model="form.title"
+                    class="block w-full border border-gray-300 rounded-lg p-2" placeholder="Titre du document" />
                 </div>
 
                 <div class="mb-4">
                   <label for="typeDeDemande" class="block text-sm font-medium text-gray-700 mb-2">
                     Type de Demande <span class="text-red-500">*</span>
                   </label>
-                  <select
-                    v-model="form.typededemande"
-                    id="typeDeDemande"
-                    required
-                    class="block w-full border border-gray-300 rounded-lg p-2"
-                  >
+                  <select v-model="form.typededemande" id="typeDeDemande" required
+                    class="block w-full border border-gray-300 rounded-lg p-2">
                     <option value="">Sélectionner un type de demande</option>
                     <option v-for="type in typeDeDemandes" :key="type._id" :value="type._id">{{ type.name }}</option>
                   </select>
@@ -58,14 +46,11 @@
                   <label for="product" class="block text-sm font-medium text-gray-700 mb-2">
                     Produit <span class="text-red-500">*</span>
                   </label>
-                  <select
-                    v-model="form.produit"
-                    id="product"
-                    required
-                    class="block w-full border border-gray-300 rounded-lg p-2"
-                  >
+                  <select v-model="form.produit" id="product" required
+                    class="block w-full border border-gray-300 rounded-lg p-2">
                     <option value="">Sélectionner un produit</option>
-                    <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}</option>
+                    <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}
+                    </option>
                   </select>
                 </div>
 
@@ -75,30 +60,16 @@
                   </label>
                   <div
                     class="relative border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-500 cursor-pointer transition-colors duration-200"
-                    @click="$refs.fileInput.click()"
-                  >
-                    <input
-                      type="file"
-                      id="pdfFile"
-                      ref="fileInput"
+                    @click="$refs.fileInput.click()">
+                    <input type="file" id="pdfFile" ref="fileInput"
                       accept="application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                      @change="onFileChange"
-                      class="hidden"
-                    />
+                      @change="onFileChange" class="hidden" />
                     <template v-if="!form.pdfFile">
                       <div class="space-y-1 text-center">
-                        <svg
-                          class="mx-auto h-8 w-8 text-gray-400"
-                          stroke="currentColor"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                          />
+                        <svg class="mx-auto h-8 w-8 text-gray-400" stroke="currentColor" fill="none"
+                          viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                         </svg>
                         <div class="text-sm text-gray-600">
                           <span class="font-medium text-blue-500 hover:text-blue-600">
@@ -113,11 +84,8 @@
                     <template v-else>
                       <div class="flex items-center justify-between bg-gray-100 p-2 rounded-lg">
                         <p class="text-sm text-gray-700 truncate">{{ form.pdfFile.name }}</p>
-                        <button 
-                          type="button" 
-                          @click.stop="removeFile" 
-                          class="text-red-500 hover:text-red-700 focus:outline-none"
-                        >
+                        <button type="button" @click.stop="removeFile"
+                          class="text-red-500 hover:text-red-700 focus:outline-none">
                           ✖
                         </button>
                       </div>
@@ -126,21 +94,17 @@
                 </div>
 
                 <div class="mb-4">
-                  <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Ajouter Commentaire :</label>
-                  <textarea
-                    id="comment"
-                    v-model="form.comment"
+                  <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Ajouter Commentaire
+                    :</label>
+                  <textarea id="comment" v-model="form.comment"
                     class="block w-full border border-gray-300 rounded-lg p-2"
-                    placeholder="Ajoutez un commentaire au fichier PDF"
-                  ></textarea>
+                    placeholder="Ajoutez un commentaire au fichier PDF"></textarea>
                 </div>
 
                 <div class="mt-3 sm:mt-4 flex justify-end space-x-2">
-                  <button
-                    type="submit"
+                  <button type="submit"
                     class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:bg-gray-300"
-                    :disabled="!isFormValid"
-                  >
+                    :disabled="!isFormValid">
                     {{ editingPdf ? 'Mettre à jour' : 'Publier' }}
                   </button>
                 </div>
@@ -150,13 +114,8 @@
         </div>
       </div>
     </div>
-    <DialogModal
-      :show="showDialog"
-      :type="dialogType"
-      :title="dialogTitle"
-      :message="dialogMessage"
-      @close="closeDialog"
-    />
+    <DialogModal :show="showDialog" :type="dialogType" :title="dialogTitle" :message="dialogMessage"
+      @close="closeDialog" />
   </div>
 </template>
 
@@ -197,8 +156,8 @@ export default {
       return this.editingPdf ? 'Modifier le document' : 'Ajouter un document';
     },
     isFormValid() {
-      return this.form.title && this.form.produit && this.form.typededemande && 
-             this.form.comment && (this.editingPdf || this.form.pdfFile);
+      return this.form.title && this.form.produit && this.form.typededemande &&
+        this.form.comment && (this.editingPdf || this.form.pdfFile);
     }
   },
   watch: {

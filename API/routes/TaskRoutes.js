@@ -23,7 +23,7 @@ router.put('/:id/close', protect, TasksController.closeTask);
 router.get('/stats', protect, TasksController.getTaskStats);
 
 // Route pour ajouter un message à une tâche
-router.post('/:id/messages', protect, TasksController.addMessage);
+router.post('/:id/messages', protect, documentUpload.single('file'), TasksController.addMessage);
 
 // Route pour obtenir les messages d'une tâche
 router.get('/:id/messages', protect, TasksController.getMessages);

@@ -30,7 +30,7 @@ exports.login = async (req, res) => {
 
         // Redirection selon le rôle de l'utilisateur
         if (user.role === 'Admin') {
-            return res.json({ message: 'Bienvenue Admin', token, mustChangePassword});
+            return res.json({ message: 'Bienvenue Admin', token, mustChangePassword });
         } else if (user.role === 'Client') {
             return res.json({ message: 'Bienvenue Client', token, mustChangePassword });
         } else if (user.role === 'AgentSupport') {
@@ -86,17 +86,17 @@ function generateRandomPassword(length = 8) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let password = '';
     for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * characters.length);
-      password += characters.charAt(randomIndex);
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        password += characters.charAt(randomIndex);
     }
     return password;
-  }
-  
+}
+
 
 // Enregistrement d'un nouvel utilisateur
 exports.register = async (req, res) => {
     const { name, email, contact, role, pays, ville, paysId, villeId } = req.body;
-    
+
     try {
         // Validation des ObjectIds
         if (!mongoose.Types.ObjectId.isValid(paysId)) {
@@ -130,10 +130,10 @@ exports.register = async (req, res) => {
 
         // Générer un mot de passe aléatoire
         const randomPassword = generateRandomPassword(8);
-        
+
         // Créer un nouvel utilisateur
         const user = new User({
-            name, 
+            name,
             email,
             pays,
             ville,
@@ -188,20 +188,20 @@ exports.register = async (req, res) => {
         // Envoyer un email de bienvenue
         await sendEmail(user.email, emailSubject, emailContent);
 
-        console.log('Utilisateur enregistré:', user); 
+        console.log('Utilisateur enregistré:', user);
 
         res.status(201).json({ message: 'Utilisateur enregistré avec succès' });
     } catch (error) {
         console.error('Erreur lors de l\'enregistrement de l\'utilisateur:', error);
         if (error.name === 'CastError') {
-            return res.status(400).json({ 
-                message: 'Données invalides', 
-                error: 'Un ou plusieurs identifiants sont invalides' 
+            return res.status(400).json({
+                message: 'Données invalides',
+                error: 'Un ou plusieurs identifiants sont invalides'
             });
         }
-        res.status(500).json({ 
-            message: 'Erreur de serveur', 
-            error: error.message 
+        res.status(500).json({
+            message: 'Erreur de serveur',
+            error: error.message
         });
     }
 };
@@ -307,4 +307,3 @@ exports.resetPassword = async (req, res) => {
         res.status(500).json({ message: 'Erreur de serveur' });
     }
 };
- 

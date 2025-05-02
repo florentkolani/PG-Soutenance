@@ -17,11 +17,8 @@
       </div>
 
       <!-- Section des messages -->
-      <div 
-        v-if="messages.length" 
-        class="bg-green-50 p-4 rounded shadow mb-6 overflow-y-auto"
-        style="max-height: calc(100vh - 250px);" 
-      >
+      <div v-if="messages.length" class="bg-green-50 p-4 rounded shadow mb-6 overflow-y-auto"
+        style="max-height: calc(100vh - 250px);">
         <h2 class="text-lg font-semibold mb-4">Messages</h2>
 
         <!-- Liste des messages -->
@@ -32,12 +29,10 @@
           </div>
 
           <!-- Contenu du message -->
-          <div 
-            :class="[ 
-              'mb-2 p-4 rounded max-w-xl break-words', 
-              message.senderId?._id === currentUserId ? 'bg-blue-100 ml-auto' : 'bg-green-100 mr-auto'
-            ]"
-          >
+          <div :class="[
+            'mb-2 p-4 rounded max-w-xl break-words',
+            message.senderId?._id === currentUserId ? 'bg-blue-100 ml-auto' : 'bg-green-100 mr-auto'
+          ]">
             <!-- Nom de l'expéditeur -->
             <p><strong>{{ message.senderName || 'Inconnu' }}</strong></p>
             <!-- Contenu du message -->
@@ -45,28 +40,26 @@
 
             <!-- Lien de téléchargement du fichier joint -->
             <div v-if="message.file" class="mt-2">
-              <a 
-                :href="`/uploads/documents/${message.file}`" 
-                :download="message.file"
+              <a :href="`/uploads/documents/${message.file}`" :download="message.file"
                 class="text-blue-500 hover:underline flex items-center"
-                @click.prevent="downloadMessageFile(message.file)"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                @click.prevent="downloadMessageFile(message.file)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                Télécharger le fichier
+                {{ message.isDescription ? 'Fichier joins à la création' : 'Télécharger le fichier' }}
               </a>
             </div>
 
             <!-- Bouton Répondre -->
             <div class="flex items-center justify-end">
-              <button 
-                v-if="message.senderId?._id !== currentUserId" 
-                @click="toggleReply(message._id)" 
-                class="text-white text-sm mt-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 transition duration-200 flex items-center space-x-2"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+              <button v-if="message.senderId?._id !== currentUserId" @click="toggleReply(message._id)"
+                class="text-white text-sm mt-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 transition duration-200 flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                 </svg>
                 <span>Répondre</span>
               </button>
@@ -83,15 +76,14 @@
       </div>
 
       <!-- Formulaire d'envoi de message -->
-      <div v-if="replyingToMessageId" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div v-if="replyingToMessageId"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-2xl mx-4">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold">Répondre au message</h3>
-            <button 
-              @click="replyingToMessageId = null" 
-              class="text-gray-500 hover:text-gray-700"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <button @click="replyingToMessageId = null" class="text-gray-500 hover:text-gray-700">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -99,42 +91,27 @@
 
           <form @submit.prevent="sendMessage" class="space-y-4">
             <!-- Zone de texte pour le message -->
-            <textarea
-              v-model="newMessage"
-              placeholder="Envoyez un Message"
+            <textarea v-model="newMessage" placeholder="Envoyez un Message"
               class="w-full p-3 rounded-xl bg-white text-black placeholder-gray-400 border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:outline-none resize-none transition duration-200"
-              rows="4"
-              ref="textarea"
-              @input="adjustTextareaHeight"
-            ></textarea>
+              rows="4" ref="textarea" @input="adjustTextareaHeight"></textarea>
 
             <div class="flex justify-between items-center">
               <!-- Bouton pour joindre un fichier -->
               <div class="flex items-center space-x-2">
-                <input
-                  type="file"
-                  ref="fileInput"
-                  @change="handleFileChange"
-                  accept="image/*,.pdf,.doc,.docx"
-                  class="hidden"
-                />
-                <button
-                  type="button"
-                  @click="$refs.fileInput.click()"
-                  class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition duration-200 flex items-center text-gray-700"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*,.pdf,.doc,.docx"
+                  class="hidden" />
+                <button type="button" @click="$refs.fileInput.click()"
+                  class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition duration-200 flex items-center text-gray-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                   </svg>
                   Joindre un fichier
                 </button>
                 <span v-if="selectedFile" class="text-sm text-gray-600">
                   {{ selectedFile.name }}
-                  <button
-                    type="button"
-                    @click="removeFile"
-                    class="ml-2 text-red-500 hover:text-red-700"
-                  >
+                  <button type="button" @click="removeFile" class="ml-2 text-red-500 hover:text-red-700">
                     ×
                   </button>
                 </span>
@@ -142,24 +119,22 @@
 
               <div class="flex space-x-3">
                 <!-- Bouton Annuler -->
-                <button
-                  type="button"
-                  @click="replyingToMessageId = null"
-                  class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition duration-200 text-gray-700"
-                >
+                <button type="button" @click="replyingToMessageId = null"
+                  class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition duration-200 text-gray-700">
                   Annuler
                 </button>
-                
+
                 <!-- Bouton Envoyer -->
-                <button
-                  type="submit"
+                <button type="submit"
                   class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition duration-200 flex items-center justify-center min-w-[100px] disabled:opacity-50 disabled:cursor-not-allowed"
-                  :disabled="isSending || (!newMessage && !selectedFile)"
-                >
+                  :disabled="isSending || (!newMessage && !selectedFile)">
                   <template v-if="isSending">
-                    <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none"
+                      viewBox="0 0 24 24">
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                      </path>
                     </svg>
                     Envoi...
                   </template>
@@ -239,8 +214,8 @@ export default {
       const formattedDate = isToday
         ? "Aujourd'hui"
         : isYesterday
-        ? "Hier"
-        : messageDate.toLocaleDateString('fr-FR', {
+          ? "Hier"
+          : messageDate.toLocaleDateString('fr-FR', {
             weekday: 'long',
             day: 'numeric',
             month: 'long',
@@ -261,30 +236,31 @@ export default {
       axios.get(`${API_URL}/tasks/${this.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then(response => {
-        this.task = response.data;
-        
-        // Ajouter la description comme premier message si elle existe
-        if (this.task.description) {
-          const message = {
-            _id: `desc-${this.id}`,
-            content: this.task.description,
-            isDescription: true,
-            createdAt: this.task.createdAt,
-            senderId: {
-              _id: this.task.userId._id,
-              name: this.task.userId.name || 'Inconnu'
-            },
-            senderName: this.task.userId.name || 'Inconnu'
-          };
-          this.messages.unshift(message);
-        }
+        .then(response => {
+          this.task = response.data;
 
-        this.fetchMessages();
-      })
-      .catch(error => {
-        console.error("Erreur lors de la récupération de la tâche :", error);
-      });
+          // Ajouter la description comme premier message si elle existe
+          if (this.task.description) {
+            const message = {
+              _id: `desc-${this.id}`,
+              content: this.task.description,
+              isDescription: true,
+              createdAt: this.task.createdAt,
+              senderId: {
+                _id: this.task.userId._id,
+                name: this.task.userId.name || 'Inconnu'
+              },
+              senderName: this.task.userId.name || 'Inconnu',
+              file: this.task.files && this.task.files.length > 0 ? this.task.files[0] : null
+            };
+            this.messages.unshift(message);
+          }
+
+          this.fetchMessages();
+        })
+        .catch(error => {
+          console.error("Erreur lors de la récupération de la tâche :", error);
+        });
     },
 
     // Récupérer les messages de la tâche
@@ -293,29 +269,38 @@ export default {
       axios.get(`${API_URL}/tasks/${this.id}/messages`, {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then(response => {
-        // Formater les messages reçus
-        const formattedMessages = response.data.map(message => ({
-          _id: message._id,
-          content: message.content,
-          createdAt: message.createdAt,
-          senderId: {
-            _id: message.senderId,
-            name: message.senderName || 'Inconnu'
-          },
-          senderName: message.senderName || 'Inconnu'
-        }));
-        
-        // Ajouter les messages après la description
-        if (this.messages.length > 0) {
-          this.messages = [...this.messages, ...formattedMessages];
-        } else {
-          this.messages = formattedMessages;
-        }
-      })
-      .catch(error => {
-        console.error("Erreur lors de la récupération des messages :", error);
-      });
+        .then(response => {
+          // Formater les messages de manière défensive
+          const formattedMessages = response.data
+            .filter(message => message)
+            .map(message => {
+              // Gestion flexible de senderId
+              const senderId = message.senderId && typeof message.senderId === 'object'
+                ? message.senderId._id
+                : (message.senderId || 'unknown');
+
+              return {
+                _id: message._id || `temp-${Date.now()}-${Math.random()}`,
+                content: message.content || '',
+                createdAt: message.createdAt || new Date(),
+                senderId: typeof message.senderId === 'object'
+                  ? message.senderId // Utiliser directement si c'est déjà un objet formaté
+                  : { _id: senderId, name: message.senderName || 'Inconnu' },
+                senderName: message.senderName || 'Inconnu',
+                file: message.file || ''
+              };
+            });
+
+          // Ajouter les messages
+          if (this.messages && this.messages.length > 0) {
+            this.messages = [...this.messages, ...formattedMessages];
+          } else {
+            this.messages = formattedMessages;
+          }
+        })
+        .catch(error => {
+          console.error("Erreur lors de la récupération des messages :", error);
+        });
     },
 
     // Gérer le changement de fichier
@@ -339,28 +324,13 @@ export default {
       const token = localStorage.getItem('token');
       const payload = JSON.parse(atob(token.split('.')[1]));
 
-      // Préparer les données du message
-      const messageData = {
-        content: this.newMessage.trim(),
-        senderId: payload.id
-      };
-
-      // Gérer l'envoi avec ou sans fichier
-      let dataToSend;
-      let headers = {
-        Authorization: `Bearer ${token}`
-      };
+      // Créer un FormData pour gérer le fichier
+      const formData = new FormData();
+      formData.append('content', this.newMessage.trim());
+      formData.append('senderId', payload.id);
 
       if (this.selectedFile) {
-        const formData = new FormData();
-        formData.append('content', this.newMessage.trim());
-        formData.append('senderId', payload.id);
         formData.append('file', this.selectedFile);
-        dataToSend = formData;
-        headers['Content-Type'] = 'multipart/form-data';
-      } else {
-        dataToSend = messageData;
-        headers['Content-Type'] = 'application/json';
       }
 
       this.isSending = true;
@@ -368,8 +338,13 @@ export default {
       try {
         const response = await axios.post(
           `${API_URL}/tasks/${this.id}/messages`,
-          dataToSend,
-          { headers }
+          formData,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data'
+            }
+          }
         );
 
         // Ajouter le nouveau message à la liste
@@ -381,7 +356,8 @@ export default {
             _id: response.data.senderId,
             name: response.data.senderName || 'Inconnu'
           },
-          senderName: response.data.senderName || 'Inconnu'
+          senderName: response.data.senderName || 'Inconnu',
+          file: response.data.file
         };
 
         this.messages.push(newMessage);

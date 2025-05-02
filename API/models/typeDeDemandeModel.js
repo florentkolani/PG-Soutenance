@@ -8,9 +8,9 @@ const typeDeDemandeSchema = new mongoose.Schema({
         default: false,
     },
 },
-{
-    timestamps: true,
-});
+    {
+        timestamps: true,
+    });
 
 const TypeDeDemande = mongoose.model('TypeDeDemande', typeDeDemandeSchema);
 

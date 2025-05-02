@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const capitalizeFirstLetter = (value) => {
     if (typeof value !== 'string') return value;
     return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-  };
+};
 
 const CitySchema = new mongoose.Schema({
     name: {
@@ -21,8 +21,8 @@ const CitySchema = new mongoose.Schema({
         default: false,
     },
 },
-{
-    timestamps: true,
-});
+    {
+        timestamps: true,
+    });
 
 module.exports = mongoose.model('City', CitySchema);

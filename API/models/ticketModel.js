@@ -4,7 +4,7 @@ const ticketSchema = new mongoose.Schema({
     messageId: { type: mongoose.Schema.Types.ObjectId, ref: 'Message' },
     ratingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Rating' },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },  
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     typeDeDemandeId: { type: mongoose.Schema.Types.ObjectId, ref: 'TypeDeDemande' },
     urgence: { type: String, required: true },
     statut: { type: String, required: true, default: 'en attente' },

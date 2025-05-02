@@ -5,16 +5,13 @@
         <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
       </div>
 
-      <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-4 sm:align-middle sm:max-w-lg sm:w-full">
+      <div
+        class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-4 sm:align-middle sm:max-w-lg sm:w-full">
         <div class="bg-gray-100 px-3 py-2 flex justify-between items-center">
           <h3 class="text-2xl font-bold text-black pl-4">
             {{ isEditing ? 'Modifier la vidéo' : 'Ajouter une vidéo' }}
           </h3>
-          <button
-            type="button"
-            class="text-gray-400 hover:text-gray-500 focus:outline-none"
-            @click="closeModal"
-          >
+          <button type="button" class="text-gray-400 hover:text-gray-500 focus:outline-none" @click="closeModal">
             <span class="sr-only">Fermer</span>
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -29,13 +26,8 @@
                 <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
                   Titre <span class="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  id="title"
-                  v-model="title"
-                  class="block w-full border border-gray-300 rounded-lg p-2"
-                  placeholder="Titre de la vidéo"
-                />
+                <input type="text" id="title" v-model="title" class="block w-full border border-gray-300 rounded-lg p-2"
+                  placeholder="Titre de la vidéo" />
               </div>
 
               <!-- Type de Demande Select -->
@@ -43,12 +35,8 @@
                 <label for="typeDeDemande" class="block text-sm font-medium text-gray-700 mb-1">
                   Type de Demande <span class="text-red-500">*</span>
                 </label>
-                <select
-                  v-model="selectedTypeDeDemande"
-                  id="typeDeDemande"
-                  required
-                  class="block w-full border border-gray-300 rounded-lg p-2"
-                >
+                <select v-model="selectedTypeDeDemande" id="typeDeDemande" required
+                  class="block w-full border border-gray-300 rounded-lg p-2">
                   <option value="">Sélectionner un type de demande</option>
                   <option v-for="type in typeDeDemandes" :key="type._id" :value="type._id">{{ type.name }}</option>
                 </select>
@@ -59,14 +47,11 @@
                 <label for="product" class="block text-sm font-medium text-gray-700 mb-1">
                   Produit <span class="text-red-500">*</span>
                 </label>
-                <select
-                  v-model="selectedProduct"
-                  id="product"
-                  required
-                  class="block w-full border border-gray-300 rounded-lg p-2"
-                >
+                <select v-model="selectedProduct" id="product" required
+                  class="block w-full border border-gray-300 rounded-lg p-2">
                   <option value="">Sélectionner un produit</option>
-                  <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}</option>
+                  <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}
+                  </option>
                 </select>
               </div>
 
@@ -77,30 +62,14 @@
                 </label>
                 <div
                   class="relative border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-500 cursor-pointer transition-colors duration-200"
-                  @click="$refs.fileInput.click()"
-                >
-                  <input
-                    type="file"
-                    id="videoFile"
-                    ref="fileInput"
-                    accept=".mp4,.avi,.mov,.wmv,.flv,.mkv"
-                    @change="onFileChange"
-                    class="hidden"
-                  />
+                  @click="$refs.fileInput.click()">
+                  <input type="file" id="videoFile" ref="fileInput" accept=".mp4,.avi,.mov,.wmv,.flv,.mkv"
+                    @change="onFileChange" class="hidden" />
                   <template v-if="!videoFile">
                     <div class="space-y-1 text-center">
-                      <svg
-                        class="mx-auto h-8 w-8 text-gray-400"
-                        stroke="currentColor"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                        />
+                      <svg class="mx-auto h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                       </svg>
                       <div class="text-sm text-gray-600">
                         <span class="font-medium text-blue-500 hover:text-blue-600">
@@ -115,11 +84,8 @@
                   <template v-else>
                     <div class="flex items-center justify-between bg-gray-100 p-2 rounded-lg">
                       <p class="text-sm text-gray-700 truncate">{{ videoFile.name }}</p>
-                      <button 
-                        type="button" 
-                        @click.stop="removeFile" 
-                        class="text-red-500 hover:text-red-700 focus:outline-none"
-                      >
+                      <button type="button" @click.stop="removeFile"
+                        class="text-red-500 hover:text-red-700 focus:outline-none">
                         ✖
                       </button>
                     </div>
@@ -130,27 +96,18 @@
               <!-- Zone de commentaire -->
               <div class="mb-2">
                 <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">Ajouter Commentaire :</label>
-                <textarea
-                  id="comment"
-                  v-model="comment"
-                  class="block w-full border border-gray-300 rounded-lg p-2"
-                  placeholder="Ajoutez un commentaire à la vidéo"
-                ></textarea>
+                <textarea id="comment" v-model="comment" class="block w-full border border-gray-300 rounded-lg p-2"
+                  placeholder="Ajoutez un commentaire à la vidéo"></textarea>
               </div>
 
               <div class="mt-3 sm:mt-4 flex justify-end space-x-2">
-                <button
-                  type="button"
-                  class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
-                  @click="closeModal"
-                >
+                <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+                  @click="closeModal">
                   Annuler
                 </button>
-                <button
-                  type="submit"
+                <button type="submit"
                   class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-300"
-                  :disabled="!isFormValid"
-                >
+                  :disabled="!isFormValid">
                   {{ isEditing ? 'Mettre à jour' : 'Publier' }}
                 </button>
               </div>
@@ -159,13 +116,8 @@
         </div>
       </div>
     </div>
-    <DialogModal
-      :show="showDialog"
-      :type="dialogType"
-      :title="dialogTitle"
-      :message="dialogMessage"
-      @close="closeDialog"
-    />
+    <DialogModal :show="showDialog" :type="dialogType" :title="dialogTitle" :message="dialogMessage"
+      @close="closeDialog" />
   </div>
 </template>
 
@@ -214,8 +166,8 @@ export default {
       if (this.isEditing) {
         return this.title && this.selectedProduct && this.selectedTypeDeDemande && this.comment;
       } else {
-        return this.title && this.selectedProduct && this.selectedTypeDeDemande && 
-               this.comment && this.videoFile;
+        return this.title && this.selectedProduct && this.selectedTypeDeDemande &&
+          this.comment && this.videoFile;
       }
     }
   },
@@ -233,10 +185,10 @@ export default {
           this.title = newVal.title || '';
           this.comment = newVal.comment || '';
           if (newVal.TypeDeDemande) {
-            this.selectedTypeDeDemande = typeof newVal.TypeDeDemande === 'object' ? 
+            this.selectedTypeDeDemande = typeof newVal.TypeDeDemande === 'object' ?
               newVal.TypeDeDemande._id : newVal.TypeDeDemande;
           } else if (newVal.typededemande) {
-            this.selectedTypeDeDemande = typeof newVal.typededemande === 'object' ? 
+            this.selectedTypeDeDemande = typeof newVal.typededemande === 'object' ?
               newVal.typededemande._id : newVal.typededemande;
           }
           this.selectedProduct = newVal.produit?._id || newVal.produit || '';
@@ -314,7 +266,7 @@ export default {
     },
     async updateVideo() {
       const formData = new FormData();
-      
+
       formData.append("title", this.title);
       formData.append("comment", this.comment);
       formData.append("typededemande", this.selectedTypeDeDemande);

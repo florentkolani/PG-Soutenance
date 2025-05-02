@@ -8,36 +8,27 @@
       <form @submit.prevent="save">
         <!-- Nom du pays -->
         <div class="mb-4">
-          <label for="country-name" class="block text-sm font-medium text-gray-700 mb-2">Pays <span class="text-red-500">*</span></label>
-          <input 
-            id="country-name" 
-            v-model="country.name" 
-            type="text" 
-            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
-            placeholder="Entrez le nom du pays" 
-            required 
-          />
+          <label for="country-name" class="block text-sm font-medium text-gray-700 mb-2">Pays <span
+              class="text-red-500">*</span></label>
+          <input id="country-name" v-model="country.name" type="text"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+            placeholder="Entrez le nom du pays" required />
         </div>
         <!-- Code du pays -->
         <div class="mb-4">
-          <label for="country-code" class="block text-sm font-medium text-gray-700 mb-2">Code pays <span class="text-red-500">*</span></label>
-          <input 
-            id="country-code" 
-            v-model="country.code" 
-            type="text" 
-            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
-            placeholder="Entrez le code du pays" 
-            required 
-          />
+          <label for="country-code" class="block text-sm font-medium text-gray-700 mb-2">Code pays <span
+              class="text-red-500">*</span></label>
+          <input id="country-code" v-model="country.code" type="text"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+            placeholder="Entrez le code du pays" required />
         </div>
         <!-- Boutons -->
         <div class="flex justify-center space-x-4">
-          <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md shadow-md transition-all">
+          <button type="submit"
+            class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md shadow-md transition-all">
             Enregistrer
           </button>
-          <button 
-            @click.prevent="$emit('close')" 
-            type="button" 
+          <button @click.prevent="$emit('close')" type="button"
             class="bg-gray-300 hover:bg-gray-200 text-black px-6 py-2 rounded-md shadow-md transition-all">
             Annuler
           </button>

@@ -8,7 +8,8 @@
       </a>
 
       <!-- Card principale -->
-      <div class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transform hover:shadow-2xl transition-all duration-300">
+      <div
+        class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transform hover:shadow-2xl transition-all duration-300">
         <div class="p-8 space-y-6">
           <h1 class="text-2xl font-bold text-gray-900 text-center mb-2">
             Mot de passe oublié ?
@@ -21,34 +22,32 @@
             <div class="space-y-2">
               <label for="email" class="text-sm font-medium text-gray-700 block">Email</label>
               <div class="relative">
-                <input 
-                  v-model="email" 
-                  type="email" 
-                  id="email" 
+                <input v-model="email" type="email" id="email"
                   class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                  required 
-                />
+                  required />
                 <p class="mt-1 text-sm text-gray-500">Exemple : nom@domaine.com</p>
               </div>
             </div>
 
-            <button 
-              type="submit" 
+            <button type="submit"
               class="w-full bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 focus:ring-4 focus:ring-green-200 font-medium transition-all duration-200 flex items-center justify-center space-x-2"
-              :disabled="isLoading"
-            >
+              :disabled="isLoading">
               <span v-if="!isLoading">Réinitialiser le mot de passe</span>
               <div v-else class="flex items-center space-x-2">
-                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                  viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
                 </svg>
                 <span>Envoi en cours...</span>
               </div>
             </button>
 
             <div class="text-center">
-              <a href="/login" class="text-sm text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200">
+              <a href="/login"
+                class="text-sm text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200">
                 Retour à la connexion
               </a>
             </div>
@@ -65,13 +64,11 @@
             </div>
             <h3 class="text-xl font-semibold text-gray-900 mb-4">Email envoyé avec succès</h3>
             <p class="mb-6 text-gray-600">
-              Un nouveau mot de passe vous a été envoyé par email. 
+              Un nouveau mot de passe vous a été envoyé par email.
               Vous devrez le changer lors de votre prochaine connexion.
             </p>
-            <button 
-              @click="handlePopupClose"
-              class="w-full bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200"
-            >
+            <button @click="handlePopupClose"
+              class="w-full bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">
               Retour à la connexion
             </button>
           </div>
@@ -87,10 +84,8 @@
             </div>
             <h3 class="text-xl font-semibold text-red-600 mb-4">Erreur</h3>
             <p class="mb-6 text-gray-600">{{ errorMessage }}</p>
-            <button 
-              @click="errorPopup = false"
-              class="w-full bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600 transition-colors duration-200"
-            >
+            <button @click="errorPopup = false"
+              class="w-full bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600 transition-colors duration-200">
               Fermer
             </button>
           </div>
@@ -118,7 +113,7 @@ export default {
   methods: {
     async requestReset() {
       if (this.isLoading) return;
-      
+
       this.isLoading = true;
       try {
         const response = await axios.post(`${API_URL}/auth/resetPasswordRequest`, { email: this.email });
@@ -150,6 +145,7 @@ export default {
     transform: scale(0.9);
     opacity: 0;
   }
+
   100% {
     transform: scale(1);
     opacity: 1;

@@ -3,7 +3,7 @@ const User = require('../models/userModel');
 const type = require('../models/typeDeDemandeModel');
 const rating = require('../models/ratingModel');
 const nodemailer = require("nodemailer");
-const {sendEmail} = require('../services/emailService');
+const { sendEmail } = require('../services/emailService');
 
 //Configuration de Nodemailer
 require('dotenv').config();
@@ -32,7 +32,7 @@ async function envoyerEmail(ticket) {
 
         const mailOptions = {
             from: user.email, // email du client
-            to: process.env.EMAIL_NOVA_LEAD , // Email des admins et agents support
+            to: process.env.EMAIL_NOVA_LEAD, // Email des admins et agents support
             subject: `Nouvelle demande d'assistance reçue – Ticket #${ticket.NumeroTicket} (${typeDeDemande.name})`, // Objet de l'email
             html: `
                 <html>
@@ -229,32 +229,32 @@ exports.updateTicketStatus = async (req, res) => {
 // Mettre à jour un ticket
 exports.updateTicket = async (req, res) => {
     try {
-      console.log("Données reçues pour la mise à jour :", req.body);
-      console.log("Fichier reçu :", req.file);
-  
-      const ticketData = {
-        productId: req.body.productId,
-        typeDeDemandeId: req.body.typeDeDemandeId,
-        userId: req.body.userId,
-        urgence: req.body.urgence,
-        description: req.body.description,
-        status: req.body.status,
-      };
-  
-      if (req.file) {
-        ticketData.file = req.file.path;
-      }
-  
-      const ticket = await Ticket.findByIdAndUpdate(req.params.id, ticketData, { new: true });
-      if (!ticket) {
-        return res.status(404).json({ message: 'Ticket non trouvé' });
-      }
-      res.status(200).json(ticket);
+        console.log("Données reçues pour la mise à jour :", req.body);
+        console.log("Fichier reçu :", req.file);
+
+        const ticketData = {
+            productId: req.body.productId,
+            typeDeDemandeId: req.body.typeDeDemandeId,
+            userId: req.body.userId,
+            urgence: req.body.urgence,
+            description: req.body.description,
+            status: req.body.status,
+        };
+
+        if (req.file) {
+            ticketData.file = req.file.path;
+        }
+
+        const ticket = await Ticket.findByIdAndUpdate(req.params.id, ticketData, { new: true });
+        if (!ticket) {
+            return res.status(404).json({ message: 'Ticket non trouvé' });
+        }
+        res.status(200).json(ticket);
     } catch (error) {
-      console.error("Erreur lors de la mise à jour du ticket :", error);
-      res.status(400).json({ message: 'Erreur lors de la mise à jour du ticket', error: error.message });
+        console.error("Erreur lors de la mise à jour du ticket :", error);
+        res.status(400).json({ message: 'Erreur lors de la mise à jour du ticket', error: error.message });
     }
-  };
+};
 
 // Fermer un ticket et envoyer un email
 exports.closeTicket = async (req, res) => {
@@ -263,14 +263,14 @@ exports.closeTicket = async (req, res) => {
     try {
         // Ajouter closedAt lors de la fermeture du ticket
         const updatedTicket = await Ticket.findByIdAndUpdate(
-            ticketId, 
-            { 
+            ticketId,
+            {
                 statut: 'cloturé',
                 closedAt: new Date() // Ajout de la date de clôture
-            }, 
+            },
             { new: true }
         );
-        
+
         if (!updatedTicket) {
             return res.status(404).send('Ticket non trouvé');
         }
@@ -407,7 +407,7 @@ exports.addMessageToTicket = async (req, res) => {
 exports.getTicketStats = async (req, res) => {
     try {
         let filter = {};
-        
+
         if (req.user.role === 'Client' || req.params.userId) {
             filter.userId = req.params.userId || req.user._id;
         }
@@ -425,9 +425,9 @@ exports.getTicketStats = async (req, res) => {
         res.status(200).json(stats);
     } catch (error) {
         console.error('Erreur lors de la récupération des statistiques:', error);
-        res.status(500).json({ 
-            message: 'Erreur lors de la récupération des statistiques des tickets', 
-            error: error.message 
+        res.status(500).json({
+            message: 'Erreur lors de la récupération des statistiques des tickets',
+            error: error.message
         });
     }
 };

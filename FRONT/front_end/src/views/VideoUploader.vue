@@ -1,13 +1,9 @@
 <template>
   <div class="p-6 bg-gray-100 min-h-screen">
     <!-- Header intégré -->
-    <Header 
-      title="NOVA LEAD" 
-      :primaryActionText="isAdmin || isAgentSupport ? 'Ajouter une vidéo' : ''" 
-      @primaryAction="showAddVideoModal" 
-      @goToDashboard="redirectToDashboard" 
-      class="fixed top-0 left-0 w-full bg-green shadow z-10"
-    />
+    <Header title="NOVA LEAD" :primaryActionText="isAdmin || isAgentSupport ? 'Ajouter une vidéo' : ''"
+      @primaryAction="showAddVideoModal" @goToDashboard="redirectToDashboard"
+      class="fixed top-0 left-0 w-full bg-green shadow z-10" />
     <div class="mx-auto  mt-12 w-full">
       <div class="flex justify-between items-center">
         <!-- Barre de navigation (liens à gauche) -->
@@ -24,12 +20,9 @@
 
         <!-- Filtre par produit (à droite) -->
         <div class="w-1/4">
-          <select
-            v-model="filterProduct"
-            id="filterProduct"
+          <select v-model="filterProduct" id="filterProduct"
             class="block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            @change="filtervideos"
-          >
+            @change="filtervideos">
             <option value="">Vidéo de tous les produits</option>
             <option v-for="product in products" :key="product._id" :value="product._id">{{ product.name }}</option>
           </select>
@@ -49,9 +42,10 @@
                 Votre navigateur ne supporte pas la lecture de vidéos.
               </video>
               <div>
-                  <p class="text-gray-500 text-sm">Date de publication: {{ new Date(video.createdAt).toLocaleString() }}</p>
-                  <!-- <p class="text-gray-500 text-sm">Mis à jour le: {{ new Date(video.updatedAt).toLocaleString() }}</p> -->
-                </div>
+                <p class="text-gray-500 text-sm">Date de publication: {{ new Date(video.createdAt).toLocaleString() }}
+                </p>
+                <!-- <p class="text-gray-500 text-sm">Mis à jour le: {{ new Date(video.updatedAt).toLocaleString() }}</p> -->
+              </div>
             </div>
             <div class="w-1/2 pl-10">
               <p class="font-semibold text-gray-800 truncate">{{ video.title }}</p>
@@ -62,21 +56,19 @@
                 </span>
                 <span v-else>
                   {{ video.comment }}
-                  <button v-if="video.comment.length > 100" @click="toggleComment(index)" class="text-blue-500 hover:underline">Réduire</button>
+                  <button v-if="video.comment.length > 100" @click="toggleComment(index)"
+                    class="text-blue-500 hover:underline">Réduire</button>
                 </span>
               </p>
               <div class="flex justify-between items-center mt-4">
-               
+
                 <div>
-                  <button
-                    v-if="isAdmin || isAgentSupport"
-                    @click="editVideo(video)"
-                    class="inline-block bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600"
-                  >
+                  <button v-if="isAdmin || isAgentSupport" @click="editVideo(video)"
+                    class="inline-block bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600">
                     Modifier
                   </button>
                 </div>
-                
+
               </div>
             </div>
           </div>
@@ -86,15 +78,9 @@
     </div>
 
     <!-- Modal -->
-    <VideoModal
-      v-model="showVideoModal"
-      :editing-video="editingVideo"
-      :products="products"
-      :typeDeDemandes="typeDeDemandes"
-      @video-created="onVideoCreated"
-      @video-updated="onVideoUpdated"
-      @reset-editing="onResetEditing"
-    />
+    <VideoModal v-model="showVideoModal" :editing-video="editingVideo" :products="products"
+      :typeDeDemandes="typeDeDemandes" @video-created="onVideoCreated" @video-updated="onVideoUpdated"
+      @reset-editing="onResetEditing" />
   </div>
 </template>
 
@@ -105,7 +91,7 @@ import axios from "axios";
 import { API_URL } from '@/services/config';
 
 export default {
-  components: { 
+  components: {
     Header,
     VideoModal
   },
@@ -141,7 +127,7 @@ export default {
   },
   methods: {
     decodeToken() {
-      const token = localStorage.getItem("token"); 
+      const token = localStorage.getItem("token");
       if (token) {
         try {
           const payload = JSON.parse(atob(token.split(".")[1]));
@@ -286,6 +272,7 @@ export default {
 body {
   font-family: Arial, sans-serif;
 }
+
 button[type="button"] {
   padding: 0;
   background: none;

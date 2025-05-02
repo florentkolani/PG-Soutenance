@@ -7,7 +7,7 @@ const {
   updateUser,
   archiveUser,
 } = require('../controllers/userController');
-const {getCitiesByCountryId} = require('../controllers/cityController');
+const { getCitiesByCountryId } = require('../controllers/cityController');
 const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
 

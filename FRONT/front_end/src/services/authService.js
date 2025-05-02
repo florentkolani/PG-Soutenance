@@ -41,5 +41,5 @@ export function getUserInfo() {
     console.error('Erreur lors du décodage du token:', error);
     return null;
   }
-  
+
 }

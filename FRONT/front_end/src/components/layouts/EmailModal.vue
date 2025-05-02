@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Email Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 p-4">
       <div class="relative p-4 w-full max-w-2xl bg-white h-auto rounded-2xl shadow">
         <div class="relative p-4">
           <div class="flex justify-between items-center pb-2 mb-2 border-b">
@@ -12,16 +12,12 @@
           <form @submit.prevent="sendEmail">
             <!-- Liste des utilisateurs avec dropdown -->
             <div class="mb-4">
-              
+
               <!-- Sélecteur de pays -->
               <div class="mb-3">
                 <label for="country" class="block text-lg font-semibold mb-1">Pays :</label>
-                <select
-                  id="country"
-                  v-model="selectedCountry"
-                  @change="fetchUsers"
-                  class="w-full border border-gray-300 rounded-lg p-2 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200"
-                >
+                <select id="country" v-model="selectedCountry" @change="fetchUsers"
+                  class="w-full border border-gray-300 rounded-lg p-2 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200">
                   <option value="">Tous les pays</option>
                   <option v-for="country in countries" :key="country._id" :value="country._id">
                     {{ country.name }}
@@ -31,38 +27,29 @@
 
               <div class="relative w-full">
                 <h2 class="text-lg font-semibold mb-1">Clients :</h2>
-                <button
-                  type="button"
-                  @click="toggleDropdown"
-                  class="w-full border border-gray-300 rounded-lg p-2 text-left hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200 text-base flex items-center justify-between"
-                >
+                <button type="button" @click="toggleDropdown"
+                  class="w-full border border-gray-300 rounded-lg p-2 text-left hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200 text-base flex items-center justify-between">
                   <span class="truncate">
                     {{ selectedEmails.length > 0 ? selectedEmails.join(", ") : "Sélectionnez les utilisateurs" }}
                   </span>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                <div v-if="isDropdownOpen" class="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 w-full max-h-60 overflow-y-auto shadow-lg">
+                <div v-if="isDropdownOpen"
+                  class="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 w-full max-h-60 overflow-y-auto shadow-lg">
                   <!-- Checkbox Tout sélectionner -->
                   <div class="p-2 border-b">
                     <label class="flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        :checked="isAllSelected"
-                        @change="toggleSelectAll"
-                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
+                      <input type="checkbox" :checked="isAllSelected" @change="toggleSelectAll"
+                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
                       <span class="ml-2 font-semibold">Tout sélectionner</span>
                     </label>
                   </div>
                   <div v-for="user in users" :key="user._id" class="flex items-center p-2 hover:bg-gray-50">
-                    <input
-                      type="checkbox"
-                      :value="user.email"
-                      v-model="selectedEmails"
-                      class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
+                    <input type="checkbox" :value="user.email" v-model="selectedEmails"
+                      class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
                     <label class="ml-2 cursor-pointer">{{ user.name }}</label>
                   </div>
                   <p v-if="users.length === 0" class="text-gray-500 p-2">Aucun utilisateur disponible.</p>
@@ -73,28 +60,21 @@
             <!-- Sujet de l'email -->
             <div class="mb-3">
               <label for="subject" class="block text-lg font-semibold mb-1">Objet :</label>
-              <input
-                type="text"
-                id="subject"
-                v-model="emailSubject"
+              <input type="text" id="subject" v-model="emailSubject"
                 class="block w-full border border-gray-300 rounded-lg p-2 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200"
-                placeholder="Entrez le sujet de l'email"
-                required
-              />
+                placeholder="Entrez le sujet de l'email" required />
             </div>
 
             <!-- Contenu de l'email -->
             <div class="mb-3">
-              <div id="editor" class="block w-full border border-gray-300 rounded-lg p-2" style="min-height: 200px;"></div>
+              <div id="editor" class="block w-full border border-gray-300 rounded-lg p-2" style="min-height: 200px;">
+              </div>
             </div>
 
             <!-- Bouton d'envoi -->
             <div class="flex justify-end">
-              <button
-                type="submit"
-                class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
-                :disabled="isSending || selectedEmails.length === 0"
-              >
+              <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+                :disabled="isSending || selectedEmails.length === 0">
                 <span v-if="isSending" class="loader-spinner"></span>
                 {{ isSending ? "Envoi en cours..." : "Envoyer l'email" }}
               </button>
@@ -108,27 +88,14 @@
     <div v-if="showSuccessPopup" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
       <div class="bg-white p-6 rounded-lg shadow-lg text-center">
         <div class="flex justify-center mb-4">
-          <svg
-          class="mx-auto text-green-500 w-12 h-12 dark:text-green-400"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M5 11.917 9.724 16.5 19 7.5"
-          />
-        </svg>
+          <svg class="mx-auto text-green-500 w-12 h-12 dark:text-green-400" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M5 11.917 9.724 16.5 19 7.5" />
+          </svg>
         </div>
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Email envoyé avec succès !</h2>
-        <button
-          @click="handleSuccessPopupClose"
-          class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-        >
+        <button @click="handleSuccessPopupClose" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
           OK
         </button>
       </div>
@@ -138,27 +105,14 @@
     <div v-if="showErrorPopup" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
       <div class="bg-white p-6 rounded-lg shadow-lg text-center">
         <div class="flex justify-center mb-4">
-          <svg
-          class="mx-auto text-red-500 w-12 h-12 dark:text-red-400"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM15 9l-6 6m0-6l6 6"
-          />
-        </svg>
+          <svg class="mx-auto text-red-500 w-12 h-12 dark:text-red-400" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM15 9l-6 6m0-6l6 6" />
+          </svg>
         </div>
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Échec de l'envoi de l'email.</h2>
-        <button
-          @click="handleErrorPopupClose"
-          class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-        >
+        <button @click="handleErrorPopupClose" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
           Réessayer
         </button>
       </div>
@@ -202,7 +156,7 @@ export default {
       try {
         const token = localStorage.getItem("token");
         const url = `${API_URL}/users/all`;
-        
+
         const response = await axios.get(url, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -219,21 +173,21 @@ export default {
     },
     async fetchCountries() {
       // charger les pays depuis la base de données
-    try {
-      const response = await axios.get(`${API_URL}/countries?limit=0`);
-      this.countries = response.data.countries
-        .map((country) => ({
-          name: country.name,
-          code: country.code,
-          _id: country._id,
-          dialCode: country.code,
-        }))
-        .sort((a, b) => a.name.localeCompare(b.name));
-      console.log("Countries loaded:", this.countries);
-    } catch (error) {
-      console.error("Erreur lors du chargement des pays :", error);
-      this.countries = [];
-    }
+      try {
+        const response = await axios.get(`${API_URL}/countries?limit=0`);
+        this.countries = response.data.countries
+          .map((country) => ({
+            name: country.name,
+            code: country.code,
+            _id: country._id,
+            dialCode: country.code,
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+        console.log("Countries loaded:", this.countries);
+      } catch (error) {
+        console.error("Erreur lors du chargement des pays :", error);
+        this.countries = [];
+      }
     },
     async sendEmail() {
       if (this.selectedEmails.length === 0) {
@@ -335,8 +289,13 @@ export default {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 #editor {

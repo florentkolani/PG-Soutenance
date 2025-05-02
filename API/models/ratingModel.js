@@ -5,9 +5,9 @@ const ratingSchema = new mongoose.Schema({
     commentaire: { type: String },
     ticketId: { type: mongoose.Schema.Types.ObjectId, ref: 'Ticket', required: true }
 },
-{
-    timestamps: true,
-});
+    {
+        timestamps: true,
+    });
 
 const Rating = mongoose.model('Rating', ratingSchema);
 

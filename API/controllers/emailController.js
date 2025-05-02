@@ -36,7 +36,7 @@ exports.getSentEmails = async (req, res) => {
 
     // Aucun filtre - tous les utilisateurs peuvent voir tous les emails
     const filter = {};
-    
+
     // Récupérer tous les emails
     const emails = await Email.find(filter)
       .select("sender senderName recipients subject message sentAt")

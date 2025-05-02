@@ -3,7 +3,7 @@ const User = require('../models/userModel');
 const typeDeDemande = require('../models/typeDeDemandeModel');
 const product = require('../models/productModel');
 const nodemailer = require("nodemailer");
-const {sendEmail} = require('../services/emailService');
+const { sendEmail } = require('../services/emailService');
 const mongoose = require('mongoose');
 
 // Configuration de Nodemailer (similaire à ticketController)
@@ -65,7 +65,7 @@ async function envoyerEmailCreationTache(task) {
                                     <li><strong>Date de début :</strong> ${new Date(task.startday).toLocaleDateString()}</li>
                                     <li><strong>Date de fin :</strong> ${new Date(task.endday).toLocaleDateString()}</li>
                                     <li><strong>Description :</strong> ${task.description}</li>
-                                    <li><strong>Agents assignés :</strong> ${task.assignedAgents.map(u => u.name).join(', ')}</li>
+                                    <li><strong>Agents assignés :</strong> ${assignedUsers.map(u => u.name).join(', ')}</li>
                                 </ul>
                                 <p>
                                     <a href="http://localhost:5173/tasks" style="display: inline-block; padding: 10px 20px; background-color: #28a745; color: #fff; text-decoration: none; border-radius: 4px;">
@@ -91,7 +91,7 @@ async function envoyerEmailCreationTache(task) {
 // Créer une tâche
 exports.createTask = async (req, res) => {
     try {
-        const requiredFields = ['userId', 'countryId','typeDeDemandeId','productId', 'startday', 'endday', 'assignedAgents', 'description'];
+        const requiredFields = ['userId', 'countryId', 'typeDeDemandeId', 'productId', 'startday', 'endday', 'assignedAgents', 'description'];
         for (const field of requiredFields) {
             if (!req.body[field]) {
                 return res.status(400).json({ message: `Le champ ${field} est requis.` });
@@ -320,7 +320,7 @@ exports.updateTaskStatus = async (req, res) => {
         if (task.userId?.email) {
             await sendEmail(task.userId.email, emailSubject, emailHtml);
         }
-        
+
         for (const user of task.assignedAgents) {
             if (user?.email) {
                 await sendEmail(user.email, emailSubject, emailHtml);
@@ -336,72 +336,86 @@ exports.updateTaskStatus = async (req, res) => {
 
 // Ajouter un message à une tâche
 exports.addMessage = async (req, res) => {
-  try {
-    const { content, senderId } = req.body;
-    
-    // Vérifier si la tâche existe
-    const task = await Task.findById(req.params.id);
-    if (!task) {
-      return res.status(404).json({ message: 'Tâche non trouvée' });
+    try {
+        const { content, senderId } = req.body;
+        const file = req.file; // Get the uploaded file
+
+        // Vérifier si la tâche existe
+        const task = await Task.findById(req.params.id);
+        if (!task) {
+            return res.status(404).json({ message: 'Tâche non trouvée' });
+        }
+
+        // Convertir le senderId en ObjectId
+        const senderObjectId = new mongoose.Types.ObjectId(senderId);
+
+        // Créer le nouveau message
+        const newMessage = {
+            senderId: senderObjectId,
+            content,
+            createdAt: new Date(),
+            file: file ? file.filename : null // Store the filename if a file was uploaded
+        };
+
+        // Ajouter le message à la tâche
+        task.messages.push(newMessage);
+        await task.save();
+
+        // Récupérer les informations de l'expéditeur
+        const sender = await User.findById(senderId);
+        const responseMessage = {
+            ...newMessage,
+            senderName: sender ? sender.name : 'Inconnu'
+        };
+
+        res.status(201).json(responseMessage);
+    } catch (error) {
+        console.error('Erreur lors de l\'ajout du message:', error);
+        res.status(500).json({ message: 'Erreur lors de l\'ajout du message', error: error.message });
     }
-
-    // Convertir le senderId en ObjectId
-    
-    const senderObjectId = new mongoose.Types.ObjectId(senderId);
-
-    // Créer le nouveau message
-    const newMessage = {
-      senderId: senderObjectId,
-      content,
-      createdAt: new Date()
-    };
-
-    // Ajouter le message à la tâche
-    task.messages.push(newMessage);
-    await task.save();
-    // Récupérer les informations de l'expéditeur
-    const sender = await User.findById(senderId);
-    const responseMessage = {
-      ...newMessage,
-      senderName: sender ? sender.name : 'Inconnu'
-    };
-
-    res.status(201).json(responseMessage);
-  } catch (error) {
-    console.error('Erreur lors de l\'ajout du message:', error);
-    res.status(500).json({ message: 'Erreur lors de l\'ajout du message', error: error.message });
-  }
 };
 
-// Obtenir les messages d'une tâche
 exports.getMessages = async (req, res) => {
     try {
-      const task = await Task.findById(req.params.id)
-        .populate('messages.senderId', 'name');
-  
-      if (!task) {
-        return res.status(404).json({ message: 'Tâche non trouvée' });
-      }
-  
-      // Formater les messages avec les noms des expéditeurs
-      const formattedMessages = task.messages.map(message => ({
-        ...message.toObject(),
-        senderName: message.senderId ? message.senderId.name : 'Inconnu'
-      }));
-  
-      res.status(200).json(formattedMessages);
-    } catch (error) {
-      console.error('Erreur lors de la récupération des messages:', error);
-      res.status(500).json({ message: 'Erreur lors de la récupération des messages', error: error.message });
-    }
-  };
+        const task = await Task.findById(req.params.id)
+            .populate('messages.senderId', 'name');
 
+        if (!task) {
+            return res.status(404).json({ message: 'Tâche non trouvée' });
+        }
+
+        // Formater les messages avec une gestion des expéditeurs
+        const formattedMessages = task.messages.map(message => {
+            // Vérifier si senderId existe et a été correctement populé
+            const sender = message.senderId || {};
+            const senderId = typeof sender === 'object' ? sender._id || sender : sender;
+            const senderName = sender.name || 'Inconnu';
+
+            return {
+                _id: message._id,
+                content: message.content || '',
+                createdAt: message.createdAt,
+                senderId: {
+                    _id: senderId,
+                    name: senderName
+                },
+                senderName: senderName,
+                file: message.file || ''
+            };
+        });
+
+        res.status(200).json(formattedMessages);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des messages:', error);
+        res.status(500).json({ message: 'Erreur lors de la récupération des messages', error: error.message });
+    }
+};
 // Obtenir une tâche par son ID
 exports.getTaskById = async (req, res) => {
     try {
         const task = await Task.findById(req.params.id)
             .populate('userId countryId typeDeDemandeId productId assignedAgents');
-        
+
         if (!task) {
             return res.status(404).json({ message: 'Tâche non trouvée' });
         }

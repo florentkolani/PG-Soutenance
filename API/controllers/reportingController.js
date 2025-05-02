@@ -9,26 +9,26 @@ const Country = require('../models/Country');
 // Obtenir tous les produits avec pagination
 exports.getProducts = async (req, res) => {
   try {
-      const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10 } = req.query;
 
-      const products = await Product.find()
-          .skip((page - 1) * limit)
-          .limit(parseInt(limit));
+    const products = await Product.find()
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit));
 
-      const totalProducts = await Product.countDocuments();
-      const totalPages = Math.ceil(totalProducts / limit);
+    const totalProducts = await Product.countDocuments();
+    const totalPages = Math.ceil(totalProducts / limit);
 
-      res.status(200).json({
-          products,
-          pagination: {
-              currentPage: parseInt(page),
-              totalPages,
-              totalProducts,
-              pageSize: parseInt(limit),
-          },
-      });
+    res.status(200).json({
+      products,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages,
+        totalProducts,
+        pageSize: parseInt(limit),
+      },
+    });
   } catch (error) {
-      res.status(500).json({ message: 'Erreur lors de la récupération des produits', error });
+    res.status(500).json({ message: 'Erreur lors de la récupération des produits', error });
   }
 };
 
@@ -67,9 +67,9 @@ exports.getAllRatings = async (req, res) => {
     res.status(200).json(cleanedRatings);
   } catch (error) {
     console.error('Erreur dans getAllRatings:', error);
-    res.status(500).json({ 
-      message: 'Erreur lors de la récupération des notes', 
-      error: error.message 
+    res.status(500).json({
+      message: 'Erreur lors de la récupération des notes',
+      error: error.message
     });
   }
 };
@@ -78,53 +78,53 @@ exports.getAllRatings = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   // console.log('getAllUsers called');
 
-  const page = parseInt(req.query.page) || 1; 
+  const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
 
   try {
-      
-      const skip = (page - 1) * limit;
 
-      const users = await User.find({ isArchived: false }).skip(skip).limit(limit);
+    const skip = (page - 1) * limit;
 
-      const totalUsers = await User.countDocuments({ isArchived: false });
-      res.json({
-          data: users,
-          totalItems: totalUsers,
-          totalPages: Math.ceil(totalUsers / limit),
-          currentPage: page
-      });
+    const users = await User.find({ isArchived: false }).skip(skip).limit(limit);
+
+    const totalUsers = await User.countDocuments({ isArchived: false });
+    res.json({
+      data: users,
+      totalItems: totalUsers,
+      totalPages: Math.ceil(totalUsers / limit),
+      currentPage: page
+    });
   } catch (error) {
-      res.status(500).json({ message: 'Erreur lors de la récupération des utilisateurs', error });
+    res.status(500).json({ message: 'Erreur lors de la récupération des utilisateurs', error });
   }
 };
 
 // Obtenir tous les tickets avec pagination
 exports.getTickets = async (req, res) => {
   try {
-      const filter = req.user.role === 'Client' ? { userId: req.user._id } : {};
-      // Récupération des paramètres de pagination
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
-      const skip = (page - 1) * limit;
+    const filter = req.user.role === 'Client' ? { userId: req.user._id } : {};
+    // Récupération des paramètres de pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-      // Compter le nombre total de tickets correspondant au filtre
-      const total = await Ticket.countDocuments(filter);
+    // Compter le nombre total de tickets correspondant au filtre
+    const total = await Ticket.countDocuments(filter);
 
-      // Récupérer les tickets avec pagination
-      const tickets = await Ticket.find(filter)
-          .select('NumeroTicket userId productId typeDeDemandeId statut createdAt closedAt')
-          .populate('userId productId typeDeDemandeId')
-          .skip(skip)
-          .limit(limit);
+    // Récupérer les tickets avec pagination
+    const tickets = await Ticket.find(filter)
+      .select('NumeroTicket userId productId typeDeDemandeId statut createdAt closedAt')
+      .populate('userId productId typeDeDemandeId')
+      .skip(skip)
+      .limit(limit);
 
-      // Retourner les tickets et le total
-      res.status(200).json({
-          tickets,
-          total, // Retourner le total pour la pagination
-      });
+    // Retourner les tickets et le total
+    res.status(200).json({
+      tickets,
+      total, // Retourner le total pour la pagination
+    });
   } catch (error) {
-      res.status(500).json({ message: 'Erreur lors de la récupération des tickets', error: error.message });
+    res.status(500).json({ message: 'Erreur lors de la récupération des tickets', error: error.message });
   }
 };
 

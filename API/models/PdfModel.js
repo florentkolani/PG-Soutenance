@@ -9,7 +9,7 @@ const PdfSchema = new mongoose.Schema({
   produit: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   createdAt: { type: Date, default: Date.now },
 },
-{timestamps: true}
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("Pdf", PdfSchema);

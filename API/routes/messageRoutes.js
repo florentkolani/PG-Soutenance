@@ -1,8 +1,8 @@
 const express = require('express');
-const { 
-    sendMessage, 
-    getMessagesByTicket, 
-    getAllMessages 
+const {
+    sendMessage,
+    getMessagesByTicket,
+    getAllMessages
 } = require('../controllers/messageController');
 
 const { updateTicketStatus } = require('../controllers/ticketController'); // Importer la fonction du contrôleur pour la mise à jour du statut

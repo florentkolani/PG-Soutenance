@@ -1,11 +1,8 @@
 <template>
   <div>
     <!-- Modal Form -->
-    <section
-      v-if="!showDialog"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
-      @click.self="closeDropdowns"
-    >
+    <section v-if="!showDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+      @click.self="closeDropdowns">
       <div class="relative w-full max-w-2xl mx-4 transform transition-all duration-300 ease-in-out scale-100">
         <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
           <!-- Header -->
@@ -14,13 +11,11 @@
               <h3 class="text-2xl font-bold text-black pl-4 mb-1">
                 {{ isEditing ? 'Modifier' : 'Ajouter' }} une tâche
               </h3>
-              <button
-                @click="$emit('close')"
+              <button @click="$emit('close')"
                 class="rounded-full p-1 hover:bg-blue-400/50 text-black transition-colors duration-200"
-                :disabled="isLoading"
-              >
+                :disabled="isLoading">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
@@ -35,12 +30,8 @@
                 <label for="pays" class="block text-sm font-medium text-gray-700">
                   Pays <span class="text-red-500">*</span>
                 </label>
-                <select
-                  v-model="task.countryId"
-                  id="pays"
-                  required
-                  class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
+                <select v-model="task.countryId" id="pays" required
+                  class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                   <option value="" class="text-gray-500">Sélectionnez un pays</option>
                   <option v-for="country in countries" :key="country._id" :value="country._id" class="text-gray-800">
                     {{ country.name }}
@@ -52,12 +43,8 @@
                 <label for="client" class="block text-sm font-medium text-gray-700">
                   Client <span class="text-red-500">*</span>
                 </label>
-                <select
-                  v-model="task.userId"
-                  id="client"
-                  required
-                  class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
+                <select v-model="task.userId" id="client" required
+                  class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                   <option value="" class="text-gray-500">Sélectionnez un client</option>
                   <option v-for="user in clients" :key="user._id" :value="user._id" class="text-gray-800">
                     {{ user.name }}
@@ -72,25 +59,15 @@
                 <label for="dateDebut" class="block text-sm font-medium text-gray-700">
                   Date de début <span class="text-red-500">*</span>
                 </label>
-                <input
-                  v-model="task.startday"
-                  type="date"
-                  id="dateDebut"
-                  required
-                  class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
+                <input v-model="task.startday" type="date" id="dateDebut" required
+                  class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
               </div>
               <div class="space-y-2">
                 <label for="dateFin" class="block text-sm font-medium text-gray-700">
                   Date de fin <span class="text-red-500">*</span>
                 </label>
-                <input
-                  v-model="task.endday"
-                  type="date"
-                  id="dateFin"
-                  required
-                  class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
+                <input v-model="task.endday" type="date" id="dateFin" required
+                  class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
               </div>
             </div>
 
@@ -100,12 +77,8 @@
                 <label for="produit" class="block text-sm font-medium text-gray-700">
                   Produit <span class="text-red-500">*</span>
                 </label>
-                <select
-                  v-model="task.productId"
-                  id="produit"
-                  required
-                  class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
+                <select v-model="task.productId" id="produit" required
+                  class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                   <option value="" class="text-gray-500">Sélectionnez un produit</option>
                   <option v-for="product in products" :key="product._id" :value="product._id" class="text-gray-800">
                     {{ product.name }}
@@ -117,12 +90,8 @@
                 <label for="typeDemande" class="block text-sm font-medium text-gray-700">
                   Type de demande <span class="text-red-500">*</span>
                 </label>
-                <select
-                  v-model="task.typeDeDemandeId"
-                  id="typeDemande"
-                  required
-                  class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
+                <select v-model="task.typeDeDemandeId" id="typeDemande" required
+                  class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                   <option value="" class="text-gray-500">Sélectionnez un type de demande</option>
                   <option v-for="type in typeDemandes" :key="type._id" :value="type._id" class="text-gray-800">
                     {{ type.name }}
@@ -136,52 +105,39 @@
               <label for="description" class="block text-sm font-medium text-gray-700">
                 Description
               </label>
-              <textarea
-                v-model="task.description"
-                id="description"
-                rows="4"
+              <textarea v-model="task.description" id="description" rows="4"
                 class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Entrez une description détaillée..."
-              ></textarea>
+                placeholder="Entrez une description détaillée..."></textarea>
             </div>
-             <!-- Agents assignés -->
-             <div class="space-y-2">
+            <!-- Agents assignés -->
+            <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700">
                 Agents assignés <span class="text-red-500">*</span>
               </label>
               <div class="relative w-full">
-                <button
-                  type="button"
-                  @click="toggleDropdown"
-                  class="w-full border border-gray-300 rounded-lg p-2 text-left hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200 text-base flex items-center justify-between"
-                >
+                <button type="button" @click.stop="toggleDropdown"
+                  class="w-full border border-gray-300 rounded-lg p-2 text-left hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200 text-base flex items-center justify-between">
                   <span class="truncate">
                     {{ getSelectedAgentsNames }}
                   </span>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                <div v-if="isDropdownOpen" class="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 w-full max-h-60 overflow-y-auto shadow-lg">
+                <div v-if="isDropdownOpen" @click.stop
+                  class="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 w-full max-h-60 overflow-y-auto shadow-lg">
                   <!-- Checkbox Tout sélectionner -->
                   <div class="p-2 border-b">
                     <label class="flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        :checked="isAllSelected"
-                        @change="toggleSelectAll"
-                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
+                      <input type="checkbox" :checked="isAllSelected" @change="toggleSelectAll"
+                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
                       <span class="ml-2 font-semibold">Tout sélectionner</span>
                     </label>
                   </div>
                   <div v-for="user in agents" :key="user._id" class="flex items-center p-2 hover:bg-gray-50">
-                    <input
-                      type="checkbox"
-                      :value="user._id"
-                      v-model="task.assignedAgents"
-                      class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
+                    <input type="checkbox" :value="user._id" v-model="task.assignedAgents"
+                      class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
                     <label class="ml-2 cursor-pointer">{{ user.name }}</label>
                   </div>
                   <p v-if="agents.length === 0" class="text-gray-500 p-2">Aucun agent disponible.</p>
@@ -191,34 +147,21 @@
 
 
             <!-- Zone d'upload -->
-            <div v-if="!file" class="space-y-2">
+            <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700">
                 Ajouter un fichier
               </label>
-              <div
+
+              <!-- Zone de drop quand aucun fichier n'est sélectionné -->
+              <div v-if="!file"
                 class="relative border-2 border-dashed border-gray-300 rounded-lg p-3 text-center hover:border-blue-500 cursor-pointer transition-colors duration-200"
-                @click="$refs.fileInput.click()"
-              >
-                <input
-                  type="file"
-                  ref="fileInput"
-                  @change="handleFileChange"
-                  class="hidden"
-                  accept=".png,.jpg,.jpeg,.pdf,.doc,.docx"
-                />
+                @click="$refs.fileInput.click()">
+                <input type="file" ref="fileInput" @change="handleFileChange" class="hidden"
+                  accept=".png,.jpg,.jpeg,.pdf,.doc,.docx" />
                 <div class="space-y-2">
-                  <svg
-                    class="mx-auto h-12 w-12 text-gray-400"
-                    stroke="currentColor"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                    />
+                  <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
                   <div class="text-sm text-gray-600">
                     <span class="font-medium text-blue-500 hover:text-blue-600">
@@ -230,19 +173,67 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Affichage du fichier sélectionné -->
+              <div v-else
+                class="relative border-2 border-dashed border-gray-300 rounded-lg p-3 text-center hover:border-blue-500 cursor-pointer transition-colors duration-200 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <!-- Icône selon le type de fichier -->
+                  <div class="bg-blue-100 p-2 rounded-md">
+                    <svg v-if="file.type.includes('image')" class="h-12 w-12 text-blue-500" fill="none"
+                      stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <svg v-else-if="file.type.includes('pdf')" class="h-12 w-12 text-red-500" fill="none"
+                      stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    <svg v-else class="h-12 w-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+
+                  <!-- Nom et taille du fichier -->
+                  <div class="flex flex-col">
+                    <span class="text-sm font-medium truncate" :title="file.name">
+                      {{ file.name }}
+                    </span>
+                    <span class="text-xs text-gray-500">
+                      {{ formatFileSize(file.size) }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="flex space-x-2">
+                  <button type="button" @click="$refs.fileInput.click()"
+                    class="text-sm text-blue-600 hover:text-blue-800">
+                    Changer
+                  </button>
+                  <button type="button" @click="removeFile" class="text-sm text-red-600 hover:text-red-800">
+                    Supprimer
+                  </button>
+                </div>
+
+                <!-- Input caché pour changer le fichier -->
+                <input type="file" ref="fileInput" @change="handleFileChange" class="hidden"
+                  accept=".png,.jpg,.jpeg,.pdf,.doc,.docx" />
+              </div>
             </div>
 
-           
             <!-- Bouton de soumission -->
             <div class="flex justify-center pt-4">
-              <button
-                type="submit"
+              <button type="submit"
                 class="inline-flex items-center px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-green-600 to-green-700 rounded-lg hover:from-green-700 hover:to-green-800 focus:ring-4 focus:ring-green-300 shadow-lg transition-all duration-200 disabled:opacity-50"
-                :disabled="isLoading"
-              >
+                :disabled="isLoading">
                 <span class="mr-2">{{ isEditing ? 'Modifier' : 'Créer' }} la tâche</span>
-                <svg v-if="isLoading" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                <svg v-if="isLoading" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               </button>
             </div>
@@ -256,46 +247,22 @@
       <div class="bg-gray-300 rounded-xl shadow-2xl overflow-hidden w-full max-w-md mx-4">
         <div class="p-6 flex flex-col items-center">
           <div class="text-6xl mb-4 text-white">
-            <svg
-          class="mx-auto text-green-500 w-12 h-12 dark:text-green-400"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          v-if ="dialogType === 'success'"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M5 11.917 9.724 16.5 19 7.5"
-          />
-        </svg>
-        <svg
-          class="mx-auto text-red-500 w-12 h-12 dark:text-red-400"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          v-else-if="dialogType === 'error'"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM15 9l-6 6m0-6l6 6"
-          />
-        </svg>
+            <svg class="mx-auto text-green-500 w-12 h-12 dark:text-green-400" aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" v-if="dialogType === 'success'">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5 11.917 9.724 16.5 19 7.5" />
+            </svg>
+            <svg class="mx-auto text-red-500 w-12 h-12 dark:text-red-400" aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" v-else-if="dialogType === 'error'">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM15 9l-6 6m0-6l6 6" />
+            </svg>
           </div>
           <p class="text-xl font-medium text-black mb-6 text-center">{{ dialogMessage }}</p>
         </div>
         <div class="p-4 flex justify-center">
-          <button
-            @click="closeDialog"
-            class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
-          >
+          <button @click="closeDialog"
+            class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
             Fermer
           </button>
         </div>
@@ -378,6 +345,14 @@ export default {
     }
   },
 
+  mounted() {
+    document.addEventListener('click', this.handleClickOutside);
+  },
+
+  beforeDestroy() {
+    document.removeEventListener('click', this.handleClickOutside);
+  },
+
   methods: {
     async loadUsers() {
       try {
@@ -387,10 +362,10 @@ export default {
             Authorization: `Bearer ${token}`
           }
         });
-        
+
         this.clients = response.data.data.filter(user => user.role === 'Client') || [];
         this.agents = response.data.data.filter(user => ['Admin', 'AgentSupport'].includes(user.role)) || [];
-        
+
         console.log('Clients chargés:', this.clients);
         console.log('Agents chargés:', this.agents);
       } catch (error) {
@@ -452,17 +427,33 @@ export default {
       this.task.files = Array.from(event.target.files);
     },
 
+    removeFile() {
+      this.file = null;
+      // Réinitialiser l'input file pour permettre la sélection du même fichier
+      this.$refs.fileInput.value = '';
+    },
+
+    formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    },
+
     initializeEditForm() {
       if (this.taskToEdit) {
         console.log('Tâche à modifier:', this.taskToEdit);
-        
+
         // Formater les dates pour les champs de type date (format YYYY-MM-DD)
         const formatDateForInput = (dateString) => {
           if (!dateString) return '';
           const date = new Date(dateString);
           return date.toISOString().split('T')[0];
         };
-        
+
         this.task = {
           userId: this.taskToEdit.userId?._id || this.taskToEdit.userId || '',
           countryId: this.taskToEdit.countryId?._id || this.taskToEdit.countryId || '',
@@ -472,11 +463,11 @@ export default {
           endday: formatDateForInput(this.taskToEdit.endday),
           description: this.taskToEdit.description || '',
           files: [],
-          assignedAgents: this.taskToEdit.assignedAgents?.map(agent => 
+          assignedAgents: this.taskToEdit.assignedAgents?.map(agent =>
             typeof agent === 'object' ? agent._id : agent
           ) || []
         };
-        
+
       } else {
         // Ensure assignedAgents is initialized for new tasks
         this.task.assignedAgents = [];
@@ -485,6 +476,10 @@ export default {
 
     toggleDropdown() {
       this.isDropdownOpen = !this.isDropdownOpen;
+    },
+
+    closeDropdowns() {
+      this.isDropdownOpen = false;
     },
 
     toggleSelectAll(event) {
@@ -506,7 +501,7 @@ export default {
         }
 
         const formData = new FormData();
-        
+
         // Format dates to ISO string if they exist
         const formattedTask = { ...this.task };
         if (formattedTask.startday) {
@@ -515,7 +510,7 @@ export default {
         if (formattedTask.endday) {
           formattedTask.endday = new Date(formattedTask.endday).toISOString().split('T')[0];
         }
-        
+
         // Add all fields to formData
         Object.keys(formattedTask).forEach(key => {
           if (key === 'files') {
@@ -541,13 +536,13 @@ export default {
         if (this.isEditing) {
           // Vérifier si les dates ont changé
           const datesChanged = this.checkIfDatesChanged();
-          
+
           response = await axios.put(
             `${API_URL}/tasks/${this.taskToEdit._id}`,
             formData,
             { headers }
           );
-          
+
           // Si les dates ont changé, mettre à jour le statut
           if (datesChanged) {
             await this.updateTaskStatus(response.data._id);
@@ -571,30 +566,30 @@ export default {
         this.isLoading = false;
       }
     },
-    
+
     // Vérifier si les dates ont changé
     checkIfDatesChanged() {
       if (!this.isEditing || !this.taskToEdit) return false;
-      
+
       const originalStartDate = new Date(this.taskToEdit.startday).toISOString().split('T')[0];
       const originalEndDate = new Date(this.taskToEdit.endday).toISOString().split('T')[0];
-      
+
       const newStartDate = new Date(this.task.startday).toISOString().split('T')[0];
       const newEndDate = new Date(this.task.endday).toISOString().split('T')[0];
-      
+
       return originalStartDate !== newStartDate || originalEndDate !== newEndDate;
     },
-    
+
     // Mettre à jour le statut de la tâche en fonction de la date actuelle
     async updateTaskStatus(taskId) {
       try {
         const now = new Date();
         const startDate = new Date(this.task.startday);
-        
+
         // Si la date de début est passée ou égale à aujourd'hui, mettre le statut à "en cours"
         // Si la date de début est dans le futur, mettre le statut à "en attente"
         const newStatus = startDate <= now ? 'en cours' : 'en attente';
-        
+
         const token = localStorage.getItem('token');
         await axios.put(
           `${API_URL}/tasks/${taskId}/status`,
@@ -620,11 +615,15 @@ export default {
       }
     },
 
-    closeDropdowns() {
-      // Implement if needed
+    handleClickOutside(event) {
+      const dropdown = this.$el.querySelector('.relative');
+      if (dropdown && !dropdown.contains(event.target)) {
+        this.isDropdownOpen = false;
+      }
     }
   }
-};
+
+}
 </script>
 
 <style scoped>
@@ -636,6 +635,7 @@ export default {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
