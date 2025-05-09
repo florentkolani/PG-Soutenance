@@ -1,11 +1,11 @@
 <template>
-  <div class="w-full px-4 py-3">
+  <div class="flex flex-col min-h-screen">
     <!-- Header Component -->
     <Header title="NOVA LEAD" primaryActionText="Envoyer un email" @primaryAction="openEmailModal"
       @filterAction="openFilterOptions" @goToDashboard="redirectToDashboard" />
 
     <!-- List of sent emails -->
-    <main class="w-full px-4 py-3">
+    <main class="flex-grow w-full px-4 py-3">
       <h1 class="text-2xl font-bold text-gray-800">Emails envoyés</h1>
       <div class="overflow-x-auto relative overflow-y-hidden">
         <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
@@ -46,8 +46,13 @@
           </tbody>
         </table>
       </div>
-      <Pagination :total-items="totalItems" :items-per-page="itemsPerPage" @page-changed="goToPage" />
+      
     </main>
+
+    <!-- Pagination -->
+    <div class="mt-auto">
+      <Pagination :total-items="totalItems" :items-per-page="itemsPerPage" @page-changed="goToPage" />
+    </div>
 
     <!-- Recipient Details Modal -->
     <div v-if="showRecipientModal"
@@ -162,6 +167,10 @@ export default {
 
         this.sentEmails = response.data.emails;
         this.totalItems = response.data.totalEmails || 0;
+        if (this.sentEmails.length === 0 && this.currentPage > 1) {
+          this.currentPage--;
+          this.fetchSentEmails();
+        }
       } catch (error) {
         console.error("Erreur lors de la récupération des emails envoyés :", error);
         this.totalItems = 0;

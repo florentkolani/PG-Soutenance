@@ -113,8 +113,9 @@
               <td class="border px-4 py-2 text-center">
                 <div class="relative inline-block text-left">
                   <!-- Bouton des trois points pour ouvrir le dropdown -->
-                  <button @click="toggleDropdown(ticket._id)"
-                    class="text-gray-700 hover:text-gray-500 focus:outline-none">
+                  <button @click.stop="toggleDropdown(ticket._id, $event)"
+                    class="text-gray-700 hover:text-gray-500 focus:outline-none"
+                    :ref="'dropdownBtn-' + ticket._id">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"
                       stroke="none">
                       <circle cx="5" cy="12" r="1.5" />
@@ -139,9 +140,11 @@
 
                   <!-- Dropdown menu avec les boutons d'actions -->
                   <div v-if="dropdownOpen === ticket._id"
-                    class="absolute right-0 mt-2 w-28 bg-white border border-gray-200 rounded shadow-lg">
+                    class="fixed w-44 bg-white border border-gray-200 rounded shadow-lg z-[9999]"
+                    :style="{ top: dropdownPosition.top + 'px', left: dropdownPosition.left + 'px' }"
+                    :ref="'dropdownMenu-' + ticket._id">
                     <!-- Affichage du bouton "Message" pour tous les rôles -->
-                    <button @click="openTicketDetails(ticket)"
+                    <button @click.stop="openTicketDetails(ticket)"
                       class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -153,7 +156,7 @@
 
                     <!-- Affichage du bouton "Modifier" uniquement pour les Clients et si le ticket n'est pas clôturé -->
                     <button v-if="userRole === 'Client' && ticket.statut === 'en attente'"
-                      @click="openTicketModal(ticket)"
+                      @click.stop="openTicketModal(ticket)"
                       class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -164,7 +167,8 @@
                     </button>
 
                     <!-- Affichage du bouton "Clôturer" uniquement pour les Clients et si le ticket n'est pas clôturé -->
-                    <button v-if="userRole === 'Client' && ticket.statut !== 'cloturé'" @click="openRatingModal(ticket)"
+                    <button v-if="userRole === 'Client' && ticket.statut !== 'cloturé'" 
+                      @click.stop="openRatingModal(ticket)"
                       class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -173,7 +177,6 @@
                       </svg>
                       Clôturer
                     </button>
-
                   </div>
                 </div>
               </td>
@@ -190,10 +193,10 @@
 
     <RatingModal :showModal="showRatingModal" :ticketId="selectedTicketId" @close="closeRatingModal"
       @submit-rating="submitRating" />
-
-    <!-- Pagination -->
-    <Pagination :total-items="totalItems" :items-per-page="itemsPerPage" @page-changed="goToPage" />
+   
   </div>
+   <!-- Pagination -->
+    <Pagination :total-items="totalItems" :items-per-page="itemsPerPage" @page-changed="goToPage" />
 
 </template>
 
@@ -240,6 +243,7 @@ export default {
       totalItems: 0,
       totalPages: 1,
       userRole: null,
+      dropdownPosition: { top: 0, left: 0 },
     };
   },
   computed: {
@@ -248,7 +252,6 @@ export default {
         ? [...this.tickets]
         : this.tickets.filter(ticket => ticket.statut === this.selectedStatus);
 
-      // Sort tickets by creation date (newest first)
       return tickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     },
   },
@@ -284,7 +287,7 @@ export default {
     },
 
     redirectToDashboard() {
-      this.$router.push('/dashboard'); // Redirection vers la route du dashboard
+      this.$router.push('/dashboard'); 
     },
 
     fetchTickets() {
@@ -316,7 +319,7 @@ export default {
               const note = notes.find(note => note.ticketId === ticket._id); // Associer la note correspondante
               return {
                 ...ticket,
-                note: note ? note.note : null, // Ajouter la note ou `null` si aucune note trouvée
+                note: note ? note.note : null, 
               };
             });
           } else {
@@ -363,8 +366,31 @@ export default {
         .catch(error => console.error('Erreur lors de la récupération des types de demande:', error));
     },
 
-    toggleDropdown(id) {
-      this.dropdownOpen = this.dropdownOpen === id ? null : id;
+    toggleDropdown(id, event) {
+      if (this.dropdownOpen === id) {
+        this.dropdownOpen = null;
+      } else {
+        this.dropdownOpen = id;
+        this.$nextTick(() => {
+          const btn = this.$refs['dropdownBtn-' + id];
+          const menu = this.$refs['dropdownMenu-' + id];
+          if (!btn || !menu) return;
+          const btnRect = btn[0] ? btn[0].getBoundingClientRect() : btn.getBoundingClientRect();
+          const menuRect = menu[0] ? menu[0].getBoundingClientRect() : menu.getBoundingClientRect();
+          let top = btnRect.bottom + window.scrollY;
+          let left = btnRect.left + window.scrollX;
+
+          if (left + menuRect.width > window.innerWidth) {
+            left = window.innerWidth - menuRect.width - 8; // 8px margin
+          }
+        
+          if (top + menuRect.height > window.innerHeight + window.scrollY) {
+            top = btnRect.top + window.scrollY - menuRect.height;
+            if (top < 0) top = 8; // 8px margin
+          }
+          this.dropdownPosition = { top, left };
+        });
+      }
     },
     closeDropdownOnClickOutside(event) {
       if (!this.$el.contains(event.target)) {

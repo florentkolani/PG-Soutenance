@@ -128,6 +128,13 @@ exports.register = async (req, res) => {
             return res.status(400).json({ message: 'La ville sélectionnée n\'appartient pas au pays sélectionné' });
         }
 
+        // Vérifier la longueur du numéro de téléphone
+        if (contact.length !== countryExists.phoneLength) {
+            return res.status(400).json({ 
+                message: `Le numéro de téléphone doit comporter exactement ${countryExists.phoneLength} chiffres` 
+            });
+        }
+
         // Générer un mot de passe aléatoire
         const randomPassword = generateRandomPassword(8);
 

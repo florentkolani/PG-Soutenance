@@ -4,11 +4,8 @@
       @filterChanged="onFilterChanged" :filterAction="true" :filterOptions="taskFilterOptions" />
 
     <main class="w-full px-4 py-3">
-      <!-- Titre et légende -->
       <div class="flex flex-row items-center justify-between space-x-4 mb-4">
         <h1 class="text-2xl font-bold">Liste des tâches</h1>
-
-        <!-- Légendes des statuts -->
         <div class="overflow-x-auto border-gray-500 bg-slate-200 rounded-lg">
           <table class="table-auto border-collapse border border-gray-300 w-500 ml-auto">
             <tbody>
@@ -29,7 +26,6 @@
           </table>
         </div>
       </div>
-
       <!-- Table des tâches -->
       <div class="overflow-x-auto relative overflow-y-hidden">
         <table class="min-w-full bg-white">
@@ -41,6 +37,7 @@
               <th class="py-2 px-4 text-left">Type de demande</th>
               <th class="py-2 px-4 text-center">Date début</th>
               <th class="py-2 px-4 text-center">Date fin</th>
+              <th class="py-2 px-4 text-center">T.Exécution</th>
               <th class="py-2 px-4 text-center">Statut</th>
               <th class="py-2 px-4 text-center">Agents assignés</th>
               <th class="py-2 px-4 text-center">Actions</th>
@@ -52,11 +49,17 @@
               <td class="border px-4 py-2">{{ task.countryId?.name }}</td>
               <td class="border px-4 py-2">{{ task.productId?.name }}</td>
               <td class="border px-4 py-2">{{ task.typeDeDemandeId?.name }}</td>
+              <td class="border px-4 py-2 text-center">{{ formatDate(task.startday) }}</td>
+              <td class="border px-4 py-2 text-center"> {{ formatDate(task.endday) }}</td>
               <td class="border px-4 py-2 text-center">
-                {{ formatDate(task.startday) }}
-              </td>
-              <td class="border px-4 py-2 text-center">
-                {{ formatDate(task.endday) }}
+                <span v-if="task.statut === 'cloturé'" :class="{
+                  'text-red-700': status.type === 'late',
+                  'text-green-700': status.type === 'early',
+                  'text-blue-700': status.type === 'ontime'
+                }" v-for="status in [task.statusMessage || calculateStatusMessage(task) || { message: 'N/A' }]">
+                  {{ status.message }}
+                </span>
+                <span v-else class="text-orange-500">En cours</span>
               </td>
               <td class="border px-4 py-2 text-center">
                 <span v-if="task.statut === 'en attente'"
@@ -65,7 +68,9 @@
                   class="inline-block w-4 h-4 bg-orange-500 rounded-full"></span>
                 <span v-else-if="task.statut === 'cloturé'"
                   class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
-                <span v-else class="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
+                <span v-else class="inline-block w-4 h-4 bg-green-500 rounded-full">
+
+                </span>
               </td>
               <td class="border px-4 py-2">
                 {{ Array.isArray(task.assignedAgents) ? task.assignedAgents.length : 0 }} agent(s)
@@ -73,8 +78,8 @@
               <td class="border px-4 py-2 text-center">
                 <div class="relative inline-block text-left">
                   <!-- Bouton des trois points pour ouvrir le dropdown -->
-                  <button @click="toggleDropdown(task._id)"
-                    class="text-gray-700 hover:text-gray-500 focus:outline-none">
+                  <button @click="toggleDropdown(task._id, $event)"
+                    class="text-gray-700 hover:text-gray-500 focus:outline-none" :ref="'dropdownBtn-' + task._id">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"
                       stroke="none">
                       <circle cx="5" cy="12" r="1.5" />
@@ -85,8 +90,9 @@
 
                   <!-- Dropdown menu avec les boutons d'actions -->
                   <div v-if="dropdownOpen === task._id"
-                    class="absolute right-0 mt-2 w-28 bg-white border border-gray-200 rounded shadow-lg"
-                    style="position: fixed; z-index: 9999;">
+                    class="fixed w-44 bg-white border border-gray-200 rounded shadow-lg z-[9999]"
+                    :style="{ top: dropdownPosition.top + 'px', left: dropdownPosition.left + 'px' }"
+                    :ref="'dropdownMenu-' + task._id">
                     <button @click="openTaskDetails(task)"
                       class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
@@ -97,7 +103,7 @@
                       Messages
                     </button>
 
-                    <button @click="editTask(task)"
+                    <button v-if="task.statut !== 'cloturé' && task.statut !== 'en cours'" @click="editTask(task)"
                       class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -106,7 +112,6 @@
                       </svg>
                       Modifier
                     </button>
-
 
                     <button v-if="task.statut !== 'cloturé'" @click="closeTask(task)"
                       class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
@@ -117,7 +122,6 @@
                       </svg>
                       Clôturer
                     </button>
-
                   </div>
                 </div>
               </td>
@@ -125,9 +129,6 @@
           </tbody>
         </table>
       </div>
-
-      <!-- Pagination -->
-      <Pagination :total-items="totalItems" :items-per-page="itemsPerPage" @page-changed="goToPage" />
     </main>
 
     <!-- Modal de tâche -->
@@ -143,9 +144,20 @@
         </svg>
         <p class="mb-4">Êtes-vous sûr de vouloir clôturer cette tâche ?</p>
         <div class="flex justify-center space-x-4 text-center">
-          <button @click="cancelCloseTask" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Annuler</button>
+          <button @click="cancelCloseTask" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+            :disabled="isLoading">Annuler</button>
           <button @click="confirmCloseTask"
-            class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Clôturer</button>
+            class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 flex items-center justify-center"
+            :disabled="isLoading">
+            <svg v-if="isLoading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+              fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+            {{ isLoading ? 'Clôture en cours...' : 'Clôturer' }}
+          </button>
         </div>
       </div>
     </div>
@@ -177,6 +189,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Pagination -->
+  <Pagination :total-items="totalItems" :items-per-page="itemsPerPage" @page-changed="goToPage" />
 </template>
 
 <script>
@@ -201,6 +216,7 @@ export default {
       showTaskModal: false,
       selectedTask: null,
       dropdownOpen: null,
+      dropdownPosition: { top: 0, left: 0 },
       currentPage: 1,
       itemsPerPage: 10,
       totalItems: 0,
@@ -217,6 +233,7 @@ export default {
       showDialog: false,
       dialogMessage: '',
       dialogType: '',
+      isLoading: false,
     };
   },
 
@@ -230,8 +247,6 @@ export default {
   mounted() {
     this.fetchTasks();
     document.addEventListener('click', this.closeDropdownOnClickOutside);
-    // Vérifier le statut toutes les minutes
-    this.statusCheckInterval = setInterval(this.checkTasksStatus, 60000);
   },
 
   beforeDestroy() {
@@ -261,9 +276,31 @@ export default {
       return new Date(date).toLocaleDateString('fr-FR');
     },
 
-
-    toggleDropdown(id) {
-      this.dropdownOpen = this.dropdownOpen === id ? null : id;
+    toggleDropdown(id, event) {
+      if (this.dropdownOpen === id) {
+        this.dropdownOpen = null;
+      } else {
+        this.dropdownOpen = id;
+        this.$nextTick(() => {
+          const btn = this.$refs['dropdownBtn-' + id];
+          const menu = this.$refs['dropdownMenu-' + id];
+          if (!btn || !menu) return;
+          const btnRect = btn[0] ? btn[0].getBoundingClientRect() : btn.getBoundingClientRect();
+          const menuRect = menu[0] ? menu[0].getBoundingClientRect() : menu.getBoundingClientRect();
+          let top = btnRect.bottom + window.scrollY;
+          let left = btnRect.left + window.scrollX;
+          // Adjust if overflow right
+          if (left + menuRect.width > window.innerWidth) {
+            left = window.innerWidth - menuRect.width - 8; // 8px margin
+          }
+          // Adjust if overflow bottom
+          if (top + menuRect.height > window.innerHeight + window.scrollY) {
+            top = btnRect.top + window.scrollY - menuRect.height;
+            if (top < 0) top = 8; // 8px margin
+          }
+          this.dropdownPosition = { top, left };
+        });
+      }
     },
 
     closeDropdownOnClickOutside(event) {
@@ -293,12 +330,21 @@ export default {
     },
     async confirmCloseTask() {
       try {
+        this.isLoading = true;
         const token = localStorage.getItem('token');
-        await axios.put(
+        const response = await axios.put(  // Ajout de la constante response manquante
           `${API_URL}/tasks/${this.taskToClose._id}/close`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
+        // La réponse contient la tâche mise à jour avec le statusMessage
+        const updatedTask = response.data;
+
+        // Mettre à jour la tâche dans votre tableau local
+        const index = this.tasks.findIndex(t => t._id === updatedTask._id);
+        if (index !== -1) {
+          this.tasks.splice(index, 1, updatedTask);
+        }
 
         this.dialogMessage = 'Tâche clôturée avec succès.';
         this.dialogType = 'success';
@@ -311,8 +357,35 @@ export default {
         this.dialogType = 'error';
         this.showDialog = true;
       } finally {
+        this.isLoading = false;
         this.showCloseTaskModal = false;
         this.taskToClose = null;
+      }
+    },
+
+    calculateStatusMessage(task) {
+      if (!task.closedAt || !task.endday || task.statut !== 'cloturé') return null;
+
+      const closedAt = new Date(task.closedAt);
+      const endDay = new Date(task.endday);
+      const diffTime = closedAt - endDay;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays > 0) {
+        return {
+          message: `⚠ +${diffDays}j`,
+          type: 'late'
+        };
+      } else if (diffDays < 0) {
+        return {
+          message: `⏱ ${diffDays}j`,
+          type: 'early'
+        };
+      } else {
+        return {
+          message: "✓ À temps",
+          type: 'ontime'
+        };
       }
     },
     closeTaskModal() {
@@ -328,26 +401,6 @@ export default {
       this.currentPage = page;
       this.fetchTasks();
     },
-
-    async checkTasksStatus() {
-      const now = new Date();
-      for (const task of this.tasks) {
-        if (task.statut === 'en attente' && new Date(task.startday) <= now) {
-          try {
-            const token = localStorage.getItem('token');
-            await axios.put(
-              `${API_URL}/tasks/${task._id}/status`,
-              { status: 'en cours' },
-              { headers: { Authorization: `Bearer ${token}` } }
-            );
-            task.statut = 'en cours';
-          } catch (error) {
-            console.error('Erreur lors de la mise à jour du statut:', error);
-          }
-        }
-      }
-    },
-
     openTaskDetails(task) {
       this.$router.push(`/tasks/${task._id}`);
     }

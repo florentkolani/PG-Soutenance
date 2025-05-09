@@ -1,6 +1,6 @@
 <template>
   <div v-if="showModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
-    <div class="bg-white rounded-lg p-6 w-1/3 shadow-md relative">
+    <div class="relative p-4 w-full max-w-2xl bg-white rounded-lg shadow">
       <div class="flex justify-between items-center pb-4 mb-4 border-b">
         <h3 class="text-lg font-semibold text-gray-900">Ajoutez un nouveau pays</h3>
         <button @click="$emit('close')" class="text-red-600 hover:text-red-800 text-2xl">&times;</button>
@@ -21,6 +21,14 @@
           <input id="country-code" v-model="country.code" type="text"
             class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
             placeholder="Entrez le code du pays" required />
+        </div>
+        <!-- Longueur du numéro de téléphone -->
+        <div class="mb-4">
+          <label for="phone-length" class="block text-sm font-medium text-gray-700 mb-2">Longueur du numéro de téléphone <span
+              class="text-red-500">*</span></label>
+          <input id="phone-length" v-model="country.phoneLength" type="number" min="1" max="15"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+            placeholder="Entrez la longueur du numéro de téléphone" required />
         </div>
         <!-- Boutons -->
         <div class="flex justify-center space-x-4">
@@ -62,7 +70,7 @@ export default {
     },
     country: {
       type: Object,
-      default: () => ({ name: '', code: '' })
+      default: () => ({ name: '', code: '', phoneLength: '' })
     }
   },
   emits: ['close', 'save'],
@@ -74,7 +82,7 @@ export default {
   },
   methods: {
     save() {
-      if (this.country.name && this.country.code) {
+      if (this.country.name && this.country.code && this.country.phoneLength) {
         this.$emit('save', this.country);
         this.$emit('close');  // Fermer le modal après la sauvegarde
       } else {

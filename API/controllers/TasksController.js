@@ -190,6 +190,7 @@ exports.updateTask = async (req, res) => {
 };
 
 // Clôturer une tâche
+
 exports.closeTask = async (req, res) => {
     try {
         const task = await Task.findByIdAndUpdate(
@@ -210,6 +211,22 @@ exports.closeTask = async (req, res) => {
         if (!typeDeDemandeDetails) {
             return res.status(500).json({ message: 'Type de demande introuvable pour cette tâche.' });
         }
+        const closedAt = new Date(task.closedAt);
+        const endDay = new Date(task.endday);
+
+        // Calculer la différence en jours
+        const diffTime = closedAt - endDay;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        let statusMessage = '';
+        if (diffDays > 0) {
+            statusMessage = `retard de ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
+        } else if (diffDays < 0) {
+            const advanceDays = Math.abs(diffDays);
+            statusMessage = `anticipé de ${advanceDays} jour${advanceDays > 1 ? 's' : ''}`;
+        } else {
+            statusMessage = "terminé à temps";
+        }
 
         // Envoyer un email de notification de clôture
         const emailSubject = `Tâche ${typeDeDemandeDetails.name} clôturée`;
@@ -222,7 +239,9 @@ exports.closeTask = async (req, res) => {
                         </div>
                         <div style="padding: 20px;">
                             <p>La tâche a été marquée comme terminée.</p>
-                            <p><strong>Date de clôture :</strong> ${new Date().toLocaleString()}</p>
+                            <p><strong>Date de clôture :</strong> ${closedAt.toLocaleString()}</p>
+                            <p><strong>statut :</strong> ${task.statut}</p>
+                            <p><strong>Temps d'exécution :</strong> <span style="color: ${diffDays > 0 ? 'red' : (diffDays < 0 ? 'green' : 'blue')}">${statusMessage}</span></p>
                         </div>
                         <div style="background-color: #f2f2f2; padding: 20px; text-align: center; font-size: 14px; color: #666;">
                             <p style="margin: 0;">Ce message a été envoyé automatiquement, merci de ne pas y répondre.</p>
@@ -243,6 +262,9 @@ exports.closeTask = async (req, res) => {
                 await sendEmail(user.email, emailSubject, emailHtml);
             }
         }
+
+        // Ajouter le statusMessage à la réponse
+        task.statusMessage = statusMessage;
 
         res.status(200).json(task);
     } catch (error) {

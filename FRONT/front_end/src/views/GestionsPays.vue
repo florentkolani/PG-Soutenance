@@ -1,12 +1,12 @@
 <template>
-  <div class="w-full px-4 py-3">
+  <div class="flex flex-col min-h-screen">
     <!-- Header Component -->
     <Header title="NOVA LEAD" primaryActionText="Nouveau Pays" @primaryAction="openNewCountryModal"
       @filterAction="openFilterOptions" @goToDashboard="redirectToDashboard" />
 
     <!-- List of countries -->
-    <main class="w-full px-4 py-3">
-      <h1 class="text-2xl font-bold text-gray-800">Liste des pays</h1>
+    <main class="flex-grow w-full px-4 py-3">
+      <h1 class="text-2xl font-bold text-gray-800 m-2">LISTES DES PAYS</h1>
       <div class="overflow-x-auto relative overflow-y-hidden">
         <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
           <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
@@ -51,8 +51,9 @@
     </main>
 
     <!-- Pagination -->
-    <Pagination :total-items="totalItems" :items-per-page="itemsPerPage" :current-page.sync="currentPage"
-      @page-changed="handlePageChange" />
+    <div class="mt-auto">
+      <Pagination :total-items="totalItems" :items-per-page="itemsPerPage" @page-changed="goToPage" />
+    </div>
 
     <!-- Country Modal -->
     <CountryModal :showModal="showCountryModal" :country="selectedCountry" @close="closeCountryModal"
@@ -75,8 +76,12 @@
               <td class="border border-gray-300 px-4 py-2">{{ selectedCountryDetails.name }}</td>
             </tr>
             <tr>
-              <td class="border border-gray-300 px-4 py-2 font-bold">Code du pays</td>
+              <td class="border border-gray-300 px-4 py-2 font-bold">Indicatif du pays</td>
               <td class="border border-gray-300 px-4 py-2">{{ selectedCountryDetails.code }}</td>
+            </tr>
+            <tr>
+              <td class="border border-gray-300 px-4 py-2 font-bold">Taille numéro</td>
+              <td class="border border-gray-300 px-4 py-2">{{ selectedCountryDetails.phoneLength }}</td>
             </tr>
           </tbody>
         </table>
@@ -101,6 +106,12 @@
             <input v-model="editCountryData.code" type="text"
               class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
               placeholder="Entrez le code du pays" />
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Longueur du numéro de téléphone </label>
+            <input v-model="editCountryData.phoneLength" type="number" min="1" max="15"
+              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+              placeholder="Entrez la Longueur du numéro de téléphone " />
           </div>
           <div class="flex justify-center space-x-4">
             <button type="submit"
@@ -227,8 +238,8 @@ export default {
         console.error('Erreur lors de la récupération des pays:', error);
       }
     },
-    handlePageChange(newPage) {
-      this.currentPage = newPage;
+    goToPage(page) {
+      this.currentPage = page;
       this.fetchCountries();
     },
     openNewCountryModal() {
