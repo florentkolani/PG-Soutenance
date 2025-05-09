@@ -127,23 +127,18 @@
 
     <!-- Dialog -->
     <div v-if="showDialog"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300">
-      <div
-        class="bg-white rounded-xl shadow-2xl overflow-hidden w-full max-w-md mx-4 transform transition-all duration-300 ease-in-out">
-        <div
-          :class="['p-6', dialogType === 'success' ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-red-500 to-red-600']">
-          <div class="text-6xl mb-4 text-white">
-            <i v-if="dialogType === 'success'" class="fas fa-check-circle"></i>
-            <i v-else class="fas fa-times-circle"></i>
-          </div>
-          <p class="text-xl font-medium text-white mb-6">{{ dialogMessage }}</p>
+      class="fixed inset-0 z-[60] flex items-center justify-center bg-gray-900/75 backdrop-blur-sm">
+      <div class="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+        <div :class="['text-6xl mb-6 text-center', dialogType === 'success' ? 'text-green-500' : 'text-red-500']">
+          <i :class="dialogType === 'success' ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
         </div>
-        <div class="p-4 bg-gray-50 flex justify-center">
-          <button @click="closeDialog"
-            class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-            Fermer
-          </button>
-        </div>
+        <p class="text-xl mb-6 text-center text-gray-700">
+          {{ dialogMessage }}
+        </p>
+        <button @click="closeDialog"
+          class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:ring-4 focus:ring-green-300">
+          Fermer
+        </button>
       </div>
     </div>
   </div>
@@ -268,9 +263,10 @@ export default {
           code: country.code,
           _id: country._id,
           dialCode: country.code,
+          phoneLength: country.phoneLength,
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
-      // console.log("Countries loaded:", this.countries);
+      console.log("Countries loaded:", this.countries);
     } catch (error) {
       console.error("Erreur lors du chargement des pays :", error);
       this.countries = [];
@@ -359,6 +355,10 @@ export default {
           const country = this.countries.find(c => c.name === this.user.pays);
           if (country) {
             this.user.paysId = country._id;
+            // Vérifier la longueur du numéro de téléphone
+            if (this.user.contact.length !== country.phoneLength) {
+              throw new Error(`Le numéro de téléphone doit comporter exactement ${country.phoneLength} chiffres`);
+            }
           } else {
             throw new Error('Pays invalide');
           }
@@ -404,7 +404,12 @@ export default {
       } catch (error) {
         console.error('Erreur lors de la soumission du formulaire:', error);
         this.dialogType = 'error';
-        this.dialogMessage = `Erreur lors de ${this.isEditing ? 'la modification' : "l'ajout"} de l'utilisateur: ${error.message}`;
+        // Améliorer l'affichage des messages d'erreur
+        if (error.response && error.response.data && error.response.data.message) {
+          this.dialogMessage = error.response.data.message;
+        } else {
+          this.dialogMessage = `Erreur lors de ${this.isEditing ? 'la modification' : "l'ajout"} de l'utilisateur: ${error.message}`;
+        }
         this.showDialog = true;
       } finally {
         this.isLoading = false;

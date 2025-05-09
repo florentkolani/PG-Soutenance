@@ -11,13 +11,16 @@ const CountrySchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
+    phoneLength: {
+        type: Number,
+        required: true,
+    },
     isarchived: {
         type: Boolean,
         default: false,
     },
 }, {
-    timestamps: true,
-}
-);
+    timestamps: true
+});
 
 module.exports = mongoose.model('Country', CountrySchema);

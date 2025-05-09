@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full px-4 py-3">
+  <div class="flex flex-col min-h-screen">
     <!-- Header Component -->
     <Header title="NOVA LEAD" primaryActionText="Nouvelle Ville" @primaryAction="openNewCityModal"
       @filterAction="openFilterOptions" @goToDashboard="redirectToDashboard" />
@@ -31,10 +31,14 @@
     </div>
 
     <!-- List of cities -->
-    <main class="w-full px-4 py-3">
+    <main class="flex-grow w-full px-4 py-3">
       <div class="flex items-center mb-4">
         <button @click="goBack" class="text-blue-500 mt-3 hover:text-blue-600">
-          <span class="material-icons">arrow_back</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5"></path>
+            <path d="M12 19l-7-7 7-7"></path>
+          </svg>
         </button>
         <h1 class="text-2xl font-bold text-gray-800 ml-2">
           LISTES DES VILLES {{ cities[0]?.country ? `: ${cities[0].country.name}` : '' }}
@@ -79,8 +83,9 @@
     </main>
 
     <!-- Pagination -->
-    <Pagination :total-items="totalItems" :items-per-page="itemsPerPage" :current-page.sync="currentPage"
-      @page-changed="handlePageChange" />
+    <div class="mt-auto">
+      <Pagination :total-items="totalItems" :items-per-page="itemsPerPage" @page-changed="goToPage" />
+    </div>
 
     <!-- City Modal -->
     <CityModal :showModal="showCityModal" :city.sync="selectedCity" @close="closeCityModal" @save="saveCity" />
@@ -225,8 +230,8 @@ export default {
         this.errorMessage = 'Erreur lors de la récupération des villes';
       }
     },
-    handlePageChange(newPage) {
-      this.currentPage = newPage;
+    goToPage(page) {
+      this.currentPage = page;
       this.fetchCities();
     },
     openNewCityModal() {

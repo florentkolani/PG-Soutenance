@@ -109,7 +109,7 @@
           {{ alertMessage || errorMessage }}
         </p>
         <button @click="closeAlert"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:ring-4 focus:ring-blue-300">
+          class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:ring-4 focus:ring-green-300">
           Fermer
         </button>
       </div>

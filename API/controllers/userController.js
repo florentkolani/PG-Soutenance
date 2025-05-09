@@ -72,6 +72,32 @@ exports.updateUser = async (req, res) => {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
 
+        // Si le pays est modifié, vérifier qu'il existe
+        if (paysId) {
+            const countryExists = await Country.findById(paysId);
+            if (!countryExists) {
+                return res.status(400).json({ message: 'Pays invalide ou non trouvé' });
+            }
+
+            // Si le contact est modifié, vérifier sa longueur
+            if (contact && contact.length !== countryExists.phoneLength) {
+                return res.status(400).json({ 
+                    message: `Le numéro de téléphone doit comporter exactement ${countryExists.phoneLength} chiffres` 
+                });
+            }
+        }
+
+        // Si la ville est modifiée, vérifier qu'elle existe et appartient au bon pays
+        if (villeId) {
+            const cityExists = await City.findById(villeId);
+            if (!cityExists) {
+                return res.status(400).json({ message: 'Ville invalide ou non trouvée' });
+            }
+            if (cityExists.country.toString() !== (paysId || user.paysId).toString()) {
+                return res.status(400).json({ message: 'La ville sélectionnée n\'appartient pas au pays sélectionné' });
+            }
+        }
+
         // Mettre à jour les informations de l'utilisateur
         user.name = name || user.name;
         user.email = email || user.email;

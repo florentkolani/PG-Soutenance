@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 
 exports.createCountry = async (req, res) => {
     try {
-        const { name, code } = req.body;
-        const country = new Country({ name, code });
+        const { name, code, phoneLength } = req.body;
+        const country = new Country({ name, code, phoneLength });
         await country.save();
         res.status(201).json({ message: 'Pays créé avec succès', country });
     } catch (error) {
@@ -53,11 +53,13 @@ exports.getCountryById = async (req, res) => {
 
 exports.updateCountry = async (req, res) => {
     try {
-        const { name, code } = req.body;
+        const { name, code, phoneLength } = req.body;
         const country = await Country.findByIdAndUpdate(
             req.params.id,
-            { name, code },
+            { name, code, phoneLength },
             { new: true }
+
+
         );
         if (!country) return res.status(404).json({ message: 'Pays non trouvé' });
         res.status(200).json({ message: 'Pays mis à jour avec succès', country });

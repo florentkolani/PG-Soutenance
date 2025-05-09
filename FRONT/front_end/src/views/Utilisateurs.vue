@@ -133,9 +133,18 @@
           </svg>
           <p>Êtes-vous sûr de vouloir archiver cet utilisateur?</p>
           <div class="flex justify-center mt-4">
-            <button @click="archiveUser(selectedUserId)" class="bg-red-500 text-white px-4 py-2 rounded mr-2">Oui,
-              archiver</button>
-            <button @click="closeArchiveModal" class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
+            <button @click="archiveUser(selectedUserId)" 
+              class="bg-red-500 text-white px-4 py-2 rounded mr-2 flex items-center justify-center"
+              :disabled="isLoading">
+              <svg v-if="isLoading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ isLoading ? 'Archivage en cours...' : 'Oui, archiver' }}
+            </button>
+            <button @click="closeArchiveModal" 
+              class="bg-gray-500 text-white px-4 py-2 rounded"
+              :disabled="isLoading">Annuler</button>
           </div>
         </div>
       </div>
@@ -200,13 +209,14 @@ export default {
       itemsPerPage: 10,
       totalItems: 0,
       totalPages: 0,
-      selectedPays: '', // New state for country filter
+      selectedPays: '',
+      allCountries: [],
+      isLoading: false,
     };
   },
   computed: {
     uniquePays() {
-      // Extract unique countries from the users list
-      return [...new Set(this.users.map(user => user.pays).filter(Boolean))];
+      return this.allCountries;
     },
     filteredUsers() {
       let users = this.users;
@@ -226,7 +236,7 @@ export default {
   },
   methods: {
     redirectToDashboard() {
-      this.$router.push('/dashboard'); // Redirection vers la route du dashboard
+      this.$router.push('/dashboard');
     },
     getToken() {
       return localStorage.getItem('token');
@@ -250,6 +260,26 @@ export default {
       const token = this.checkAuthorization();
       if (!token) return;
 
+      // Fetch countries 
+      axios.get(`${API_URL}/countries?limit=0`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then(response => {
+          if (response.data.countries && Array.isArray(response.data.countries)) {
+            this.allCountries = response.data.countries.map(country => country.name);
+          } else {
+            console.error('Format de données de pays invalide:', response.data);
+            this.allCountries = [];
+          }
+        })
+        .catch(error => {
+          console.error('Erreur de chargement des pays:', error);
+          this.allCountries = [];
+        });
+
+      // Then fetch users
       axios.get(`${API_URL}/users/all`, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -276,12 +306,9 @@ export default {
           this.users = sortedUsers;
 
           // Mettre à jour la pagination
-          this.pagination = {
-            currentPage: response.data.currentPage,
-            totalItems: response.data.totalItems,
-            totalPages: response.data.totalPages,
-            itemsPerPage: limit,
-          };
+          this.currentPage = response.data.currentPage || page;
+          this.totalItems = response.data.totalItems || nonArchivedUsers.length;
+          this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
         })
         .catch(error => {
           console.error('Erreur de chargement des Utilisateurs:', error);
@@ -328,6 +355,8 @@ export default {
       }
       const token = this.checkAuthorization();
       if (!token) return;
+
+      this.isLoading = true;
       // archivation de l'utilisateur 
       axios.put(`${API_URL}/users/${userId}/archive`, {}, {
         headers: {
@@ -343,6 +372,9 @@ export default {
         .catch(error => {
           console.error('Error archiving user:', error);
           this.showAlert('Échec de l\'archivage de l\'utilisateur.', 'error');
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
 

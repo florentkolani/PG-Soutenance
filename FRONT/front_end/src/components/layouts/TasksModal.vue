@@ -377,7 +377,7 @@ export default {
     async loadCountries() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/countries`, {
+        const response = await axios.get(`${API_URL}/countries?limit=0`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -393,7 +393,7 @@ export default {
     async loadProducts() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/products`, {
+        const response = await axios.get(`${API_URL}/products?limit=0`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -409,7 +409,7 @@ export default {
     async loadTypeDemandes() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/types`, {
+        const response = await axios.get(`${API_URL}/types?limit=0`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

@@ -1,14 +1,16 @@
 const express = require('express');
 require('dotenv').config();
+
 const cors = require('cors');
 const connectDB = require('./config');
+require('./services/taskScheduler');
 
 
 const app = express();
 
 // Middleware pour activer CORS
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://192.168.1.70'], // Add all allowed origins
+    origin: ['http://localhost:5173', 'http://192.168.1.70'], 
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: false
 }));
@@ -31,6 +33,7 @@ const videoRoutes = require('./routes/videoRoutes');
 const emailRoutes = require("./routes/emailRoutes");
 const reportingRoutes = require('./routes/ReportingRoutes');
 const TaskRoutes = require('./routes/TaskRoutes');
+
 
 // Utilisation des routes
 app.use('/api/auth', authRoutes);
