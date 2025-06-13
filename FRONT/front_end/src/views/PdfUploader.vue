@@ -54,7 +54,7 @@
                 <p class="text-gray-500 text-sm">Mis à jour le: {{ new Date(pdf.updatedAt).toLocaleString() }}</p>
               </div>
               <div>
-                <a :href="`http://192.168.1.70:5000/api/pdfs/download/${pdf.url.split('/').pop()}`" download
+                <a :href="`${API_URL}/pdfs/download/${pdf.url.split('/').pop()}`" download
                   class="inline-block bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 mr-2">
                   Télécharger
                 </a>
@@ -89,6 +89,7 @@ export default {
   },
   data() {
     return {
+      API_URL,
       products: [],
       typeDeDemandes: [],
       selectedProduct: '',

@@ -16,7 +16,10 @@
             </tr>
           </thead>
           <tbody class="text-gray-600 text-sm font-normal">
-            <tr v-for="type in types" :key="type._id" class="border-b border-gray-200 hover:bg-gray-100">
+            <tr v-for="type in types" :key="type._id" :class="[
+              'border-b border-gray-200 hover:bg-gray-100',
+              type.isArchived ? 'bg-red-300' : ''
+            ]">
               <td class="border border-gray-300 px-4 py-2">{{ type.name }}</td>
               <td class="border border-gray-300 px-4 py-2">{{ truncateText(type.description, 50) }}</td>
               <td class="border px-4 py-2 text-center">
@@ -30,12 +33,28 @@
               </td>
               <td class="py-3 px-6 text-center whitespace-nowrap">
                 <div class="flex flex-row items-center justify-center space-x-1">
-                  <button @click="viewDetails(type)"
-                    class="bg-green-500 text-white px-2 py-1 rounded text-sm hover:bg-green-600">Détails</button>
-                  <button @click="openEditModal(type)"
-                    class="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600">Modifier</button>
-                  <button @click="confirmArchive(type._id)"
-                    class="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600">Archiver</button>
+                  <button @click="viewDetails(type)" :class="[
+                    'px-2 py-1 rounded text-sm',
+                    type.isArchived
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-green-500 hover:bg-green-600 text-white'
+                  ]" :disabled="type.isArchived">
+                    Détails
+                  </button>
+                  <button @click="openEditModal(type)" :class="[
+                    'px-2 py-1 rounded text-sm',
+                    type.isArchived
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-blue-500 hover:bg-blue-600 text-white'
+                  ]" :disabled="type.isArchived">
+                    Modifier
+                  </button>
+                  <button @click="type.isArchived ? confirmUnarchive(type._id) : confirmArchive(type._id)" :class="[
+                    'text-white px-2 py-1 rounded text-sm',
+                    type.isArchived ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-red-500 hover:bg-red-600'
+                  ]">
+                    {{ type.isArchived ? 'Désarchiver' : 'Archiver' }}
+                  </button>
                 </div>
               </td>
             </tr>
@@ -100,9 +119,13 @@
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
         </svg>
-        <p class="text-center">Êtes-vous sûr de vouloir archiver ce type de demande ?</p>
+        <p class="text-center">{{ isUnarchiving ? 'Êtes-vous sûr de vouloir désarchiver ce type de demande ?' :
+          'Êtes-vous sûr de vouloir archiver ce type de demande ?' }}</p>
         <div class="flex justify-center mt-4">
-          <button @click="archiveType" class="bg-red-500 text-white px-4 py-2 rounded-md">Oui, archiver</button>
+          <button @click="isUnarchiving ? unarchiveType() : archiveType()"
+            :class="['text-white px-4 py-2 rounded-md', isUnarchiving ? 'bg-yellow-500' : 'bg-red-500']">
+            {{ isUnarchiving ? 'Oui, désarchiver' : 'Oui, archiver' }}
+          </button>
           <button @click="closeConfirmArchive" class="bg-gray-500 text-white px-4 py-2 ml-2 rounded-md">Annuler</button>
         </div>
       </div>
@@ -136,6 +159,7 @@ export default {
       selectedType: null,
       editTypeData: null,
       confirmArchiveId: null,
+      isUnarchiving: false,
       alertMessage: '',
       alertTitle: '',
       currentPage: 1, // Page actuelle
@@ -282,9 +306,41 @@ export default {
     },
     closeConfirmArchive() {
       this.confirmArchiveId = null;
+      this.isUnarchiving = false;
     },
     confirmArchive(id) {
       this.confirmArchiveId = id;
+      this.isUnarchiving = false;
+    },
+    confirmUnarchive(id) {
+      this.confirmArchiveId = id;
+      this.isUnarchiving = true;
+    },
+    async unarchiveType() {
+      const token = this.getToken();
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${API_URL}/types/${this.confirmArchiveId}/unarchive`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) throw new Error('Erreur lors du désarchivage du type de demande.');
+
+        this.alertMessage = 'Le type de demande a été désarchivé avec succès.';
+        await this.getTypes();
+      } catch (error) {
+        console.error(error);
+        this.alertTitle = 'Erreur';
+        this.alertMessage = 'Une erreur est survenue lors du désarchivage.';
+      } finally {
+        this.confirmArchiveId = null;
+        this.isUnarchiving = false;
+      }
     },
   },
 };

@@ -100,6 +100,15 @@
                   placeholder="Ajoutez un commentaire à la vidéo"></textarea>
               </div>
 
+              <!-- Checkbox pour autoriser le téléchargement -->
+              <div class="mb-2">
+                <label class="inline-flex items-center">
+                  <input type="checkbox" v-model="allowDownload"
+                    class="rounded border-gray-300 text-blue-500 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                  <span class="ml-2 text-sm text-gray-700">Autoriser le téléchargement de cette vidéo</span>
+                </label>
+              </div>
+
               <div class="mt-3 sm:mt-4 flex justify-end space-x-2">
                 <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
                   @click="closeModal">
@@ -158,7 +167,8 @@ export default {
       showDialog: false,
       dialogType: 'success',
       dialogTitle: '',
-      dialogMessage: ''
+      dialogMessage: '',
+      allowDownload: false,
     }
   },
   computed: {
@@ -184,6 +194,7 @@ export default {
           this.isEditing = true;
           this.title = newVal.title || '';
           this.comment = newVal.comment || '';
+          this.allowDownload = newVal.allowDownload || false; 
           if (newVal.TypeDeDemande) {
             this.selectedTypeDeDemande = typeof newVal.TypeDeDemande === 'object' ?
               newVal.TypeDeDemande._id : newVal.TypeDeDemande;
@@ -220,6 +231,7 @@ export default {
       this.selectedTypeDeDemande = '';
       this.selectedProduct = '';
       this.videoFile = null;
+      this.allowDownload = false;
       this.isEditing = false;
       if (this.$refs.fileInput) {
         this.$refs.fileInput.value = '';
@@ -250,6 +262,7 @@ export default {
       formData.append("title", this.title);
       formData.append("typededemande", this.selectedTypeDeDemande);
       formData.append("produit", this.selectedProduct);
+      formData.append("allowDownload", this.allowDownload);
 
       try {
         const response = await axios.post(`${API_URL}/videos/uploads`, formData, {
@@ -271,6 +284,7 @@ export default {
       formData.append("comment", this.comment);
       formData.append("typededemande", this.selectedTypeDeDemande);
       formData.append("produit", this.selectedProduct);
+      formData.append("allowDownload", this.allowDownload);
 
       if (this.videoFile) {
         formData.append("video", this.videoFile);

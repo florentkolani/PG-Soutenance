@@ -9,13 +9,14 @@ exports.sendBulkEmail = async (req, res) => {
   }
 
   try {
+    // Envoyer les emails en utilisant BCC (géré par emailService.js)
     await sendEmail(to, subject, message);
 
-    // Save email details to the database
+    // Enregistrer un seul document en base de données avec tous les destinataires
     const emailRecord = new Email({
-      sender: req.user.email, // Assuming `req.user` contains authenticated user info
-      senderName: req.user.name || "Inconnu", // Fallback to "Inconnu" if name is missing
-      recipients: to, // Ensure recipients field is populated
+      sender: req.user.email,
+      senderName: req.user.name || "Inconnu",
+      recipients: Array.isArray(to) ? to : [to],
       subject,
       message,
     });
@@ -34,21 +35,38 @@ exports.getSentEmails = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    // Aucun filtre - tous les utilisateurs peuvent voir tous les emails
-    const filter = {};
+    // Filtrer les emails pour ne montrer que ceux où l'utilisateur est le destinataire ou l'expéditeur
+    const filter = {
+      $or: [
+        { sender: req.user.email },
+        { recipients: req.user.email }
+      ]
+    };
 
-    // Récupérer tous les emails
+    // Récupérer les emails filtrés
     const emails = await Email.find(filter)
       .select("sender senderName recipients subject message sentAt")
       .sort({ sentAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    // Compter le nombre total d'emails
+    // Pour chaque email, ne montrer que les destinataires pertinents pour l'utilisateur actuel
+    const formattedEmails = emails.map(email => {
+      const formattedEmail = email.toObject();
+      // Si l'utilisateur est l'expéditeur, montrer tous les destinataires
+      if (email.sender === req.user.email) {
+        return formattedEmail;
+      }
+      // Si l'utilisateur est un destinataire, ne montrer que son email
+      formattedEmail.recipients = [req.user.email];
+      return formattedEmail;
+    });
+
+    // Compter le nombre total d'emails pour cet utilisateur
     const total = await Email.countDocuments(filter);
 
     res.status(200).json({
-      emails,
+      emails: formattedEmails,
       currentPage: page,
       totalPages: Math.ceil(total / limit),
       totalEmails: total

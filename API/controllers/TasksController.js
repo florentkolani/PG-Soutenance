@@ -40,49 +40,47 @@ async function generateNumeroTask() {
 async function envoyerEmailCreationTache(task) {
     try {
         const user = await User.findById(task.userId);
-        const typeDeDemandeDetails = await typeDeDemande.findById(task.typeDeDemandeId); // Renamed variable
+        const typeDeDemandeDetails = await typeDeDemande.findById(task.typeDeDemandeId);
         const productDetails = await product.findById(task.productId);
         const assignedUsers = await User.find({ _id: { $in: task.assignedAgents } });
 
-        const mailOptions = {
-            from: process.env.EMAIL_NOVA_LEAD,
-            to: assignedUsers.map(u => u.email).join(','),
-            subject: `Nouvelle tâche assignée - ${typeDeDemandeDetails.name}`, // Updated variable
-            html: `
-                <html>
-                    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; padding: 20px;">
-                        <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-                            <div style="background-color: #28a745; color: #fff; padding: 20px; text-align: center;">
-                                <h3 style="margin: 0;">Nouvelle tâche assignée - ${typeDeDemandeDetails.name}</h3>
-                            </div>
-                            <div style="padding: 20px;">
-                                <p>Une nouvelle tâche vous a été assignée.</p>
-                                <p><strong>Détails de la tâche :</strong></p>
-                                <ul style="list-style: none; padding: 0;">
-                                    <li><strong>Client :</strong> ${user.name}</li>
-                                    <li><strong>Produit :</strong> ${productDetails.name}</li>
-                                    <li><strong>Type de demande :</strong> ${typeDeDemandeDetails.name}</li>
-                                    <li><strong>Date de début :</strong> ${new Date(task.startday).toLocaleDateString()}</li>
-                                    <li><strong>Date de fin :</strong> ${new Date(task.endday).toLocaleDateString()}</li>
-                                    <li><strong>Description :</strong> ${task.description}</li>
-                                    <li><strong>Agents assignés :</strong> ${assignedUsers.map(u => u.name).join(', ')}</li>
-                                </ul>
-                                <p>
-                                    <a href="http://localhost:5173/tasks" style="display: inline-block; padding: 10px 20px; background-color: #28a745; color: #fff; text-decoration: none; border-radius: 4px;">
-                                        Accéder à la tâche
-                                    </a>
-                                </p>
-                            </div>
-                            <div style="background-color: #f2f2f2; padding: 20px; text-align: center; font-size: 14px; color: #666;">
-                                <p style="margin: 0;">Ce message a été envoyé automatiquement, merci de ne pas y répondre.</p>
-                            </div>
+        const emailHtml = `
+            <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; padding: 20px;">
+                    <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                        <div style="background-color: #28a745; color: #fff; padding: 20px; text-align: center;">
+                            <h3 style="margin: 0;">Nouvelle tâche assignée - ${typeDeDemandeDetails.name}</h3>
                         </div>
-                    </body>
-                </html>
-            `
-        };
+                        <div style="padding: 20px;">
+                            <p>Une nouvelle tâche vous a été assignée.</p>
+                            <p><strong>Détails de la tâche :</strong></p>
+                            <ul style="list-style: none; padding: 0;">
+                                <li><strong>Client :</strong> ${user.name}</li>
+                                <li><strong>Produit :</strong> ${productDetails.name}</li>
+                                <li><strong>Type de demande :</strong> ${typeDeDemandeDetails.name}</li>
+                                <li><strong>Date de début :</strong> ${new Date(task.startday).toLocaleDateString()}</li>
+                                <li><strong>Date de fin :</strong> ${new Date(task.endday).toLocaleDateString()}</li>
+                                <li><strong>Description :</strong> ${task.description}</li>
+                                <li><strong>Agents Attribués :</strong> ${assignedUsers.map(u => u.name).join(', ')}</li>
+                            </ul>
+                            <p>
+                                <a href="http://localhost:5173/tasks" style="display: inline-block; padding: 10px 20px; background-color: #28a745; color: #fff; text-decoration: none; border-radius: 4px;">
+                                    Accéder à la tâche
+                                </a>
+                            </p>
+                        </div>
+                        <div style="background-color: #f2f2f2; padding: 20px; text-align: center; font-size: 14px; color: #666;">
+                            <p style="margin: 0;">Ce message a été envoyé automatiquement, merci de ne pas y répondre.</p>
+                        </div>
+                    </div>
+                </body>
+            </html>
+        `;
 
-        await transporter.sendMail(mailOptions);
+        // Envoyer un email séparé à chaque agent assigné
+        for (const assignedUser of assignedUsers) {
+            await sendEmail(assignedUser.email, `Nouvelle tâche assignée - ${typeDeDemandeDetails.name}`, emailHtml);
+        }
     } catch (error) {
         console.error("Erreur lors de l'envoi de l'email:", error);
     }
@@ -206,7 +204,6 @@ exports.closeTask = async (req, res) => {
             return res.status(404).json({ message: 'Tâche non trouvée' });
         }
 
-        // Vérifier si le type de demande est présent
         const typeDeDemandeDetails = task.typeDeDemandeId;
         if (!typeDeDemandeDetails) {
             return res.status(500).json({ message: 'Type de demande introuvable pour cette tâche.' });
@@ -214,7 +211,6 @@ exports.closeTask = async (req, res) => {
         const closedAt = new Date(task.closedAt);
         const endDay = new Date(task.endday);
 
-        // Calculer la différence en jours
         const diffTime = closedAt - endDay;
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
@@ -228,7 +224,6 @@ exports.closeTask = async (req, res) => {
             statusMessage = "terminé à temps";
         }
 
-        // Envoyer un email de notification de clôture
         const emailSubject = `Tâche ${typeDeDemandeDetails.name} clôturée`;
         const emailHtml = `
             <html>
@@ -251,21 +246,19 @@ exports.closeTask = async (req, res) => {
             </html>
         `;
 
-        // Send email to the task owner
+        // Envoyer un email séparé au propriétaire de la tâche
         if (task.userId && task.userId.email) {
             await sendEmail(task.userId.email, emailSubject, emailHtml);
         }
 
-        // Send email to assigned agents
+        // Envoyer un email séparé à chaque agent assigné
         for (const user of task.assignedAgents) {
             if (user.email) {
                 await sendEmail(user.email, emailSubject, emailHtml);
             }
         }
 
-        // Ajouter le statusMessage à la réponse
         task.statusMessage = statusMessage;
-
         res.status(200).json(task);
     } catch (error) {
         console.error('Erreur lors de la clôture de la tâche:', error);
@@ -318,7 +311,6 @@ exports.updateTaskStatus = async (req, res) => {
             return res.status(404).json({ message: 'Tâche non trouvée' });
         }
 
-        // Envoyer un email de notification de changement de statut
         const emailSubject = `Tâche ${task.typeDeDemandeId?.name || 'Sans nom'} - Statut mis à jour`;
         const emailHtml = `
             <html>
@@ -329,6 +321,8 @@ exports.updateTaskStatus = async (req, res) => {
                         </div>
                         <div style="padding: 20px;">
                             <p>Le statut a été changé à : <strong>${status}</strong></p>
+                            <p><strong>Date de début :</strong> ${new Date(task.startday).toLocaleDateString()}</p>
+                            <p><strong>Date de fin :</strong> ${new Date(task.endday).toLocaleDateString()}</p>
                             <p><strong>Date de mise à jour :</strong> ${new Date().toLocaleString()}</p>
                         </div>
                         <div style="background-color: #f2f2f2; padding: 20px; text-align: center; font-size: 14px; color: #666;">
@@ -339,10 +333,12 @@ exports.updateTaskStatus = async (req, res) => {
             </html>
         `;
 
+        // Envoyer un email séparé au propriétaire de la tâche
         if (task.userId?.email) {
             await sendEmail(task.userId.email, emailSubject, emailHtml);
         }
 
+        // Envoyer un email séparé à chaque agent assigné
         for (const user of task.assignedAgents) {
             if (user?.email) {
                 await sendEmail(user.email, emailSubject, emailHtml);

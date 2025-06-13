@@ -1,5 +1,13 @@
 <template>
   <section class="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 py-12">
+    <!-- Toast Notification -->
+    <Toast
+      :show="showToast"
+      :title="toastTitle"
+      :message="toastMessage"
+      :type="toastType"
+      @close="showToast = false"
+    />
     <div class="flex flex-col items-center justify-center px-6 mx-auto h-full lg:py-0">
       <!-- Logo et titre -->
       <a href="#" class="flex flex-col items-center mb-8 transform hover:scale-105 transition-transform duration-300">
@@ -83,15 +91,23 @@
 import { loginUser } from '@/services/authService';
 import axios from 'axios';
 import { API_URL } from '@/services/config';
+import Toast from '@/components/layouts/Toast.vue';
 
 export default {
   name: 'LoginView',
+  components: {
+    Toast
+  },
   data() {
     return {
       email: '',
       password: '',
       showPassword: false,
-      showAlert: false
+      showAlert: false,
+      showToast: false,
+      toastTitle: '',
+      toastMessage: '',
+      toastType: 'success'
     };
   },
   methods: {
@@ -118,13 +134,23 @@ export default {
 
         if (response && response.data && response.data.token) {
           localStorage.setItem('token', response.data.token);
+          
+          // Afficher le toast de succès
+          this.showToast = true;
+          this.toastTitle = 'Connexion réussie';
+          this.toastMessage = 'Bienvenue ! Vous allez être redirigé...';
+          this.toastType = 'success';
 
           if (response.data.mustChangePassword) {
             console.log("Première connexion - redirection vers la page de modification");
-            this.$router.push('/changePassword');
+            setTimeout(() => {
+              this.$router.push('/changePassword');
+            }, 1000);
           } else {
             console.log("Connexion réussie - redirection vers le tableau de bord");
-            this.$router.push('/dashboard');
+            setTimeout(() => {
+              this.$router.push('/dashboard');
+            }, 1000);
           }
         } else {
           console.error('Token manquant dans la réponse');

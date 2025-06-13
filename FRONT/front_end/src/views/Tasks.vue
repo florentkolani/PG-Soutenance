@@ -1,6 +1,6 @@
 <template>
   <div class="bg-gray-100 min-h-screen">
-    <Header title="NOVA LEAD" primaryActionText="Nouvelle tâche" @primaryAction="showTaskModal = true"
+    <Header title="NOVA LEAD" :primaryActionText="canAddTask ? 'Nouvelle tâche' : ''" @primaryAction="showTaskModal = true"
       @filterChanged="onFilterChanged" :filterAction="true" :filterOptions="taskFilterOptions" />
 
     <main class="w-full px-4 py-3">
@@ -27,7 +27,7 @@
         </div>
       </div>
       <!-- Table des tâches -->
-      <div class="overflow-x-auto relative overflow-y-hidden">
+      <div class="overflow-x-auto relative">
         <table class="min-w-full bg-white">
           <thead>
             <tr>
@@ -76,25 +76,17 @@
                 {{ Array.isArray(task.assignedAgents) ? task.assignedAgents.length : 0 }} agent(s)
               </td>
               <td class="border px-4 py-2 text-center">
-                <div class="relative inline-block text-left">
-                  <!-- Bouton des trois points pour ouvrir le dropdown -->
-                  <button @click="toggleDropdown(task._id, $event)"
-                    class="text-gray-700 hover:text-gray-500 focus:outline-none" :ref="'dropdownBtn-' + task._id">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"
-                      stroke="none">
-                      <circle cx="5" cy="12" r="1.5" />
-                      <circle cx="12" cy="12" r="1.5" />
-                      <circle cx="19" cy="12" r="1.5" />
-                    </svg>
-                  </button>
-
-                  <!-- Dropdown menu avec les boutons d'actions -->
-                  <div v-if="dropdownOpen === task._id"
-                    class="fixed w-44 bg-white border border-gray-200 rounded shadow-lg z-[9999]"
-                    :style="{ top: dropdownPosition.top + 'px', left: dropdownPosition.left + 'px' }"
-                    :ref="'dropdownMenu-' + task._id">
+                <fwb-dropdown placement="left">
+                  <template #trigger class="">
+                    <fwb-button color="light">
+                      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 4 15">
+                        <path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+                      </svg>
+                    </fwb-button>
+                  </template>
+                  <nav class="py-2 text-sm text-gray-700 dark:text-gray-200 bg-gray-100">
                     <button @click="openTaskDetails(task)"
-                      class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+                      class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 max-w-md text-left">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -122,8 +114,8 @@
                       </svg>
                       Clôturer
                     </button>
-                  </div>
-                </div>
+                  </nav>
+                </fwb-dropdown>
               </td>
             </tr>
           </tbody>
@@ -200,6 +192,8 @@ import { API_URL } from '@/services/config';
 import Header from '@/components/layouts/Header.vue';
 import Pagination from '@/components/layouts/Pagination.vue';
 import TasksModal from '@/components/layouts/TasksModal.vue';
+import { FwbDropdown, FwbButton } from 'flowbite-vue';
+import { getUserRole } from '@/services/authService';
 
 export default {
   name: 'Tasks',
@@ -207,7 +201,9 @@ export default {
   components: {
     Header,
     Pagination,
-    TasksModal
+    TasksModal,
+    FwbDropdown,
+    FwbButton
   },
 
   data() {
@@ -241,6 +237,10 @@ export default {
     filteredTasks() {
       if (!this.selectedStatus) return this.tasks;
       return this.tasks.filter(task => task.statut === this.selectedStatus);
+    },
+    canAddTask() {
+      const userRole = getUserRole();
+      return userRole !== 'AgentSupport';
     }
   },
 

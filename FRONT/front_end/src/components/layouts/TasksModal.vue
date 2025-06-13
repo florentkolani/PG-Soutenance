@@ -112,7 +112,7 @@
             <!-- Agents assignés -->
             <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700">
-                Agents assignés <span class="text-red-500">*</span>
+                Agents <span class="text-red-500">*</span>
               </label>
               <div class="relative w-full">
                 <button type="button" @click.stop="toggleDropdown"
@@ -398,14 +398,14 @@ export default {
             Authorization: `Bearer ${token}`
           }
         });
-        this.products = Array.isArray(response.data) ? response.data : (response.data.products || []);
-        console.log('Produits chargés:', this.products);
+        const allProducts = Array.isArray(response.data) ? response.data : (response.data.products || []);
+        this.products = allProducts.filter(product => !product.isArchived);
+        console.log('Produits non archivés chargés:', this.products);
       } catch (error) {
         console.error('Erreur lors du chargement des produits:', error);
         throw error;
       }
     },
-
     async loadTypeDemandes() {
       try {
         const token = localStorage.getItem('token');
@@ -414,8 +414,9 @@ export default {
             Authorization: `Bearer ${token}`
           }
         });
-        this.typeDemandes = response.data.types || [];
-        console.log('Types de demandes chargés:', this.typeDemandes);
+        const allTypes = response.data.types || [];
+        this.typeDemandes = allTypes.filter(type => !type.isArchived);
+        console.log('Types de demandes non archivés chargés:', this.typeDemandes);
       } catch (error) {
         console.error('Erreur lors du chargement des types de demande:', error);
         throw error;

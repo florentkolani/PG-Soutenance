@@ -44,7 +44,7 @@
           </table>
         </div>
       </div>
-      <div class="overflow-x-auto relative overflow-y-hidden">
+      <div class="overflow-x-auto relative">
         <table class="min-w-full bg-white">
           <thead>
             <tr>
@@ -111,41 +111,17 @@
 
 
               <td class="border px-4 py-2 text-center">
-                <div class="relative inline-block text-left">
-                  <!-- Bouton des trois points pour ouvrir le dropdown -->
-                  <button @click.stop="toggleDropdown(ticket._id, $event)"
-                    class="text-gray-700 hover:text-gray-500 focus:outline-none"
-                    :ref="'dropdownBtn-' + ticket._id">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"
-                      stroke="none">
-                      <circle cx="5" cy="12" r="1.5" />
-                      <circle cx="12" cy="12" r="1.5" />
-                      <circle cx="19" cy="12" r="1.5" />
-                    </svg>
-                  </button>
-
-                  <!-- Modal for alerting the user -->
-                  <div v-if="showAlertModal"
-                    class="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-15">
-                    <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-                      <p class="text-lg text-center text-gray-800">{{ alertMessage }}</p>
-                      <div class="mt-4 flex justify-center">
-                        <button class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600"
-                          @click="closeAlertModal">
-                          Ok
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Dropdown menu avec les boutons d'actions -->
-                  <div v-if="dropdownOpen === ticket._id"
-                    class="fixed w-44 bg-white border border-gray-200 rounded shadow-lg z-[9999]"
-                    :style="{ top: dropdownPosition.top + 'px', left: dropdownPosition.left + 'px' }"
-                    :ref="'dropdownMenu-' + ticket._id">
-                    <!-- Affichage du bouton "Message" pour tous les rôles -->
-                    <button @click.stop="openTicketDetails(ticket)"
-                      class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+                <fwb-dropdown placement="left">
+                  <template #trigger>
+                    <fwb-button color="light">
+                      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 4 15">
+                        <path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+                      </svg>
+                    </fwb-button>
+                  </template>
+                  <nav class="py-2 text-sm text-gray-700 dark:text-gray-200 bg-gray-100">
+                    <button @click="openTicketDetails(ticket)"
+                      class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 max-w-md text-left">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -154,9 +130,8 @@
                       Messages
                     </button>
 
-                    <!-- Affichage du bouton "Modifier" uniquement pour les Clients et si le ticket n'est pas clôturé -->
                     <button v-if="userRole === 'Client' && ticket.statut === 'en attente'"
-                      @click.stop="openTicketModal(ticket)"
+                      @click="openTicketModal(ticket)"
                       class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -166,9 +141,8 @@
                       Modifier
                     </button>
 
-                    <!-- Affichage du bouton "Clôturer" uniquement pour les Clients et si le ticket n'est pas clôturé -->
-                    <button v-if="userRole === 'Client' && ticket.statut !== 'cloturé'" 
-                      @click.stop="openRatingModal(ticket)"
+                    <button v-if="userRole === 'Client' && ticket.statut !== 'cloturé'"
+                      @click="openRatingModal(ticket)"
                       class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -177,8 +151,8 @@
                       </svg>
                       Clôturer
                     </button>
-                  </div>
-                </div>
+                  </nav>
+                </fwb-dropdown>
               </td>
             </tr>
           </tbody>
@@ -206,6 +180,7 @@ import RatingModal from '@/components/layouts/RatingModal.vue';
 import Pagination from '@/components/layouts/Pagination.vue';
 import Header from '@/components/layouts/Header.vue';
 import GoToDashboard from '@/components/layouts/GoToDashboard.vue';
+import { FwbDropdown, FwbButton } from 'flowbite-vue';
 import axios from 'axios';
 import { API_URL } from '@/services/config';
 
@@ -216,6 +191,8 @@ export default {
     Pagination,
     Header,
     GoToDashboard,
+    FwbDropdown,
+    FwbButton
   },
   data() {
     return {
@@ -236,14 +213,12 @@ export default {
       products: [],
       typesDeDemande: [],
       selectedTicket: null,
-      dropdownOpen: null,
       selectedTicketId: null,
       currentPage: 1,
       itemsPerPage: 10,
       totalItems: 0,
       totalPages: 1,
       userRole: null,
-      dropdownPosition: { top: 0, left: 0 },
     };
   },
   computed: {
@@ -366,37 +341,6 @@ export default {
         .catch(error => console.error('Erreur lors de la récupération des types de demande:', error));
     },
 
-    toggleDropdown(id, event) {
-      if (this.dropdownOpen === id) {
-        this.dropdownOpen = null;
-      } else {
-        this.dropdownOpen = id;
-        this.$nextTick(() => {
-          const btn = this.$refs['dropdownBtn-' + id];
-          const menu = this.$refs['dropdownMenu-' + id];
-          if (!btn || !menu) return;
-          const btnRect = btn[0] ? btn[0].getBoundingClientRect() : btn.getBoundingClientRect();
-          const menuRect = menu[0] ? menu[0].getBoundingClientRect() : menu.getBoundingClientRect();
-          let top = btnRect.bottom + window.scrollY;
-          let left = btnRect.left + window.scrollX;
-
-          if (left + menuRect.width > window.innerWidth) {
-            left = window.innerWidth - menuRect.width - 8; // 8px margin
-          }
-        
-          if (top + menuRect.height > window.innerHeight + window.scrollY) {
-            top = btnRect.top + window.scrollY - menuRect.height;
-            if (top < 0) top = 8; // 8px margin
-          }
-          this.dropdownPosition = { top, left };
-        });
-      }
-    },
-    closeDropdownOnClickOutside(event) {
-      if (!this.$el.contains(event.target)) {
-        this.dropdownOpen = null;
-      }
-    },
     openTicketDetails(ticket) {
       if (this.userRole === 'Admin' || this.userRole === 'AgentSupport') {
         if (ticket.statut === 'en attente') {
