@@ -6,6 +6,7 @@ const {
   getArchivedUsers,
   updateUser,
   archiveUser,
+  unarchiveUser,
 } = require('../controllers/userController');
 const { getCitiesByCountryId } = require('../controllers/cityController');
 const { protect } = require('../middleware/authMiddleware');
@@ -20,5 +21,6 @@ router.get('/archived', protect, getArchivedUsers);
 router.get('/:id', protect, getUserById);
 router.put('/:id', protect, updateUser);
 router.put('/:id/archive', protect, archiveUser);
+router.put('/:id/unarchive', protect, unarchiveUser);
 
 module.exports = router;

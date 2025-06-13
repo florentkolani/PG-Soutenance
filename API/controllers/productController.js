@@ -53,7 +53,7 @@ exports.getProducts = async (req, res) => {
 
 exports.getProducts = async (req, res) => {
     try {
-        const products = await Product.find({ isArchived: false }); // Exclut les produits archivés
+        const products = await Product.find(); // Récupère tous les produits
         res.status(200).json(products);
     } catch (error) {
         console.error("Erreur lors de la récupération des produits :", error);
@@ -98,6 +98,33 @@ exports.archiveProduct = async (req, res) => {
         res.status(200).json({ message: "Produit archivé avec succès", product });
     } catch (error) {
         console.error("Erreur lors de l'archivage du produit :", error);
+        res.status(500).json({ message: "Erreur interne du serveur", error: error.message });
+    }
+};
+
+// Désarchiver un produit
+exports.unarchiveProduct = async (req, res) => {
+    try {
+        const productId = req.params.id;
+
+        // Vérifiez si l'ID est valide
+        if (!mongoose.Types.ObjectId.isValid(productId)) {
+            return res.status(400).json({ message: "ID produit invalide." });
+        }
+
+        // Vérifiez si le produit existe
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ message: "Produit non trouvé." });
+        }
+
+        // désarchivez le produit
+        product.isArchived = false;
+        await product.save();
+
+        res.status(200).json({ message: "Produit désarchivé avec succès", product });
+    } catch (error) {
+        console.error("Erreur lors de désarchivage du produit :", error);
         res.status(500).json({ message: "Erreur interne du serveur", error: error.message });
     }
 };

@@ -18,7 +18,7 @@ exports.getTypesDeDemande = async (req, res) => {
     const { page = 1, limit = 10 } = req.query;
     const skip = (page - 1) * limit;
 
-    const types = await TypeDeDemande.find({ isArchived: false }) // Exclut les archivés
+    const types = await TypeDeDemande.find() // charge tous les types
       .skip(skip)
       .limit(parseInt(limit));
 
@@ -70,7 +70,7 @@ exports.updateTypeDeDemande = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la mise à jour du type de demande', error });
   }
 };
-
+// Archiver un type de demande
 exports.archiveTypeDeDemande = async (req, res) => {
   try {
     const typeDeDemande = await TypeDeDemande.findById(req.params.id);
@@ -85,6 +85,24 @@ exports.archiveTypeDeDemande = async (req, res) => {
     res.status(200).json({ message: 'Type de demande archivé avec succès', typeDeDemande });
   } catch (error) {
     console.error('Erreur lors de l\'archivage du type de demande :', error);
+    res.status(500).json({ message: 'Erreur interne du serveur', error: error.message });
+  }
+};
+//Déarchiver un ttype
+exports.unarchiveTypeDeDemande = async (req, res) => {
+  try {
+    const typeDeDemande = await TypeDeDemande.findById(req.params.id);
+
+    if (!typeDeDemande) {
+      return res.status(404).json({ message: 'Type de demande non trouvé' });
+    }
+
+    typeDeDemande.isArchived = false; // déarchive le type
+    await typeDeDemande.save();
+
+    res.status(200).json({ message: 'Type de demande désarchivé avec succès', typeDeDemande });
+  } catch (error) {
+    console.error('Erreur lors du désarchivage du type de demande :', error);
     res.status(500).json({ message: 'Erreur interne du serveur', error: error.message });
   }
 };

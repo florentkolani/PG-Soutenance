@@ -4,8 +4,8 @@ const User = require('../models/userModel');
 const typeDeDemande = require('../models/typeDeDemandeModel');
 const { sendEmail } = require('../services/emailService');
 
-// Planifie la tâche pour s'exécuter toutes les heures ('0 * * * *')
-cron.schedule('0 * * * *', async () => {
+// Planifie la tâche pour s'exécuter toutes les heures entre 22h et 00h00
+cron.schedule('0 22,23,0 * * *', async () => {
   const now = new Date();
   const today = now.toISOString().split('T')[0];
 

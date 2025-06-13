@@ -16,8 +16,12 @@
             </tr>
           </thead>
           <tbody class="text-gray-600 text-sm font-normal">
-            <tr v-for="product in products" :key="product._id" class="border-b border-gray-200 hover:bg-gray-100">
-              <td class=" px-4 py-2">{{ product.name }}</td>
+            <tr v-for="product in products" :key="product._id" 
+                :class="[
+                  'border-b border-gray-200 hover:bg-gray-100',
+                  product.isArchived ? 'bg-red-300' : ''
+                ]">
+              <td class="px-4 py-2">{{ product.name }}</td>
               <td class="px-4 py-2"> {{ truncateText(product.description, 50) }}</td>
               <td class="border px-4 py-2 text-center">
                 {{ new Date(product.createdAt).toLocaleString('fr-FR', {
@@ -31,11 +35,32 @@
               <td class="py-3 px-6 text-center whitespace-nowrap">
                 <div class="flex flex-row items-center justify-center space-x-1">
                   <button @click="viewDetails(product)"
-                    class="bg-green-500 text-white px-2 py-1 rounded text-sm hover:bg-green-600">Détails</button>
+                    :class="[
+                      'px-2 py-1 rounded text-sm',
+                      product.isArchived 
+                        ? 'bg-gray-400 cursor-not-allowed' 
+                        : 'bg-green-500 hover:bg-green-600 text-white'
+                    ]"
+                    :disabled="product.isArchived">
+                    Détails
+                  </button>
                   <button @click="openEditModal(product)"
-                    class="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600">Modifier</button>
-                  <button @click="confirmArchive(product._id)"
-                    class="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600">Archiver</button>
+                    :class="[
+                      'px-2 py-1 rounded text-sm',
+                      product.isArchived 
+                        ? 'bg-gray-400 cursor-not-allowed' 
+                        : 'bg-blue-500 hover:bg-blue-600 text-white'
+                    ]"
+                    :disabled="product.isArchived">
+                    Modifier
+                  </button>
+                  <button @click="product.isArchived ? confirmUnarchive(product._id) : confirmArchive(product._id)"
+                    :class="[
+                      'text-white px-2 py-1 rounded text-sm',
+                      product.isArchived ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-red-500 hover:bg-red-600'
+                    ]">
+                    {{ product.isArchived ? 'Désarchiver' : 'Archiver' }}
+                  </button>
                 </div>
               </td>
             </tr>
@@ -89,12 +114,14 @@
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
         </svg>
-        <p class="text-center m-2">Êtes-vous sûr de vouloir archiver ce produit ?</p>
+        <p class="text-center m-2">{{ isUnarchiving ? 'Êtes-vous sûr de vouloir désarchiver ce produit ?' : 'Êtes-vous sûr de vouloir archiver ce produit ?' }}</p>
         <div class="flex justify-center">
-          <button @click="archiveProduct" class="bg-red-500 text-white px-4 py-2 rounded-md">Oui, archiver</button>
+          <button @click="isUnarchiving ? unarchiveProduct() : archiveProduct()" 
+            :class="['text-white px-4 py-2 rounded-md', isUnarchiving ? 'bg-yellow-500' : 'bg-red-500']">
+            {{ isUnarchiving ? 'Oui, désarchiver' : 'Oui, archiver' }}
+          </button>
           <button @click="closeConfirmArchive" class="bg-gray-500 text-white px-4 py-2 ml-2 rounded-md">Annuler</button>
         </div>
-
       </div>
     </div>
 
@@ -141,6 +168,7 @@ export default {
       selectedProduct: null,
       editProductData: null,
       confirmArchiveId: null,
+      isUnarchiving: false,
       alertMessage: null,
       errorMessage: null,
       currentPage: 1,
@@ -251,9 +279,15 @@ export default {
     },
     confirmArchive(productId) {
       this.confirmArchiveId = productId;
+      this.isUnarchiving = false;
+    },
+    confirmUnarchive(productId) {
+      this.confirmArchiveId = productId;
+      this.isUnarchiving = true;
     },
     closeConfirmArchive() {
       this.confirmArchiveId = null;
+      this.isUnarchiving = false;
     },
     async archiveProduct() {
       const token = this.checkAuthorization();
@@ -278,6 +312,35 @@ export default {
         } else {
           console.error("Erreur lors de l'archivage du produit.");
           this.showError("Erreur lors de l'archivage du produit.");
+        }
+      } catch (error) {
+        console.error("Erreur réseau :", error);
+        this.showError("Erreur réseau. Veuillez réessayer.");
+      }
+    },
+    async unarchiveProduct() {
+      const token = this.checkAuthorization();
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${API_URL}/products/${this.confirmArchiveId}/unarchive`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          this.showAlert("Produit désarchivé avec succès.");
+          await this.getProducts();
+          this.closeConfirmArchive();
+        } else if (response.status === 401) {
+          console.error("Non autorisé. Redirection vers la page de connexion.");
+          this.$router.push('/login');
+        } else {
+          console.error("Erreur lors de la désarchivage du produit.");
+          this.showError("Erreur lors de la désarchivage du produit.");
         }
       } catch (error) {
         console.error("Erreur réseau :", error);

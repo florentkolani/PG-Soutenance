@@ -184,6 +184,14 @@
 
     </div>
   </div>
+  <!-- Toast Notification -->
+  <Toast
+    :show="showToast"
+    :title="toastTitle"
+    :message="toastMessage"
+    :type="toastType"
+    @close="showToast = false"
+  />
 </template>
 
 <script>
@@ -191,6 +199,7 @@ import { getUserRole, getToken } from '@/services/authService';
 import AllModule from '@/components/modules/AllModule.vue';
 import TicketChart from '@/views/TicketChart.vue';
 import { API_URL } from '@/services/config';
+import Toast from '@/components/layouts/Toast.vue';
 
 export default {
   name: 'Dashboard',
@@ -263,6 +272,10 @@ export default {
         resolved: 0
       },
       showDropdown: false,
+      showToast: false,
+      toastTitle: '',
+      toastMessage: '',
+      toastType: 'info',
     };
   },
 
@@ -312,7 +325,13 @@ export default {
     logout() {
       this.showDropdown = false;
       localStorage.removeItem('token');
-      this.$router.push('/login');
+      this.showToast = true;
+      this.toastTitle = 'Déconnexion';
+      this.toastMessage = 'Vous avez été déconnecté avec succès.';
+      this.toastType = 'success';
+      setTimeout(() => {
+        this.$router.push('/login');
+      }, 1000);
     },
     toggleDropdown() {
       this.showDropdown = !this.showDropdown;
@@ -366,7 +385,8 @@ export default {
 
   components: {
     TicketChart,
-    AllModule
+    AllModule,
+    Toast
   }
 };
 

@@ -4,7 +4,7 @@ const {
     getTypesDeDemande,
     getTypeDeDemandeById,
     updateTypeDeDemande,
-    deleteTypeDeDemande,
+    unarchiveTypeDeDemande,
     archiveTypeDeDemande
 } = require('../controllers/typeDeDemandeController');
 
@@ -18,5 +18,6 @@ router.get('/', protect, getTypesDeDemande);
 router.get('/:id', protect, getTypeDeDemandeById);
 router.put('/:id', protect, updateTypeDeDemande);
 router.patch('/:id/archive', protect, archiveTypeDeDemande);
+router.patch('/:id/unarchive', protect, unarchiveTypeDeDemande)
 
 module.exports = router;

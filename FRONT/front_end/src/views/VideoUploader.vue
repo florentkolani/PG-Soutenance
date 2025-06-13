@@ -38,7 +38,7 @@
           <div v-for="(video, index) in filteredVideoList" :key="index" class="bg-white shadow rounded-lg p-4 flex">
             <div class="w-1/2">
               <video controls class="w-full h-48">
-                <source :src="`http://192.168.1.70:5000/api${video.url}`" type="video/mp4">
+                <source :src="API_URL + video.url" type="video/mp4">
                 Votre navigateur ne supporte pas la lecture de vidéos.
               </video>
               <div>
@@ -61,14 +61,16 @@
                 </span>
               </p>
               <div class="flex justify-between items-center mt-4">
-
                 <div>
                   <button v-if="isAdmin || isAgentSupport" @click="editVideo(video)"
                     class="inline-block bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600">
                     Modifier
                   </button>
+                  <button v-if="video.allowDownload" @click="downloadVideo(video)"
+                    class="inline-block bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 ml-2">
+                    Télécharger
+                  </button>
                 </div>
-
               </div>
             </div>
           </div>
@@ -112,6 +114,7 @@ export default {
       filteredVideoList: [],
       showVideoModal: false,
       editingVideo: null,
+      API_URL: API_URL,
     };
   },
   computed: {
@@ -257,7 +260,25 @@ export default {
     },
     onResetEditing() {
       this.editingVideo = null;
-    }
+    },
+    async downloadVideo(video) {
+      try {
+        const response = await axios.get(this.API_URL + video.url, {
+          responseType: 'blob'
+        });
+        
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', video.title + '.mp4');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      } catch (error) {
+        console.error("Erreur lors du téléchargement :", error);
+        alert("Une erreur est survenue lors du téléchargement de la vidéo.");
+      }
+    },
   },
   async created() {
     this.decodeToken();

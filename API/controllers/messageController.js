@@ -67,7 +67,7 @@ exports.sendMessage = async (req, res) => {
                 
                 <p>Bonjour ${recipientName},</p>
                 
-                <p>Nous avez un mouveau message concernant votre ticket <strong>#${ticket.NumeroTicket}</strong> 
+                <p>Vous avez un mouveau message concernant votre ticket <strong>#${ticket.NumeroTicket}</strong> 
                 <strong>(${typeDeDemande.name})</strong>.</p>
     
                 <p>Voici les détails de la demande :</p>

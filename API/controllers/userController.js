@@ -172,24 +172,22 @@ exports.getArchivedUsers = async (req, res) => {
     }
   };
 
-// // Filtrer les utilisateurs
-// exports.filterUsers = async (req, res) => {
-//   try {
-//     const filters = {};
-    
-//     // Appliquer les filtres en fonction des paramètres de requête
-//     if (req.query.role) filters.role = req.query.role;
-//     if (req.query.startDate) filters.createdAt = { $gte: new Date(req.query.startDate) };
-//     if (req.query.endDate) filters.createdAt = { ...filters.createdAt, $lte: new Date(req.query.endDate) };
-    
-//     const users = await User.find(filters)
-//       .select('name email role createdAt')
-//       .lean();
-    
-//     res.status(200).json(users);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
+// Désarchiver un utilisateur
+exports.unarchiveUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        // Désarchiver l'utilisateur
+        user.isArchived = false;
+        await user.save();
+
+        res.json({ message: 'Utilisateur désarchivé avec succès' });
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors du désarchivage de l\'utilisateur', error });
+    }
+};
 
  

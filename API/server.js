@@ -10,12 +10,14 @@ const app = express();
 
 // Middleware pour activer CORS
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://192.168.1.70'], 
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: ['http://localhost:5173', 'http://192.168.1.70:5173', 'http://192.168.1.70'], 
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: false
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
 
 // Déclaration des Routes
 const authRoutes = require('./routes/authRoutes');
@@ -68,6 +70,7 @@ app.use('/API/uploads', express.static(path.join(__dirname, 'uploads'), {
 
 app.use('/api', countryRoutes);
 app.use('/api', cityRoutes);
+
 
 connectDB();
 

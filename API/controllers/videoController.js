@@ -57,25 +57,42 @@ exports.getVideos = async (req, res) => {
   }
 };
 
-exports.downloadVideo = (req, res) => {
+exports.downloadVideo = async (req, res) => {
   try {
     const { filename } = req.params;
     const decodedFilename = decodeURIComponent(filename);
-    const filePath = path.join(__dirname, '..', videosDir, decodedFilename);
+    const filePath = path.join(__dirname, '..', 'uploads', 'videos', decodedFilename);
 
+    // Vérifier si le fichier existe
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ message: "Fichier vidéo non trouvé" });
     }
 
-    res.download(filePath, decodedFilename, (err) => {
-      if (err) {
-        console.error("Erreur lors du téléchargement:", err);
-        res.status(500).json({ message: 'Erreur lors du téléchargement de la vidéo', error: err.message });
+    // Vérifier si le téléchargement est autorisé
+    const video = await Video.findOne({ url: `/uploads/videos/${decodedFilename}` });
+    if (!video || !video.allowDownload) {
+      return res.status(403).json({ message: "Le téléchargement de cette vidéo n'est pas autorisé" });
+    }
+
+    // Configurer les headers pour le téléchargement
+    res.setHeader('Content-Disposition', `attachment; filename="${video.title}.mp4"`);
+    res.setHeader('Content-Type', 'video/mp4');
+
+    // Stream le fichier
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
+
+    fileStream.on('error', (error) => {
+      console.error("Erreur lors du streaming du fichier:", error);
+      if (!res.headersSent) {
+        res.status(500).json({ message: 'Erreur lors du streaming de la vidéo' });
       }
     });
   } catch (error) {
     console.error("Erreur lors du téléchargement:", error);
-    res.status(500).json({ message: 'Erreur lors du téléchargement de la vidéo', error: error.message });
+    if (!res.headersSent) {
+      res.status(500).json({ message: 'Erreur lors du téléchargement de la vidéo', error: error.message });
+    }
   }
 };
 
@@ -103,7 +120,10 @@ exports.getTypes = async (req, res) => {
 exports.updateVideo = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, comment, typededemande, produit } = req.body;
+    const { title, comment, typededemande, produit, allowDownload } = req.body;
+    
+    // console.log('Received allowDownload value:', allowDownload);
+    // console.log('Type of allowDownload:', typeof allowDownload);
 
     const video = await Video.findById(id);
     if (!video) {
@@ -115,6 +135,9 @@ exports.updateVideo = async (req, res) => {
     video.comment = comment;
     video.TypeDeDemande = typededemande;
     video.produit = produit;
+    video.allowDownload = allowDownload === 'true' || allowDownload === true;
+    
+    console.log('Updated allowDownload value:', video.allowDownload);
 
     // Gestion du fichier vidéo
     if (req.file) {

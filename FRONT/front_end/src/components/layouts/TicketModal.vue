@@ -239,17 +239,21 @@ export default {
       }
 
       try {
-        // Chargement des produits
+        // Charger les produits non archivés
         const productResponse = await axios.get(`${API_URL}/products`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        this.products = Array.isArray(productResponse.data) ? productResponse.data : [];
+        this.products = Array.isArray(productResponse.data)
+          ? productResponse.data.filter(product => !product.isArchived)
+          : [];
 
-        // Chargement des types de demandes
+        // Charger les types de demandes non archivés
         const typeResponse = await axios.get(`${API_URL}/types`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        this.typeDeDemandes = typeResponse.data.types || [];
+        this.typeDeDemandes = typeResponse.data.types
+          ? typeResponse.data.types.filter(type => !type.isArchived)
+          : [];
       } catch (error) {
         console.error("Erreur lors du chargement des données :", error);
       }

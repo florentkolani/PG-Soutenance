@@ -61,7 +61,7 @@ const documentUpload = multer({
     storage: documentStorage,
     fileFilter: documentFilter,
     limits: {
-        fileSize: 1024 * 1024 * 5 // 5MB limit
+        fileSize: 1024 * 1024 * 10 // 10MB limit
     }
 });
 
