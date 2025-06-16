@@ -10,7 +10,7 @@ exports.uploadVideo = async (req, res) => {
     console.log("Données reçues:", req.body);
     console.log("Fichier reçu:", req.file);
 
-    const { title, comment, typededemande, produit } = req.body;
+    const { title, comment, typededemande, produit, allowDownload } = req.body;
 
     if (!req.file) {
       return res.status(400).json({ message: "Aucun fichier vidéo n'a été fourni" });
@@ -28,6 +28,7 @@ exports.uploadVideo = async (req, res) => {
       url: `/uploads/videos/${req.file.filename}`,
       TypeDeDemande: typededemande,
       produit: produit,
+      allowDownload: allowDownload === 'true' || allowDownload === true
     });
 
     await video.save();
