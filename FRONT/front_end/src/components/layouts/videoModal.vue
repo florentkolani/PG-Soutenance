@@ -115,9 +115,13 @@
                   Annuler
                 </button>
                 <button type="submit"
-                  class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-300"
-                  :disabled="!isFormValid">
-                  {{ isEditing ? 'Mettre à jour' : 'Publier' }}
+                  class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-300 flex items-center justify-center"
+                  :disabled="!isFormValid || isLoading">
+                  <svg v-if="isLoading" class="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                  </svg>
+                  <span>{{ isLoading ? 'En cours...' : (isEditing ? 'Mettre à jour' : 'Publier') }}</span>
                 </button>
               </div>
             </div>
@@ -169,6 +173,7 @@ export default {
       dialogTitle: '',
       dialogMessage: '',
       allowDownload: false,
+      isLoading: false,
     }
   },
   computed: {
@@ -256,6 +261,7 @@ export default {
       }
     },
     async uploadVideo() {
+      this.isLoading = true;
       const formData = new FormData();
       formData.append("video", this.videoFile);
       formData.append("comment", this.comment);
@@ -275,9 +281,12 @@ export default {
       } catch (error) {
         console.error("Erreur lors de la publication :", error);
         this.showErrorDialog("Une erreur est survenue lors de l'ajout de la vidéo.");
+      } finally {
+        this.isLoading = false;
       }
     },
     async updateVideo() {
+      this.isLoading = true;
       const formData = new FormData();
 
       formData.append("title", this.title);
@@ -301,6 +310,8 @@ export default {
       } catch (error) {
         console.error("Erreur lors de la mise à jour :", error);
         this.showErrorDialog("Une erreur est survenue lors de la mise à jour de la vidéo.");
+      } finally {
+        this.isLoading = false;
       }
     }
   }

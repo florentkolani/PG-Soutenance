@@ -37,7 +37,7 @@
         <div v-if="filteredVideoList.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div v-for="(video, index) in filteredVideoList" :key="index" class="bg-white shadow rounded-lg p-4 flex">
             <div class="w-1/2">
-              <video controls class="w-full h-48">
+              <video controls controlsList="nodownload" class="w-full h-48">
                 <source :src="API_URL + video.url" type="video/mp4">
                 Votre navigateur ne supporte pas la lecture de vidéos.
               </video>
