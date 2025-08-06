@@ -2,18 +2,9 @@ const Task = require('../models/TasksModel');
 const User = require('../models/userModel');
 const typeDeDemande = require('../models/typeDeDemandeModel');
 const product = require('../models/productModel');
-const nodemailer = require("nodemailer");
 const { sendEmail } = require('../services/emailService');
 const mongoose = require('mongoose');
-
-// Configuration de Nodemailer (similaire à ticketController)
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_NOVA_LEAD,
-        pass: process.env.EMAIL_PASS,
-    },
-});
+const Notification = require('../models/notificationModel');
 
 // Fonction pour générer le numéro de tâche
 async function generateNumeroTask() {
@@ -64,7 +55,7 @@ async function envoyerEmailCreationTache(task) {
                                 <li><strong>Agents Attribués :</strong> ${assignedUsers.map(u => u.name).join(', ')}</li>
                             </ul>
                             <p>
-                                <a href="http://localhost:5173/tasks" style="display: inline-block; padding: 10px 20px; background-color: #28a745; color: #fff; text-decoration: none; border-radius: 4px;">
+                                <a href="${process.env.FRONTEND_URL}/login" style="display: inline-block; padding: 10px 20px; background-color: #28a745; color: #fff; text-decoration: none; border-radius: 4px;">
                                     Accéder à la tâche
                                 </a>
                             </p>
@@ -117,6 +108,16 @@ exports.createTask = async (req, res) => {
         const task = new Task(taskData);
         await task.save();
         await envoyerEmailCreationTache(task);
+
+        // Créer une notification pour chaque agent assigné
+        for (const agentId of assignedAgents) {
+            await Notification.create({
+                user: agentId,
+                type: 'task',
+                task: task._id,
+                message: `Une nouvelle tâche vous a été assignée (#${task.NumeroTask}).`
+            });
+        }
 
         res.status(201).json(task);
     } catch (error) {
@@ -258,6 +259,26 @@ exports.closeTask = async (req, res) => {
             }
         }
 
+        // Créer une notification pour chaque agent assigné et le propriétaire de la tâche
+        const notifMessage = `La tâche ${task.NumeroTask} a été clôturée avec succès le ${closedAt.toLocaleDateString()} (${statusMessage}).`;
+
+        if (task.userId) {
+            await Notification.create({
+                user: task.userId._id,
+                type: 'task',
+                task: task._id,
+                message: notifMessage
+            });
+        }
+        for (const user of task.assignedAgents) {
+            await Notification.create({
+                user: user._id,
+                type: 'task',
+                task: task._id,
+                message: notifMessage
+            });
+        }
+
         task.statusMessage = statusMessage;
         res.status(200).json(task);
     } catch (error) {
@@ -343,6 +364,26 @@ exports.updateTaskStatus = async (req, res) => {
             if (user?.email) {
                 await sendEmail(user.email, emailSubject, emailHtml);
             }
+        }
+
+        // Créer une notification pour chaque agent assigné et le propriétaire de la tâche
+        const notifMessage = `Le statut de la tâche ${task.NumeroTask} est passé à "${status}" le ${new Date().toLocaleDateString()}.`;
+
+        if (task.userId) {
+            await Notification.create({
+                user: task.userId._id,
+                type: 'task',
+                task: task._id,
+                message: notifMessage
+            });
+        }
+        for (const user of task.assignedAgents) {
+            await Notification.create({
+                user: user._id,
+                type: 'task',
+                task: task._id,
+                message: notifMessage
+            });
         }
 
         res.status(200).json(task);

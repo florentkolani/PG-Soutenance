@@ -173,7 +173,7 @@ exports.register = async (req, res) => {
                 <p><strong>Comment accéder à la plateforme ?</strong></p>
                 <ul>
                     <li>
-                    <a href="http://localhost:5173/login" 
+                    <a href="${process.env.FRONTEND_URL}/login" 
                     style="color: #3498db; text-decoration: none; font-weight: bold;">
                     ➡️ Accéder à la plateforme
                     </a>
@@ -254,7 +254,7 @@ exports.resetPasswordRequest = async (req, res) => {
         
         <!-- Button -->
         <div class="text-center my-8">
-          <a href="http://localhost:5173/login" 
+          <a href="${process.env.FRONTEND_URL}/login" 
                         style="color: #3498db; text-decoration: none; font-weight: bold;">
                         ➡️ Accéder à la plateforme
                         </a>
@@ -266,7 +266,7 @@ exports.resetPasswordRequest = async (req, res) => {
       <!-- Signature -->
       <div class="mt-8 text-right italic">
         <p class="text-gray-700">Cordialement,</p>
-        <p class="text-gray-700">L'équipe de support</p>
+        <p class="text-gray-700">L'équipe de support NOVA LEAD</p>
       </div>
     </div>
   </body>

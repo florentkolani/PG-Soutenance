@@ -7,7 +7,18 @@
         <span class="text-lg sm:text-xl font-bold text-gray-800">{{ title }}</span>
       </div>
 
-      <div class="flex items-center space-y-2 sm:space-y-0 sm:space-x-4">
+      <div class="flex items-center space-x-4">
+        <!-- Notification Bell -->
+        <div class="relative flex items-center">
+          <button @click="showNotifications = true" class="relative focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700 hover:text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <span v-if="unreadCount > 0" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5">{{ unreadCount }}</span>
+          </button>
+          <NotificationModal :visible="showNotifications" @close="showNotifications = false" @unread-count="unreadCount = $event" position="dropdown" />
+        </div>
+        <!-- Autres boutons -->
         <button v-if="primaryActionText" @click="$emit('primaryAction')"
           class="w-full sm:w-auto flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 bg-lime-600 text-white rounded-lg hover:bg-lime-700 transition-colors duration-200 shadow-sm">
           <span class="text-sm sm:text-base max-sm:hidden">{{ primaryActionText }}</span>
@@ -18,7 +29,6 @@
               clip-rule="evenodd" />
           </svg>
         </button>
-
         <div v-if="filterAction && showFilter" class="relative w-full sm:w-auto">
           <select v-model="selectedStatus" @change="emitFilter"
             class="w-full sm:w-auto appearance-none bg-gray-50 border border-gray-200 text-gray-700 py-2 px-3 sm:px-4 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base">
@@ -40,12 +50,17 @@
 
 <script>
 import GoToDashboard from "@/components/layouts/GoToDashboard.vue";
+import NotificationModal from "@/components/layouts/NotificationModal.vue";
 import logo from "@/assets/logo.png";
+import { io } from 'socket.io-client';
+import axios from 'axios';
+import { API_URL } from '@/services/config';
 
 export default {
   name: "Header",
   components: {
     GoToDashboard,
+    NotificationModal,
   },
   props: {
     title: {
@@ -67,8 +82,11 @@ export default {
   },
   data() {
     return {
-      selectedStatus: '', // Valeur du filtre sélectionné
+      selectedStatus: '',
       logo,
+      showNotifications: false,
+      unreadCount: 0,
+      socket: null,
     };
   },
   computed: {
@@ -78,6 +96,17 @@ export default {
     },
   },
   methods: {
+    async fetchUnreadCount() {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get(`${API_URL}/notifications/unread-count`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        this.unreadCount = res.data.unreadCount;
+      } catch (e) {
+        this.unreadCount = 0;
+      }
+    },
     emitFilter() {
       this.$emit('filterChanged', this.selectedStatus);
     },
@@ -85,6 +114,23 @@ export default {
       this.$router.push('/dashboard');
     },
   },
+  mounted() {
+    this.fetchUnreadCount();
+
+    this.socket = io('http://localhost:5000');
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      this.socket.emit('register', payload._id);
+    }
+
+    this.socket.on('notification', (notification) => {
+      this.fetchUnreadCount();
+    });
+  },
+  beforeUnmount() {
+    if (this.socket) this.socket.disconnect();
+  }
 };
 </script>
 

@@ -5,12 +5,51 @@ const cors = require('cors');
 const connectDB = require('./config');
 require('./services/taskScheduler');
 
-
 const app = express();
+
+const http = require('http');
+const server = http.createServer(app);
+
+const { Server } = require('socket.io');
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE']
+  }
+});
+
+// Stocker les sockets par userId
+const userSockets = {};
+
+io.on('connection', (socket) => {
+  // Quand un client s'identifie
+  socket.on('register', (userId) => {
+    userSockets[userId] = socket.id;
+  });
+
+  socket.on('disconnect', () => {
+    for (const [userId, id] of Object.entries(userSockets)) {
+      if (id === socket.id) delete userSockets[userId];
+    }
+  });
+});
+
+// Pour émettre une notification à un userId
+function sendNotificationToUser(userId, notification) {
+  const socketId = userSockets[userId];
+  if (socketId) {
+    io.to(socketId).emit('notification', notification);
+  }
+}
+
+// Rendre la fonction accessible globalement
+app.set('sendNotificationToUser', sendNotificationToUser);
+
+
 
 // Middleware pour activer CORS
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://192.168.1.70:5173', 'http://192.168.1.70'], 
+    origin: ['http://localhost:5173', 'http://192.168.1.70:5173', 'http://192.168.1.70:8001'], 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: false
 }));
@@ -35,6 +74,7 @@ const videoRoutes = require('./routes/videoRoutes');
 const emailRoutes = require("./routes/emailRoutes");
 const reportingRoutes = require('./routes/ReportingRoutes');
 const TaskRoutes = require('./routes/TaskRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 
 // Utilisation des routes
@@ -51,6 +91,7 @@ app.use('/api/videos', videoRoutes);
 app.use("/api/emails", emailRoutes);
 app.use('/api/reporting', reportingRoutes);
 app.use('/api/tasks', TaskRoutes);
+app.use('/api/notifications', notificationRoutes);
 // Gestion des fichiers statiques et des en-têtes pour les téléchargements
 app.use('/API/uploads', express.static(path.join(__dirname, 'uploads'), {
     setHeaders: (res, filePath) => {
@@ -74,5 +115,6 @@ app.use('/api', cityRoutes);
 
 connectDB();
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(5000, () => {
+  console.log('Serveur démarré sur le port 5000');
+});

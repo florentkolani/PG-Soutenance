@@ -1,7 +1,8 @@
 <template>
   <div class="bg-gray-100 min-h-screen">
-    <Header title="NOVA LEAD" :primaryActionText="canAddTask ? 'Nouvelle tâche' : ''" @primaryAction="showTaskModal = true"
-      @filterChanged="onFilterChanged" :filterAction="true" :filterOptions="taskFilterOptions" />
+    <Header title="NOVA LEAD" :primaryActionText="canAddTask ? 'Nouvelle tâche' : ''"
+      @primaryAction="showTaskModal = true" @filterChanged="onFilterChanged" :filterAction="true"
+      :filterOptions="taskFilterOptions" />
 
     <main class="w-full px-4 py-3">
       <div class="flex flex-row items-center justify-between space-x-4 mb-4">
@@ -80,18 +81,31 @@
                   <template #trigger class="">
                     <fwb-button color="light">
                       <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 4 15">
-                        <path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+                        <path
+                          d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
                       </svg>
                     </fwb-button>
                   </template>
                   <nav class="py-2 text-sm text-gray-700 dark:text-gray-200 bg-gray-100">
+                    <button @click="openTaskDetailsDialog(task)"
+                      class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+                      <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"
+                          d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 5h6m-6 4h6M10 3v4h4V3h-4Z" />
+                      </svg>
+
+                      Détail
+                    </button>
                     <button @click="openTaskDetails(task)"
                       class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 max-w-md text-left">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 12H9m0 0H4.55M9 12h5l2.5 8.5M9 12H4.55M9 12v3m-1.6 5h7.2M9 9l-2.5 8.5M15 12l2.5 8.5M15 12l-2.5-8.5" />
+                      <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"
+                          d="M9 17h6l3 3v-3h2V9h-2M4 4h11v8H9l-3 3v-3H4V4Z" />
                       </svg>
+
+
                       Messages
                     </button>
 
@@ -100,18 +114,19 @@
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 11V4m-7 7h14m-7 7v-3m-2-5h7m-3 0h4" />
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                       Modifier
                     </button>
 
                     <button v-if="task.statut !== 'cloturé'" @click="closeTask(task)"
                       class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M5 12h14m0 0l-3 3m3-3l-3-3" />
+                      <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"
+                          d="m15 9-6 6m0-6 6 6m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                       </svg>
+
                       Clôturer
                     </button>
                   </nav>
@@ -180,6 +195,60 @@
         </div>
       </div>
     </div>
+
+    <!-- Details dialog -->
+    <div v-if="selectedTaskDetails"
+      class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center p-4 z-50">
+      <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-md relative">
+        <h2 class="text-xl font-bold mb-4 text-center">Détails de la tâche</h2>
+        <table class="table-auto w-full border-collapse border border-gray-300">
+          <tbody>
+            <tr>
+              <td class="font-bold border px-4 py-2">Client</td>
+              <td class="border px-4 py-2">{{ selectedTaskDetails.userId?.name || 'Inconnu' }}</td>
+            </tr>
+            <tr>
+              <td class="font-bold border px-4 py-2">Pays</td>
+              <td class="border px-4 py-2">{{ selectedTaskDetails.countryId?.name || 'Inconnu' }}</td>
+            </tr>
+            <tr>
+              <td class="font-bold border px-4 py-2">Produit</td>
+              <td class="border px-4 py-2">{{ selectedTaskDetails.productId?.name || 'Inconnu' }}</td>
+            </tr>
+            <tr>
+              <td class="font-bold border px-4 py-2">Type de demande</td>
+              <td class="border px-4 py-2">{{ selectedTaskDetails.typeDeDemandeId?.name || 'Inconnu' }}</td>
+            </tr>
+            <tr>
+              <td class="font-bold border px-4 py-2">Date début</td>
+              <td class="border px-4 py-2">{{ formatDate(selectedTaskDetails.startday) }}</td>
+            </tr>
+            <tr>
+              <td class="font-bold border px-4 py-2">Date fin</td>
+              <td class="border px-4 py-2">{{ formatDate(selectedTaskDetails.endday) }}</td>
+            </tr>
+            <tr>
+              <td class="font-bold border px-4 py-2">Statut</td>
+              <td class="border px-4 py-2">{{ selectedTaskDetails.statut }}</td>
+            </tr>
+            <tr>
+              <td class="font-bold border px-4 py-2">Agents assignés</td>
+              <td class="border px-4 py-2">
+                <template
+                  v-if="Array.isArray(selectedTaskDetails.assignedAgents) && selectedTaskDetails.assignedAgents.length">
+                  {{selectedTaskDetails.assignedAgents.map(agent => agent.name || agent.email || agent).join(', ')}}
+                </template>
+                <template v-else>
+                  Aucun agent assigné
+                </template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <button @click="closeTaskDetailsDialog"
+          class="bg-gray-500 text-white px-4 py-2 mt-6 rounded-md mx-auto block">Fermer</button>
+      </div>
+    </div>
   </div>
 
   <!-- Pagination -->
@@ -230,6 +299,7 @@ export default {
       dialogMessage: '',
       dialogType: '',
       isLoading: false,
+      selectedTaskDetails: null,
     };
   },
 
@@ -403,6 +473,15 @@ export default {
     },
     openTaskDetails(task) {
       this.$router.push(`/tasks/${task._id}`);
+    },
+    goToTaskDetails(task) {
+      this.$router.push({ name: 'TaskDetails', params: { id: task._id } });
+    },
+    openTaskDetailsDialog(task) {
+      this.selectedTaskDetails = task;
+    },
+    closeTaskDetailsDialog() {
+      this.selectedTaskDetails = null;
     }
   }
 };

@@ -115,18 +115,31 @@
                   <template #trigger>
                     <fwb-button color="light">
                       <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 4 15">
-                        <path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+                        <path
+                          d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
                       </svg>
                     </fwb-button>
                   </template>
                   <nav class="py-2 text-sm text-gray-700 dark:text-gray-200 bg-gray-100">
+
+                    <button @click="openTicketDetailsDialog(ticket)"
+                      class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+                      <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"
+                          d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 5h6m-6 4h6M10 3v4h4V3h-4Z" />
+                      </svg>
+
+                      Détail
+                    </button>
                     <button @click="openTicketDetails(ticket)"
                       class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 max-w-md text-left">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 12H9m0 0H4.55M9 12h5l2.5 8.5M9 12H4.55M9 12v3m-1.6 5h7.2M9 9l-2.5 8.5M15 12l2.5 8.5M15 12l-2.5-8.5" />
+                      <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"
+                          d="M9 17h6l3 3v-3h2V9h-2M4 4h11v8H9l-3 3v-3H4V4Z" />
                       </svg>
+
                       Messages
                     </button>
 
@@ -136,18 +149,17 @@
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 11V4m-7 7h14m-7 7v-3m-2-5h7m-3 0h4" />
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                       Modifier
                     </button>
 
-                    <button v-if="userRole === 'Client' && ticket.statut !== 'cloturé'"
-                      @click="openRatingModal(ticket)"
+                    <button v-if="userRole === 'Client' && ticket.statut !== 'cloturé'" @click="openRatingModal(ticket)"
                       class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M5 12h14m0 0l-3 3m3-3l-3-3" />
+                      <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"
+                          d="m15 9-6 6m0-6 6 6m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                       </svg>
                       Clôturer
                     </button>
@@ -163,14 +175,136 @@
     <!-- Modals -->
     <TicketModal :showModal="showTicketModal" :isEdit="isEdit" :ticket="selectedTicket" :products="products"
       :typesDeDemande="typesDeDemande" @close="closeTicketModal" @create-ticket="createTicket"
-      @update-ticket="updateTicket" />
+      @update-ticket="updateTicket" @ticket-validation-error="handleTicketValidationError" />
 
     <RatingModal :showModal="showRatingModal" :ticketId="selectedTicketId" @close="closeRatingModal"
       @submit-rating="submitRating" />
-   
+
+    <!-- Modal d'alerte stylisé pour les tickets nécessitant une réponse -->
+    <div v-if="showAlertModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4 z-50">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 transform transition-all">
+        <!-- Header avec icône -->
+        <div class="bg-gradient-to-r from-orange-400 to-red-500 rounded-t-xl p-6 text-white">
+          <div class="flex items-center justify-center mb-2">
+            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-center">Action requise</h3>
+          <p class="text-orange-100 text-sm text-center mt-1">Vous devez répondre à vos tickets existants</p>
+        </div>
+
+        <!-- Contenu -->
+        <div class="p-6">
+          <!-- Message principal -->
+          <div class="mb-6">
+            <div class="flex items-start space-x-3">
+              <div class="flex-shrink-0">
+                <svg class="w-6 h-6 text-orange-500 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p class="text-gray-700 leading-relaxed">{{ alertMessage }}</p>
+            </div>
+          </div>
+
+          <!-- Liste des tickets -->
+          <div v-if="ticketsNeedingResponse.length > 0" class="mb-6">
+            <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+              <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Tickets nécessitant votre réponse
+            </h4>
+            
+            <div class="space-y-3">
+              <div v-for="ticket in ticketsNeedingResponse" :key="ticket.ticketId" 
+                   class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 hover:shadow-md transition-all duration-200">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <span class="font-semibold text-gray-800">#{{ ticket.numeroTicket }}</span>
+                      <p class="text-xs text-gray-500 mt-1">
+                        {{ ticket.lastMessageFrom === 'Aucune réponse' ? 'En attente de réponse' : `Dernière réponse: ${ticket.lastMessageFrom}` }}
+                      </p>
+                    </div>
+                  </div>
+                  <button @click="goToTicketResponse(ticket.ticketId)"
+                          class="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-medium rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 flex items-center space-x-2 shadow-md">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    <span>Répondre</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-center space-x-3">
+            <button @click="closeAlertModal"
+                    class="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-all duration-200 flex items-center space-x-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span>Fermer</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="selectedTicketDetails"
+      class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center p-4 z-50">
+      <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-md relative">
+        <h2 class="text-xl font-bold mb-4 text-center">Détails du ticket</h2>
+        <table class="table-auto w-full border-collapse border border-gray-300">
+          <tbody>
+            <tr>
+              <td class="font-bold border px-4 py-2">Client</td>
+              <td class="border px-4 py-2">{{ selectedTicketDetails.userId?.name || 'Inconnu' }}</td>
+            </tr>
+            <tr>
+              <td class="font-bold border px-4 py-2">Type de demande</td>
+              <td class="border px-4 py-2">{{ selectedTicketDetails.typeDeDemandeId?.name || 'Inconnu' }}</td>
+            </tr>
+            <tr>
+              <td class="font-bold border px-4 py-2">Produit</td>
+              <td class="border px-4 py-2">{{ selectedTicketDetails.productId?.name || 'Inconnu' }}</td>
+            </tr>
+            <tr>
+              <td class="font-bold border px-4 py-2">Urgence</td>
+              <td class="border px-4 py-2">{{ selectedTicketDetails.urgence }}</td>
+            </tr>
+            <tr>
+              <td class="font-bold border px-4 py-2">Statut</td>
+              <td class="border px-4 py-2">{{ selectedTicketDetails.statut }}</td>
+            </tr>
+            <tr>
+              <td class="font-bold border px-4 py-2">Date de création</td>
+              <td class="border px-4 py-2">{{ new Date(selectedTicketDetails.createdAt).toLocaleString('fr-FR') }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <button @click="closeTicketDetailsDialog"
+          class="bg-gray-500 text-white px-4 py-2 mt-6 rounded-md mx-auto block">Fermer</button>
+      </div>
+    </div>
+
   </div>
-   <!-- Pagination -->
-    <Pagination :total-items="totalItems" :items-per-page="itemsPerPage" @page-changed="goToPage" />
+  <!-- Pagination -->
+  <Pagination :total-items="totalItems" :items-per-page="itemsPerPage" @page-changed="goToPage" />
 
 </template>
 
@@ -219,6 +353,8 @@ export default {
       totalItems: 0,
       totalPages: 1,
       userRole: null,
+      selectedTicketDetails: null,
+      ticketsNeedingResponse: [],
     };
   },
   computed: {
@@ -262,7 +398,7 @@ export default {
     },
 
     redirectToDashboard() {
-      this.$router.push('/dashboard'); 
+      this.$router.push('/dashboard');
     },
 
     fetchTickets() {
@@ -294,7 +430,7 @@ export default {
               const note = notes.find(note => note.ticketId === ticket._id); // Associer la note correspondante
               return {
                 ...ticket,
-                note: note ? note.note : null, 
+                note: note ? note.note : null,
               };
             });
           } else {
@@ -388,7 +524,9 @@ export default {
           this.closeTicketModal();
           this.fetchTickets();
         })
-        .catch(error => console.error('Erreur lors de la création du ticket:', error));
+        .catch(error => {
+          console.error('Erreur lors de la création du ticket:', error);
+        });
     },
 
     updateTicket(ticketData) {
@@ -446,6 +584,7 @@ export default {
     },
     closeAlertModal() {
       this.showAlertModal = false;
+      this.ticketsNeedingResponse = [];
     },
     closeRatingModal() {
       this.showRatingModal = false;
@@ -553,6 +692,26 @@ export default {
       }
 
       return resolution.join(' ');
+    },
+    openTicketDetailsDialog(ticket) {
+      this.selectedTicketDetails = ticket;
+    },
+    closeTicketDetailsDialog() {
+      this.selectedTicketDetails = null;
+    },
+    
+    // Méthode pour accéder aux tickets nécessitant une réponse
+    goToTicketResponse(ticketId) {
+      this.$router.push({ name: 'TicketDetails', params: { ticketId: ticketId } });
+      this.showAlertModal = false;
+      this.ticketsNeedingResponse = [];
+    },
+    
+    // Méthode pour gérer les erreurs de validation des tickets
+    handleTicketValidationError(errorData) {
+      this.alertMessage = errorData.message;
+      this.ticketsNeedingResponse = errorData.ticketsNeedingResponse || [];
+      this.showAlertModal = true;
     },
   },
 };

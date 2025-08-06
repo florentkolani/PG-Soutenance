@@ -4,6 +4,7 @@ const type = require('../models/typeDeDemandeModel');
 const mongoose = require("mongoose");
 const { sendEmail } = require('../services/emailService');
 const User = require('../models/userModel');
+const Notification = require('../models/notificationModel');
 
 exports.sendMessage = async (req, res) => {
     try {
@@ -45,7 +46,7 @@ exports.sendMessage = async (req, res) => {
         const isClient = req.user.role === 'Client';
         const clientEmail = ticket.userId.email; // Email du client depuis le modèle User
         const supportEmails = [
-            process.env.EMAIL_NOVA_LEAD
+            process.env.MAILGUN_FROM
 
         ]; // Emails des agents/admin depuis les variables d'environnement
 
@@ -81,7 +82,7 @@ exports.sendMessage = async (req, res) => {
                 <p>Nous vous prions de vous connecté à la plateforme pour plus d'informations.</p>
     
                 <p>
-                    <a href="http://localhost:5173/login" 
+                    <a href="${process.env.FRONTEND_URL}/login" 
                        style="color: #3498db; text-decoration: none; font-weight: bold;">
                         ➡️ Accéder à la plateforme
                     </a>
@@ -101,6 +102,37 @@ exports.sendMessage = async (req, res) => {
 
         // Envoyer l'e-mail via la fonction sendEmail
         await sendEmail(recipients, subject, htmlContent);
+
+        // Créer une notification pour l'autre partie
+        if (isClient) {
+            // Notifier tous les agents/admins
+            const sendNotificationToUser = req.app.get('sendNotificationToUser');
+            // Récupère tous les agents et admins
+            const agents = await User.find({ role: { $in: ['Admin', 'AgentSupport'] } });
+            for (const agent of agents) {
+                const notification = await Notification.create({
+                    user: agent._id,
+                    type: 'ticket',
+                    ticket: ticket._id,
+                    message: `Nouveau message client sur le ticket #${ticket.NumeroTicket}.`
+                });
+                if (sendNotificationToUser) {
+                    sendNotificationToUser(agent._id.toString(), notification);
+                }
+            }
+        } else {
+            // Un agent répond, notifier le client
+            const notification = await Notification.create({
+                user: ticket.userId._id,
+                type: 'ticket',
+                ticket: ticket._id,
+                message: `Vous avez reçu une réponse sur votre ticket #${ticket.NumeroTicket}.`
+            });
+            const sendNotificationToUser = req.app.get('sendNotificationToUser');
+            if (sendNotificationToUser) {
+                sendNotificationToUser(ticket.userId._id.toString(), notification);
+            }
+        }
 
         // Retourner la réponse avec le message créé
         const populatedMessage = await Message.findById(message._id).populate('userId', 'name');

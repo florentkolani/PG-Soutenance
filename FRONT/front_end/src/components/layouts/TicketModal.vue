@@ -319,10 +319,20 @@ export default {
       } catch (error) {
         console.error("Erreur lors de l'envoi des données :", error.response?.data || error.message);
 
-        if (error.response?.status === 400 && error.response.data.message.includes("trois tickets en cours")) {
-          this.$emit('close'); // Fermer le formulaire d'ajout de ticket
-          this.errorMessage = error.response.data.message;
-          this.showLimitModal = true; // Afficher la boîte de dialogue de limite
+        if (error.response?.status === 400) {
+          const errorData = error.response.data;
+          
+          // Si c'est l'erreur de tickets nécessitant une réponse
+          if (errorData.ticketsNeedingResponse) {
+            this.$emit('close'); // Fermer le formulaire d'ajout de ticket
+            this.$emit('ticket-validation-error', errorData); // Émettre l'erreur vers le parent
+          } else if (errorData.message.includes("trois tickets en cours")) {
+            this.$emit('close'); // Fermer le formulaire d'ajout de ticket
+            this.errorMessage = errorData.message;
+            this.showLimitModal = true; // Afficher la boîte de dialogue de limite
+          } else {
+            alert("Erreur lors de l'envoi des données");
+          }
         } else {
           alert("Erreur lors de l'envoi des données");
         }

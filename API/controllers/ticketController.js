@@ -2,18 +2,9 @@ const Ticket = require('../models/ticketModel');
 const User = require('../models/userModel');
 const type = require('../models/typeDeDemandeModel');
 const rating = require('../models/ratingModel');
-const nodemailer = require("nodemailer");
 const { sendEmail } = require('../services/emailService');
+const Notification = require('../models/notificationModel');
 
-//Configuration de Nodemailer
-require('dotenv').config();
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_NOVA_LEAD,
-        pass: process.env.EMAIL_PASS,
-    },
-});
 
 // Fonction pour envoyer un email à NOVA LEAD
 async function envoyerEmail(ticket) {
@@ -32,7 +23,7 @@ async function envoyerEmail(ticket) {
 
         const mailOptions = {
             from: user.email, // email du client
-            to: process.env.EMAIL_NOVA_LEAD, // Email des admins et agents support
+            to: process.env.MAILGUN_FROM_TEST, // Email des admins et agents support
             subject: `Nouvelle demande d'assistance reçue – Ticket #${ticket.NumeroTicket} (${typeDeDemande.name})`, // Objet de l'email
             html: `
                 <html>
@@ -57,7 +48,7 @@ async function envoyerEmail(ticket) {
 
                         <p>Vous pouvez consulter et traiter le ticket en cliquant sur le lien ci-dessous :</p>
                         <p>
-                            <a href="http://localhost:5173/login" 
+                            <a href="${process.env.FRONTEND_URL}/login" 
                             style="color: #3498db; text-decoration: none; font-weight: bold;">
                                 ➡️ Accéder à la plateforme
                             </a>
@@ -73,7 +64,7 @@ async function envoyerEmail(ticket) {
             `,
         };
 
-        await transporter.sendMail(mailOptions);
+        await sendEmail(mailOptions.to, mailOptions.subject, mailOptions.html);
         console.log("Email envoyé avec succès.");
     } catch (error) {
         console.error("Erreur lors de l'envoi de l'email:", error);
@@ -129,10 +120,59 @@ exports.createTicket = async (req, res) => {
             }
         }
 
-        // Vérifier si l'utilisateur a déjà trois tickets en cours
+        // PREMIÈRE VÉRIFICATION : Limite de 3 tickets en cours
         const inProgressTickets = await Ticket.countDocuments({ userId: req.body.userId, statut: 'en cours' });
         if (inProgressTickets >= 3) {
             return res.status(400).json({ message: "Vous avez déjà trois tickets en cours. Veuillez clôturer certains tickets avant d'en créer de nouveaux." });
+        }
+
+        // DEUXIÈME VÉRIFICATION : Si l'utilisateur a des tickets en cours (moins de 3), vérifier qui a répondu en dernier
+        if (inProgressTickets > 0) {
+            // Récupérer tous les tickets de l'utilisateur avec le statut "en cours"
+            const userTickets = await Ticket.find({ 
+                userId: req.body.userId, 
+                statut: 'en cours'
+            }).populate('messages.senderId', 'name');
+
+            if (userTickets.length > 0) {
+                const ticketsNeedingResponse = [];
+
+                for (const ticket of userTickets) {
+                    // Vérifier s'il y a des messages dans le ticket
+                    if (ticket.messages && ticket.messages.length > 0) {
+                        // Récupérer le dernier message
+                        const lastMessage = ticket.messages[ticket.messages.length - 1];
+                        
+                        // Si le dernier message n'est pas de l'utilisateur, il doit répondre
+                        if (lastMessage.senderId._id.toString() !== req.body.userId) {
+                            ticketsNeedingResponse.push({
+                                ticketId: ticket._id,
+                                numeroTicket: ticket.NumeroTicket,
+                                lastMessageFrom: lastMessage.senderId.name || 'Support'
+                            });
+                        }
+                    } else {
+                        // Si pas de messages, le ticket a été créé mais personne n'a répondu
+                        // Refuser la création même dans ce cas
+                        ticketsNeedingResponse.push({
+                            ticketId: ticket._id,
+                            numeroTicket: ticket.NumeroTicket,
+                            lastMessageFrom: 'Aucune réponse'
+                        });
+                    }
+                }
+
+                // S'il y a des tickets où l'utilisateur n'a pas répondu en dernier ou pas encore répondu
+                if (ticketsNeedingResponse.length > 0) {
+                    const ticketNumbers = ticketsNeedingResponse.map(t => t.numeroTicket).join(', ');
+                    const lastResponders = ticketsNeedingResponse.map(t => t.lastMessageFrom).join(', ');
+                    
+                    return res.status(400).json({ 
+                        message: `Vous devez d'abord répondre aux tickets suivants avant de pouvoir créer un nouveau ticket : ${ticketNumbers}. ${lastResponders.includes('Aucune réponse') ? 'Certains tickets n\'ont pas encore de réponse.' : 'Le support a répondu en dernier sur ces tickets (' + lastResponders + ').'}`,
+                        ticketsNeedingResponse: ticketsNeedingResponse
+                    });
+                }
+            }
         }
 
         // Génération du NumeroTicket
@@ -151,6 +191,14 @@ exports.createTicket = async (req, res) => {
 
         // Envoi de l'email
         await envoyerEmail(ticket);
+
+        // Créer une notification pour le client
+        await Notification.create({
+            user: ticket.userId,
+            type: 'ticket',
+            ticket: ticket._id,
+            message: `Votre ticket #${ticket.NumeroTicket} a été créé avec succès.`
+        });
 
         // Réponse de succès
         res.status(201).json(ticket);
@@ -199,7 +247,7 @@ exports.updateTicketStatus = async (req, res) => {
     
                             <p>Merci de votre patience, nous restons à votre disposition pour toute question.</p>
                             <p>
-                                <a href="http://localhost:5173/login" 
+                                <a href="${process.env.FRONTEND_URL}/login" 
                                    style="color: #3498db; text-decoration: none; font-weight: bold;">
                                     ➡️ Accéder à la plateforme
                                 </a>
@@ -318,7 +366,7 @@ exports.closeTicket = async (req, res) => {
                     <p>À bientôt et merci de faire confiance à <strong>NOVA LEAD</strong> !</p>
 
                     <p>
-                        <a href="http://localhost:5173/login" 
+                        <a href="${process.env.FRONTEND_URL}/login" 
                            style="color: #3498db; text-decoration: none; font-weight: bold;">
                             ➡️ Accéder à la plateforme
                         </a>
@@ -336,6 +384,14 @@ exports.closeTicket = async (req, res) => {
         `;
 
         await sendEmail(user.email, emailSubject, emailHtml);
+
+        // Créer une notification pour le client lors de la clôture du ticket
+        await Notification.create({
+            user: user._id,
+            type: 'ticket',
+            ticket: updatedTicket._id,
+            message: `Votre ticket #${updatedTicket.NumeroTicket} a été clôturé.`
+        });
 
         console.log('Ticket closed successfully and email sent:', updatedTicket);
         res.status(200).json(updatedTicket);
@@ -390,16 +446,36 @@ exports.getTicketById = async (req, res) => {
 // Ajouter un message à un ticket
 exports.addMessageToTicket = async (req, res) => {
     try {
-        const { senderId, content } = req.body; // Assurez-vous que ces champs sont envoyés
-        const ticket = await Ticket.findById(req.params.id);
+        const { ticketId } = req.params;
+        const { senderId, content } = req.body;
+        const ticket = await Ticket.findById(ticketId);
         if (!ticket) {
             return res.status(404).json({ message: 'Ticket non trouvé' });
         }
         ticket.messages.push({ senderId, content });
         await ticket.save();
+
+        // Créer une notification pour l'autre partie
+        let notifyUser = null;
+        if (String(senderId) !== String(ticket.userId)) {
+            notifyUser = ticket.userId;
+        } else if (ticket.messages.length > 1) {
+            // Si l'utilisateur répond à un agent, notifier le dernier agent ayant répondu
+            const lastAgentMsg = ticket.messages.slice(0, -1).reverse().find(m => String(m.senderId) !== String(ticket.userId));
+            if (lastAgentMsg) notifyUser = lastAgentMsg.senderId;
+        }
+        if (notifyUser) {
+            await Notification.create({
+                user: notifyUser,
+                type: 'message',
+                ticket: ticket._id,
+                message: `Nouveau message sur le ticket #${ticket.NumeroTicket}.`
+            });
+        }
+
         res.status(200).json(ticket);
     } catch (error) {
-        res.status(400).json({ message: 'Erreur lors de l\'ajout du message', error: error.message });
+        res.status(500).json({ message: 'Erreur lors de l\'ajout du message', error: error.message });
     }
 };
 
